@@ -1,20 +1,15 @@
-let userConfig = undefined
+let userConfig = undefined;
 try {
-  userConfig = await import('./v0-user-next.config')
+  userConfig = await import("./v0-user-next.config").then((m) => m.default);
 } catch (e) {
   // ignore error
 }
 
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const { repository } = require("./package.json");
-const yourRepoName = repository?.url?.split("/")?.pop()?.replace(".git", "");
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
-  assetPrefix: yourRepoName ? `/${yourRepoName}/` : "",
-  basePath: yourRepoName ? `/${yourRepoName}` : "",
+  assetPrefix: "/financial-dashboard/",
+  basePath: "/financial-dashboard",
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -31,26 +26,26 @@ const nextConfig = {
   },
 };
 
-mergeConfig(nextConfig, userConfig)
+mergeConfig(nextConfig, userConfig);
 
 function mergeConfig(nextConfig, userConfig) {
   if (!userConfig) {
-    return
+    return;
   }
 
   for (const key in userConfig) {
     if (
-      typeof nextConfig[key] === 'object' &&
+      typeof nextConfig[key] === "object" &&
       !Array.isArray(nextConfig[key])
     ) {
       nextConfig[key] = {
         ...nextConfig[key],
         ...userConfig[key],
-      }
+      };
     } else {
-      nextConfig[key] = userConfig[key]
+      nextConfig[key] = userConfig[key];
     }
   }
 }
 
-export default nextConfig
+export default nextConfig;
