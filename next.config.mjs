@@ -5,6 +5,8 @@ try {
   // ignore error
 }
 
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 const { repository } = require("./package.json");
 const yourRepoName = repository?.url?.split("/")?.pop()?.replace(".git", "");
 
