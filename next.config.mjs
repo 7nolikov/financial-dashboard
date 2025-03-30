@@ -5,9 +5,14 @@ try {
   // ignore error
 }
 
+const { repository } = require("./package.json");
+const yourRepoName = repository?.url?.split("/")?.pop()?.replace(".git", "");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
+  assetPrefix: yourRepoName ? `/${yourRepoName}/` : "",
+  basePath: yourRepoName ? `/${yourRepoName}` : "",
   eslint: {
     ignoreDuringBuilds: true,
   },
