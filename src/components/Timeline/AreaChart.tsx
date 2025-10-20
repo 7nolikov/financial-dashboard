@@ -10,6 +10,17 @@ function format(n: number | undefined) {
   return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
 }
 
+function formatCompact(n: number | undefined) {
+  if (n == null) return '-';
+  if (Math.abs(n) >= 1000000) {
+    return `${(n / 1000000).toFixed(1)}M`;
+  } else if (Math.abs(n) >= 1000) {
+    return `${(n / 1000).toFixed(0)}K`;
+  } else {
+    return n.toFixed(0);
+  }
+}
+
 export function AreaChart() {
   const state = useStore();
   const setZoom = useStore((s) => s.setZoom);
@@ -148,13 +159,14 @@ export function AreaChart() {
               <rect x={0} y={0} width={width - 60} height={240} fill="url(#bg)" />
               <defs>
                 <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="#f8fafc" />
-                  <stop offset="100%" stopColor="#eef2f7" />
+                  <stop offset="0%" stopColor="#ffffff" />
+                  <stop offset="100%" stopColor="#f8fafc" />
                 </linearGradient>
               </defs>
               <AxisBottom x={x} width={width - 60} height={240} />
               <AxisLeft y={y} height={240} />
               <SeriesAreas x={x} y={y} data={visible} />
+              <ExtremumMarkers x={x} y={y} data={visible} />
               <Milestones x={x} height={240} zoom={[state.chart.zoom.minMonth, state.chart.zoom.maxMonth]} milestones={state.milestones} />
               {hovered != null ? (
                 <line x1={x(hovered)} x2={x(hovered)} y1={0} y2={240} stroke="#94a3b8" strokeDasharray="4 4" />
@@ -233,11 +245,11 @@ function AxisLeft({ y, height }: { y: any; height: number }) {
   const max = domain[1];
   const range = max - min;
   
-  // Create meaningful tick values
+  // Create meaningful tick values with better formatting
   const ticks = [];
   if (range > 0) {
-    const step = range / 5; // 5 horizontal lines
-    for (let i = 0; i <= 5; i++) {
+    const step = range / 6; // 6 horizontal lines for better readability
+    for (let i = 0; i <= 6; i++) {
       const value = min + (step * i);
       ticks.push(value);
     }
@@ -247,12 +259,72 @@ function AxisLeft({ y, height }: { y: any; height: number }) {
     <g>
       {ticks.map((value: number) => (
         <g key={value} transform={`translate(0, ${y(value)})`}>
-          <line x1={0} x2={-40} stroke="#f1f5f9" />
-          <text x={-45} y={4} textAnchor="end" fontSize={9} fill="#64748b">
-            {format(value)}
+          <line x1={0} x2={-40} stroke="#e2e8f0" strokeWidth={1} />
+          <text x={-45} y={4} textAnchor="end" fontSize={9} fill="#64748b" fontFamily="ui-monospace, monospace">
+            {formatCompact(value)}
           </text>
         </g>
       ))}
+    </g>
+  );
+}
+
+function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
+  if (data.length < 3) return null;
+  
+  // Find peaks and troughs for Net Worth
+  const extremums: Array<{ index: number; value: number; type: 'peak' | 'trough' }> = [];
+  
+  for (let i = 1; i < data.length - 1; i++) {
+    const prev = data[i - 1].netWorth;
+    const curr = data[i].netWorth;
+    const next = data[i + 1].netWorth;
+    
+    // Peak: higher than neighbors
+    if (curr > prev && curr > next) {
+      extremums.push({ index: i, value: curr, type: 'peak' });
+    }
+    // Trough: lower than neighbors
+    else if (curr < prev && curr < next) {
+      extremums.push({ index: i, value: curr, type: 'trough' });
+    }
+  }
+  
+  // Only show the most significant extremums (top 3 peaks and bottom 3 troughs)
+  const peaks = extremums.filter(e => e.type === 'peak').sort((a, b) => b.value - a.value).slice(0, 3);
+  const troughs = extremums.filter(e => e.type === 'trough').sort((a, b) => a.value - b.value).slice(0, 3);
+  
+  return (
+    <g>
+      {[...peaks, ...troughs].map((ext, i) => {
+        const point = data[ext.index];
+        const xPos = x(point.m);
+        const yPos = y(ext.value);
+        
+        return (
+          <g key={`extremum-${i}`}>
+            <circle
+              cx={xPos}
+              cy={yPos}
+              r={4}
+              fill={ext.type === 'peak' ? '#10b981' : '#ef4444'}
+              stroke="white"
+              strokeWidth={2}
+            />
+            <text
+              x={xPos}
+              y={yPos - 8}
+              textAnchor="middle"
+              fontSize={8}
+              fill={ext.type === 'peak' ? '#10b981' : '#ef4444'}
+              fontWeight="bold"
+              fontFamily="ui-monospace, monospace"
+            >
+              {formatCompact(ext.value)}
+            </text>
+          </g>
+        );
+      })}
     </g>
   );
 }
