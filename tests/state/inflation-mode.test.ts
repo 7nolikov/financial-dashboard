@@ -72,8 +72,10 @@ describe('Financial Calculations - Inflation Mode Tests', () => {
       const firstPoint = activePoints[0];
       const lastPoint = activePoints[activePoints.length - 1];
       
-      expect(lastPoint.income).toBeGreaterThan(firstPoint.income);
-      expect(lastPoint.expense).toBeGreaterThan(firstPoint.expense);
+      expect(firstPoint).toBeDefined();
+      expect(lastPoint).toBeDefined();
+      expect(lastPoint!.income).toBeGreaterThan(firstPoint!.income);
+      expect(lastPoint!.expense).toBeGreaterThan(firstPoint!.expense);
     });
 
     it('should show constant purchasing power in real mode', () => {
@@ -89,9 +91,12 @@ describe('Financial Calculations - Inflation Mode Tests', () => {
       const firstPoint = activePoints[0];
       const lastPoint = activePoints[activePoints.length - 1];
       
+      expect(firstPoint).toBeDefined();
+      expect(lastPoint).toBeDefined();
+      
       // Allow for small variations due to rounding
-      expect(Math.abs(lastPoint.income - firstPoint.income)).toBeLessThan(100);
-      expect(Math.abs(lastPoint.expense - firstPoint.expense)).toBeLessThan(100);
+      expect(Math.abs(lastPoint!.income - firstPoint!.income)).toBeLessThan(100);
+      expect(Math.abs(lastPoint!.expense - firstPoint!.expense)).toBeLessThan(100);
     });
 
     it('should maintain relationship between nominal and real values', () => {
@@ -128,8 +133,11 @@ describe('Financial Calculations - Inflation Mode Tests', () => {
       const firstPoint = activePoints[0];
       const lastPoint = activePoints[activePoints.length - 1];
       
+      expect(firstPoint).toBeDefined();
+      expect(lastPoint).toBeDefined();
+      
       // Income should increase due to inflation
-      const incomeGrowth = (lastPoint.income - firstPoint.income) / firstPoint.income;
+      const incomeGrowth = (lastPoint!.income - firstPoint!.income) / firstPoint!.income;
       expect(incomeGrowth).toBeGreaterThan(0);
     });
 
@@ -141,8 +149,11 @@ describe('Financial Calculations - Inflation Mode Tests', () => {
       const firstPoint = activePoints[0];
       const lastPoint = activePoints[activePoints.length - 1];
       
+      expect(firstPoint).toBeDefined();
+      expect(lastPoint).toBeDefined();
+      
       // Expenses should increase due to inflation
-      const expenseGrowth = (lastPoint.expense - firstPoint.expense) / firstPoint.expense;
+      const expenseGrowth = (lastPoint!.expense - firstPoint!.expense) / firstPoint!.expense;
       expect(expenseGrowth).toBeGreaterThan(0);
     });
 
@@ -154,9 +165,12 @@ describe('Financial Calculations - Inflation Mode Tests', () => {
       const firstPoint = activePoints[0];
       const lastPoint = activePoints[activePoints.length - 1];
       
+      expect(firstPoint).toBeDefined();
+      expect(lastPoint).toBeDefined();
+      
       // Safety targets should increase due to inflation
-      if (firstPoint.safety > 0 && lastPoint.safety > 0) {
-        const safetyGrowth = (lastPoint.safety - firstPoint.safety) / firstPoint.safety;
+      if (firstPoint!.safety > 0 && lastPoint!.safety > 0) {
+        const safetyGrowth = (lastPoint!.safety - firstPoint!.safety) / firstPoint!.safety;
         expect(safetyGrowth).toBeGreaterThan(0);
       }
     });
@@ -200,9 +214,12 @@ describe('Financial Calculations - Inflation Mode Tests', () => {
         const firstPoint = activePoints[0];
         const lastPoint = activePoints[activePoints.length - 1];
         
+        expect(firstPoint).toBeDefined();
+        expect(lastPoint).toBeDefined();
+        
         // With zero inflation, values should remain constant
-        expect(Math.abs(lastPoint.income - firstPoint.income)).toBeLessThan(1);
-        expect(Math.abs(lastPoint.expense - firstPoint.expense)).toBeLessThan(1);
+        expect(Math.abs(lastPoint!.income - firstPoint!.income)).toBeLessThan(1);
+        expect(Math.abs(lastPoint!.expense - firstPoint!.expense)).toBeLessThan(1);
       }
     });
   });
@@ -235,7 +252,8 @@ describe('Financial Calculations - Inflation Mode Tests', () => {
       
       // Future values should be inflated
       const firstFuturePoint = futurePoints[0];
-      expect(firstFuturePoint.income).toBeGreaterThan(0);
+      expect(firstFuturePoint).toBeDefined();
+      expect(firstFuturePoint!.income).toBeGreaterThan(0);
     });
   });
 });
