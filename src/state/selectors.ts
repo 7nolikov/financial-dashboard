@@ -1,7 +1,17 @@
 import { InflationMode, deflateToReal, inflationFactorSinceBase, indexAmountNominal } from '../lib/calc/inflation';
 import type { Store, Recurrence } from './store';
 
-export type SeriesPoint = { m: number; income: number; expense: number; loans: number; invest: number; netWorth: number; safety: number };
+export type SeriesPoint = { 
+  m: number; 
+  income: number; 
+  expense: number; 
+  loans: number; 
+  invest: number; 
+  netWorth: number; 
+  safety: number;
+  cashFlow: number;
+  savingsDepleted: boolean;
+};
 
 export function computeSeries(state: Store): SeriesPoint[] {
   const months = 100 * 12;
@@ -9,6 +19,8 @@ export function computeSeries(state: Store): SeriesPoint[] {
   let investmentsTotal = 0;
   let loansTotal = 0;
   let netWorth = 0;
+  let savingsDepleted = false;
+  
   for (let m = 0; m < months; m++) {
     const calYear = new Date(state.dobISO).getFullYear() + Math.floor(m / 12);
     const inflFactor = inflationFactorSinceBase({
@@ -19,42 +31,103 @@ export function computeSeries(state: Store): SeriesPoint[] {
       yearlyRates: state.inflation.yearlyRates,
     });
 
+    // Calculate base amounts (before inflation)
     const employmentBase = sumActiveBy(state.incomes, m, (i) => i.category === 'employment');
     const otherIncomeBase = sumActiveBy(state.incomes, m, (i) => i.category !== 'employment');
-    let incomeBase = employmentBase + otherIncomeBase;
+    const incomeBase = employmentBase + otherIncomeBase;
     const expenseBase = sumActive(state.expenses, m);
     const contribBase = sumActiveContribution(state.investments, m);
 
+    // Apply inflation
     const income = indexAmountNominal(incomeBase, inflFactor);
     const expense = indexAmountNominal(expenseBase, inflFactor);
     const contrib = indexAmountNominal(contribBase, inflFactor);
 
-    // loan balance calculation
+    // Calculate loan balance
     loansTotal = calculateLoanBalance(state, m);
 
-    // investment growth (simplified single bucket)
+    // Investment growth calculation
     const apr = rateForAge(state, Math.floor(m / 12));
     const r_m = apr / 12;
     investmentsTotal = investmentsTotal * (1 + r_m) + contrib;
 
-    // retirement withdraw (simplified)
-    if (Math.floor(m / 12) >= (state.retirement?.age ?? 200)) {
-      // stop employment income
-      const employment = indexAmountNominal(employmentBase, inflFactor);
-      const incomeWithoutEmployment = income - employment;
-      const needed = Math.max(0, expense - incomeWithoutEmployment);
-      const withdraw = Math.min(needed, investmentsTotal);
-      investmentsTotal -= withdraw;
-      netWorth -= Math.max(0, needed - withdraw);
+    // Calculate available funds for expenses
+    let availableFunds = income;
+    let totalExpenses = expense;
+    let investmentWithdrawal = 0;
+    let shortfall = 0;
+
+    // Check if we're in retirement and need to withdraw from investments
+    const isRetired = Math.floor(m / 12) >= (state.retirement?.age ?? 200);
+    
+    if (isRetired) {
+      // Stop employment income during retirement
+      const employmentIncome = indexAmountNominal(employmentBase, inflFactor);
+      availableFunds = income - employmentIncome;
+      
+      // Calculate required withdrawal based on retirement withdrawal rate
+      const withdrawalRate = state.retirement?.withdrawalRate ?? 0.04;
+      const annualWithdrawal = investmentsTotal * withdrawalRate;
+      const monthlyWithdrawal = annualWithdrawal / 12;
+      
+      // Calculate shortfall (expenses not covered by non-employment income)
+      const uncoveredExpenses = Math.max(0, totalExpenses - availableFunds);
+      
+      // Withdraw from investments to cover shortfall
+      investmentWithdrawal = Math.min(uncoveredExpenses, investmentsTotal);
+      
+      // Additional withdrawal for retirement income (if investments are sufficient)
+      const remainingCapacity = investmentsTotal - investmentWithdrawal;
+      const retirementIncome = Math.min(monthlyWithdrawal, remainingCapacity);
+      investmentWithdrawal += retirementIncome;
+      
+      // Update available funds
+      availableFunds += investmentWithdrawal;
+      
+      // Calculate final shortfall
+      shortfall = Math.max(0, totalExpenses - availableFunds);
+    } else {
+      // During working years, check if expenses exceed income
+      shortfall = Math.max(0, totalExpenses - availableFunds);
+      
+      // If there's a shortfall, try to cover it with investments
+      if (shortfall > 0 && investmentsTotal > 0) {
+        investmentWithdrawal = Math.min(shortfall, investmentsTotal);
+        availableFunds += investmentWithdrawal;
+        shortfall = Math.max(0, totalExpenses - availableFunds);
+      }
     }
 
-    const netCashflow = income - expense - contrib;
-    netWorth += netCashflow + 0; // investments delta already captured in investmentsTotal value
+    // Update investment total after withdrawals
+    investmentsTotal = Math.max(0, investmentsTotal - investmentWithdrawal);
 
+    // Calculate net cash flow
+    const netCashflow = income - expense - contrib;
+    
+    // Update net worth
+    netWorth += netCashflow;
+    
+    // Check if savings are depleted (negative net worth and no investments)
+    const previousSavingsDepleted = savingsDepleted;
+    savingsDepleted = netWorth < 0 && investmentsTotal <= 0;
+    
+    // If savings just got depleted, this is an extremum point
+    const isExtremumPoint = !previousSavingsDepleted && savingsDepleted;
+
+    // Calculate safety target
     const safetyTargetBase = safetyForMonth(state, m);
     const safetyTarget = indexAmountNominal(safetyTargetBase, inflFactor);
 
-    let incomePlot = income, expensePlot = expense, loansPlot = loansTotal, investPlot = investmentsTotal, netPlot = netWorth, safetyPlot = safetyTarget;
+    // Prepare values for plotting
+    let incomePlot = income;
+    let expensePlot = expense;
+    let loansPlot = loansTotal;
+    let investPlot = investmentsTotal;
+    let netPlot = netWorth;
+    let safetyPlot = safetyTarget;
+    let cashFlowPlot = netCashflow;
+
+    // Apply real vs nominal conversion
     if (state.inflation.display.seriesMode === 'real') {
       incomePlot = deflateToReal(incomePlot, inflFactor);
       expensePlot = deflateToReal(expensePlot, inflFactor);
@@ -62,10 +135,22 @@ export function computeSeries(state: Store): SeriesPoint[] {
       investPlot = deflateToReal(investPlot, inflFactor);
       netPlot = deflateToReal(netPlot, inflFactor);
       safetyPlot = deflateToReal(safetyPlot, inflFactor);
+      cashFlowPlot = deflateToReal(cashFlowPlot, inflFactor);
     }
 
-    points.push({ m, income: incomePlot, expense: expensePlot, loans: loansPlot, invest: investPlot, netWorth: netPlot, safety: safetyPlot });
+    points.push({ 
+      m, 
+      income: incomePlot, 
+      expense: expensePlot, 
+      loans: loansPlot, 
+      invest: investPlot, 
+      netWorth: netPlot, 
+      safety: safetyPlot,
+      cashFlow: cashFlowPlot,
+      savingsDepleted: isExtremumPoint
+    });
   }
+  
   return points;
 }
 

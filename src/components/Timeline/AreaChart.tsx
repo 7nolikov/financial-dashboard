@@ -224,6 +224,7 @@ export function AreaChart() {
               invest={hoveredPoint?.invest}
               netWorth={hoveredPoint?.netWorth}
               safety={hoveredPoint?.safety}
+              cashFlow={hoveredPoint?.cashFlow}
               milestone={state.milestones.find((m) => m.at.monthIndex === hovered)?.label}
             />
           ) : null}
@@ -318,15 +319,19 @@ function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
   if (data.length < 3) return null;
   
   // Find peaks and troughs for Net Worth
-  const extremums: Array<{ index: number; value: number; type: 'peak' | 'trough' }> = [];
+  const extremums: Array<{ index: number; value: number; type: 'peak' | 'trough' | 'savings-depleted' }> = [];
   
   for (let i = 1; i < data.length - 1; i++) {
     const prev = data[i - 1].netWorth;
     const curr = data[i].netWorth;
     const next = data[i + 1].netWorth;
     
+    // Check for savings depletion extremum first
+    if (data[i].savingsDepleted) {
+      extremums.push({ index: i, value: curr, type: 'savings-depleted' });
+    }
     // Peak: higher than neighbors
-    if (curr > prev && curr > next) {
+    else if (curr > prev && curr > next) {
       extremums.push({ index: i, value: curr, type: 'peak' });
     }
     // Trough: lower than neighbors
@@ -335,24 +340,35 @@ function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
     }
   }
   
-  // Only show the most significant extremums (top 3 peaks and bottom 3 troughs)
+  // Only show the most significant extremums (top 3 peaks, bottom 3 troughs, and all savings depletion points)
   const peaks = extremums.filter(e => e.type === 'peak').sort((a, b) => b.value - a.value).slice(0, 3);
   const troughs = extremums.filter(e => e.type === 'trough').sort((a, b) => a.value - b.value).slice(0, 3);
+  const savingsDepleted = extremums.filter(e => e.type === 'savings-depleted');
   
   return (
     <g>
-      {[...peaks, ...troughs].map((ext, i) => {
+      {[...peaks, ...troughs, ...savingsDepleted].map((ext, i) => {
         const point = data[ext.index];
         const xPos = x(point.m);
         const yPos = y(ext.value);
+        
+        let fillColor = '#ef4444'; // Default red
+        let label = formatCompact(ext.value);
+        
+        if (ext.type === 'peak') {
+          fillColor = '#10b981'; // Green
+        } else if (ext.type === 'savings-depleted') {
+          fillColor = '#dc2626'; // Dark red
+          label = '💸 Depleted';
+        }
         
         return (
           <g key={`extremum-${i}`}>
             <circle
               cx={xPos}
               cy={yPos}
-              r={4}
-              fill={ext.type === 'peak' ? '#10b981' : '#ef4444'}
+              r={ext.type === 'savings-depleted' ? 6 : 4}
+              fill={fillColor}
               stroke="white"
               strokeWidth={2}
             />
@@ -360,15 +376,15 @@ function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
               x={xPos}
               y={ext.type === 'peak' ? yPos - 12 : yPos + 16}
               textAnchor="middle"
-              fontSize={8}
-              fill={ext.type === 'peak' ? '#10b981' : '#ef4444'}
+              fontSize={ext.type === 'savings-depleted' ? 9 : 8}
+              fill={fillColor}
               fontWeight="bold"
               fontFamily="ui-monospace, monospace"
               stroke="white"
               strokeWidth={2}
               paintOrder="stroke fill"
             >
-              {formatCompact(ext.value)}
+              {label}
             </text>
           </g>
         );
@@ -543,18 +559,19 @@ function Milestones({ x, height, zoom, milestones }: any) {
   );
 }
 
-function HoverTooltip({ x, y, age, income, expense, loans, invest, netWorth, safety, milestone }: any) {
+function HoverTooltip({ x, y, age, income, expense, loans, invest, netWorth, safety, cashFlow, milestone }: any) {
   return (
-    <div style={{ position: 'absolute', left: Math.max(8, x + 8), top: y, pointerEvents: 'none' }} className="px-2 py-2 rounded border bg-white text-[11px] shadow min-w-[180px]">
-      <div className="font-medium">{age}</div>
-      {milestone ? <div className="text-[10px] text-slate-500">Milestone: {milestone}</div> : null}
-      <div className="mt-1 grid grid-cols-2 gap-x-2">
-        <span className="text-green-600">Income</span><span className="text-right">{format(income)}</span>
-        <span className="text-red-600">Expenses</span><span className="text-right">{format(expense)}</span>
-        <span className="text-yellow-600">Loans</span><span className="text-right">{format(loans)}</span>
-        <span className="text-blue-600">Investments</span><span className="text-right">{format(invest)}</span>
-        <span className="text-violet-600">Net Worth</span><span className="text-right">{format(netWorth)}</span>
-        <span className="text-orange-600">Safety</span><span className="text-right">{format(safety)}</span>
+    <div style={{ position: 'absolute', left: Math.max(8, x + 8), top: y, pointerEvents: 'none' }} className="px-3 py-2 rounded-lg border bg-white text-[11px] shadow-lg min-w-[200px]">
+      <div className="font-medium text-slate-800">{age}</div>
+      {milestone ? <div className="text-[10px] text-slate-500 mb-1">📍 {milestone}</div> : null}
+      <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-1">
+        <span className="text-green-600 font-medium">Income</span><span className="text-right">{format(income)}</span>
+        <span className="text-red-600 font-medium">Expenses</span><span className="text-right">{format(expense)}</span>
+        <span className="text-blue-600 font-medium">Cash Flow</span><span className={`text-right ${(cashFlow ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>{format(cashFlow)}</span>
+        <span className="text-yellow-600 font-medium">Loans</span><span className="text-right">{format(loans)}</span>
+        <span className="text-blue-600 font-medium">Investments</span><span className="text-right">{format(invest)}</span>
+        <span className="text-violet-600 font-medium">Net Worth</span><span className={`text-right ${(netWorth ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>{format(netWorth)}</span>
+        <span className="text-orange-600 font-medium">Safety</span><span className="text-right">{format(safety)}</span>
       </div>
     </div>
   );
