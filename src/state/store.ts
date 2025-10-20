@@ -54,7 +54,7 @@ export type Store = CoreState & {
   removeIncome: (id: string) => void;
   removeExpense: (id: string) => void;
   removeInvestment: (id: string) => void;
-  removeMilestone: (id: string) => void;
+  removeSafetySavings: (id: string) => void;
   setZoom: (minMonth: number, maxMonth: number) => void;
   setInflation: (infl: Partial<InflationConfig>) => void;
   setRetirement: (r: Retirement) => void;
@@ -68,35 +68,57 @@ const STORAGE_KEY = 'flt-state';
 
 const dummyState = (): CoreState => ({
   version: CURRENT_VERSION,
-  dobISO: new Date().toISOString().slice(0, 10),
+  dobISO: '1990-01-01',
   incomes: [
     {
       id: 'inc-job',
       label: 'Employment Income',
-      amount: 4000,
+      amount: 4500,
       recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
       category: 'employment',
     },
+    {
+      id: 'inc-side',
+      label: 'Side Business',
+      amount: 800,
+      recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 50, monthIndex: 50 * 12 }, everyMonths: 1 },
+      category: 'business',
+    },
   ],
   expenses: [
-    { id: 'exp-rent', label: 'Housing', amount: 1500, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+    { id: 'exp-rent', label: 'Housing', amount: 1800, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+    { id: 'exp-food', label: 'Food & Utilities', amount: 600, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+    { id: 'exp-transport', label: 'Transportation', amount: 400, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+    { id: 'exp-healthcare', label: 'Healthcare', amount: 300, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
   ],
   investments: [
     {
       id: 'inv-index',
       label: 'Index Fund',
-      principal: 5000,
-      recurringAmount: 500,
+      principal: 2000,
+      recurringAmount: 800,
       recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
+      model: { type: 'fixed', fixedRate: 0.07 },
+    },
+    {
+      id: 'inv-401k',
+      label: '401k Match',
+      principal: 0,
+      recurringAmount: 400,
+      recurrence: { kind: 'recurring', start: { ageYears: 25, monthIndex: 25 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
       model: { type: 'fixed', fixedRate: 0.065 },
     },
   ],
   safetySavings: [
-    { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 6, monthlyExpenses: 3000 },
+    { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 6, monthlyExpenses: 3100 },
+    { id: 'ss-2', label: 'Extended Safety', start: { ageYears: 40, monthIndex: 40 * 12 }, monthsCoverage: 12, monthlyExpenses: 3500 },
   ],
   retirement: { age: 65, withdrawalRate: 0.04 },
   milestones: [
     { id: 'ms-grad', at: { ageYears: 22, monthIndex: 22 * 12 }, label: 'Graduation' },
+    { id: 'ms-house', at: { ageYears: 28, monthIndex: 28 * 12 }, label: 'First Home' },
+    { id: 'ms-kids', at: { ageYears: 32, monthIndex: 32 * 12 }, label: 'Kids' },
+    { id: 'ms-retire', at: { ageYears: 65, monthIndex: 65 * 12 }, label: 'Retirement' },
   ],
   inflation: {
     mode: 'single',
@@ -127,7 +149,7 @@ export const useStore = create<Store>()(
       removeIncome: (id) => set({ incomes: get().incomes.filter(i => i.id !== id) }),
       removeExpense: (id) => set({ expenses: get().expenses.filter(e => e.id !== id) }),
       removeInvestment: (id) => set({ investments: get().investments.filter(i => i.id !== id) }),
-      removeMilestone: (id) => set({ milestones: get().milestones.filter(m => m.id !== id) }),
+      removeSafetySavings: (id) => set({ safetySavings: get().safetySavings.filter(s => s.id !== id) }),
       setZoom: (minMonth, maxMonth) => set({ chart: { zoom: { minMonth, maxMonth } } }),
       setInflation: (infl) => set({ inflation: { ...get().inflation, ...infl } }),
       setRetirement: (r) => set({ retirement: r }),

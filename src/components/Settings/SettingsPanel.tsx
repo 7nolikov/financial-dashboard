@@ -5,6 +5,7 @@ function uid(prefix: string) { return `${prefix}-${Math.random().toString(36).sl
 
 export function SettingsPanel() {
   const rules = useStore((s) => s.safetySavings);
+  const removeSafetySavings = useStore((s) => s.removeSafetySavings);
   const setInflation = useStore((s) => s.setInflation);
   const state = useStore();
   const [label, setLabel] = React.useState('Safety Period');
@@ -28,9 +29,14 @@ export function SettingsPanel() {
             <input type="number" className="border rounded px-2 py-1 w-24" placeholder="Start age" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} />
             <button className="px-3 py-1 border rounded bg-slate-900 text-white" onClick={addRule}>Add</button>
           </div>
-          <ul className="text-sm list-disc pl-5">
-            {rules.map((r) => (<li key={r.id}>{r.label}: {r.monthsCoverage} months of ${r.monthlyExpenses}</li>))}
-          </ul>
+          <div className="space-y-2 max-h-32 overflow-y-auto">
+            {rules.map((r) => (
+              <div key={r.id} className="flex justify-between items-center p-2 border rounded bg-gray-50">
+                <span className="text-sm">{r.label}: {r.monthsCoverage} months of ${r.monthlyExpenses.toLocaleString()}</span>
+                <button onClick={() => removeSafetySavings(r.id)} className="text-red-500 hover:text-red-700 text-xs">Delete</button>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="space-y-2">
           <div className="text-xs text-slate-600">Interest rates (global)</div>

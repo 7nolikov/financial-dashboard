@@ -84,11 +84,41 @@ export function AreaChart() {
       </div>
       <div className="px-4 py-3 text-[13px]">
         <div className="grid grid-cols-5 gap-4">
-          <Kpi label="Income (visible)" value={format(sum(visible.map((p) => p.income)))} color="text-green-600" title={`Sum of income in visible window (${state.inflation.display.seriesMode})`} />
-          <Kpi label="Expenses (visible)" value={format(sum(visible.map((p) => p.expense)))} color="text-red-600" title={`Sum of expenses in visible window (${state.inflation.display.seriesMode})`} />
-          <Kpi label="Investments (last)" value={format(last?.invest)} color="text-blue-600" title="Total investment balance at the latest visible month" />
-          <Kpi label="Net Worth (last)" value={format(last?.netWorth)} color="text-violet-600" title="Net worth at the latest visible month" />
-          <Kpi label="Safety (visible)" value={format(sum(visible.map((p) => p.safety)))} color="text-orange-600" title="Sum of safety savings targets over visible window" />
+          <Kpi 
+            label="Income (visible)" 
+            value={format(sum(visible.map((p) => p.income)))} 
+            color="text-green-600" 
+            title={`Sum of income in visible window (${state.inflation.display.seriesMode})`}
+            status={sum(visible.map((p) => p.income)) > 0 ? "Good cash flow" : "No income"}
+          />
+          <Kpi 
+            label="Expenses (visible)" 
+            value={format(sum(visible.map((p) => p.expense)))} 
+            color="text-red-600" 
+            title={`Sum of expenses in visible window (${state.inflation.display.seriesMode})`}
+            status={sum(visible.map((p) => p.expense)) > sum(visible.map((p) => p.income)) ? "⚠️ Overspending" : "Controlled"}
+          />
+          <Kpi 
+            label="Investments (last)" 
+            value={format(last?.invest)} 
+            color="text-blue-600" 
+            title="Total investment balance at the latest visible month"
+            status={last?.invest && last.invest > 100000 ? "Strong growth" : last?.invest && last.invest > 50000 ? "Building wealth" : "Early stage"}
+          />
+          <Kpi 
+            label="Net Worth (last)" 
+            value={format(last?.netWorth)} 
+            color="text-violet-600" 
+            title="Net worth at the latest visible month"
+            status={last?.netWorth && last.netWorth < 0 ? "🚨 Negative" : last?.netWorth && last.netWorth > 500000 ? "Wealthy" : last?.netWorth && last.netWorth > 100000 ? "Comfortable" : "Building"}
+          />
+          <Kpi 
+            label="Safety (visible)" 
+            value={format(sum(visible.map((p) => p.safety)))} 
+            color="text-orange-600" 
+            title="Sum of safety savings targets over visible window"
+            status={sum(visible.map((p) => p.safety)) > 0 ? "Protected" : "No safety net"}
+          />
         </div>
         <div className="mt-4 rounded border bg-white relative" ref={containerRef}>
           <svg
@@ -147,11 +177,12 @@ export function AreaChart() {
   );
 }
 
-function Kpi(props: { label: string; value: string; color?: string; title?: string }) {
+function Kpi(props: { label: string; value: string; color?: string; title?: string; status?: string }) {
   return (
     <div className="rounded-md border p-3" title={props.title}>
       <div className="text-xs text-slate-500">{props.label}</div>
       <div className={`text-lg font-semibold ${props.color ?? ''}`}>{props.value}</div>
+      {props.status && <div className="text-xs text-slate-400 mt-1">{props.status}</div>}
     </div>
   );
 }
@@ -183,6 +214,24 @@ function SeriesAreas({ x, y, data }: { x: any; y: any; data: any[] }) {
       <Area data={data} x={toX} y={y} get={(p) => p.invest} color="#3b82f633" stroke="#2563eb" />
       <Line data={data} x={toX} y={y} get={(p) => p.netWorth} stroke="#7c3aed" />
       <Line data={data} x={toX} y={y} get={(p) => p.safety} stroke="#f97316" dash="4 4" />
+      
+      {/* Danger zones highlighting */}
+      {data.map((p: any, i: number) => {
+        if (p.netWorth < 0) {
+          return (
+            <rect
+              key={`danger-${i}`}
+              x={x(p.m) - 2}
+              y={0}
+              width={4}
+              height={260}
+              fill="rgba(239, 68, 68, 0.1)"
+              className="pointer-events-none"
+            />
+          );
+        }
+        return null;
+      })}
     </g>
   );
 }

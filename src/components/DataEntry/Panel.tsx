@@ -55,7 +55,7 @@ function IncomeTab() {
           }}
         >Add</button>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2 max-h-48 overflow-y-auto">
         {incomes.map((i) => (
           <div key={i.id} className="flex justify-between items-center p-2 border rounded bg-gray-50">
             <span className="text-sm">{i.label} – ${i.amount.toLocaleString()}/m</span>
@@ -93,7 +93,7 @@ function ExpenseTab() {
           }}
         >Add</button>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2 max-h-48 overflow-y-auto">
         {expenses.map((i) => (
           <div key={i.id} className="flex justify-between items-center p-2 border rounded bg-gray-50">
             <span className="text-sm">{i.label} – ${i.amount.toLocaleString()}/m</span>
@@ -134,7 +134,7 @@ function InvestmentTab() {
           }}
         >Add</button>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2 max-h-48 overflow-y-auto">
         {investments.map((i) => (
           <div key={i.id} className="flex justify-between items-center p-2 border rounded bg-gray-50">
             <span className="text-sm">{i.label} – ${(i.recurringAmount ?? 0).toLocaleString()}/m @ {((i.model.fixedRate ?? 0)*100).toFixed(1)}%</span>

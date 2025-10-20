@@ -24,8 +24,8 @@ export function TopBar() {
             className="border px-2 py-1 rounded text-sm"
             title="Nominal: includes inflation. Real: adjusted to base year."
           >
-            <option value="nominal">Nominal</option>
-            <option value="real">Real</option>
+            <option value="nominal">Nominal (with inflation)</option>
+            <option value="real">Real (base year)</option>
           </select>
           <div className="flex items-center gap-1 text-sm">
             <span title="Average yearly inflation. Used if not entering a table.">Inflation %</span>

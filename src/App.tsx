@@ -16,8 +16,14 @@ export default function App() {
         <div id="timeline-capture">
           <AreaChart />
         </div>
-        <DataEntryPanel />
-        <SettingsPanel />
+        <div className="grid lg:grid-cols-2 gap-6">
+          <div className="max-h-96 overflow-y-auto">
+            <DataEntryPanel />
+          </div>
+          <div className="max-h-96 overflow-y-auto">
+            <SettingsPanel />
+          </div>
+        </div>
       </main>
       <ShareModal />
     </div>
