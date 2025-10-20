@@ -1,12 +1,13 @@
 import { InflationMode, deflateToReal, inflationFactorSinceBase, indexAmountNominal } from '../lib/calc/inflation';
 import type { Store } from './store';
 
-export type SeriesPoint = { m: number; income: number; expense: number; invest: number; netWorth: number; safety: number };
+export type SeriesPoint = { m: number; income: number; expense: number; loans: number; invest: number; netWorth: number; safety: number };
 
 export function computeSeries(state: Store): SeriesPoint[] {
   const months = 100 * 12;
   const points: SeriesPoint[] = [];
   let investmentsTotal = 0;
+  let loansTotal = 0;
   let netWorth = 0;
   for (let m = 0; m < months; m++) {
     const calYear = new Date(state.dobISO).getFullYear() + Math.floor(m / 12);
@@ -27,6 +28,9 @@ export function computeSeries(state: Store): SeriesPoint[] {
     const income = state.inflation.applyTo.incomes ? indexAmountNominal(incomeBase, inflFactor) : incomeBase;
     const expense = state.inflation.applyTo.expenses ? indexAmountNominal(expenseBase, inflFactor) : expenseBase;
     const contrib = state.inflation.applyTo.contributions ? indexAmountNominal(contribBase, inflFactor) : contribBase;
+
+    // loan balance calculation
+    loansTotal = calculateLoanBalance(state, m);
 
     // investment growth (simplified single bucket)
     const apr = rateForAge(state, Math.floor(m / 12));
@@ -50,16 +54,17 @@ export function computeSeries(state: Store): SeriesPoint[] {
     const safetyTargetBase = safetyForMonth(state, m);
     const safetyTarget = state.inflation.applyTo.safetySavings ? indexAmountNominal(safetyTargetBase, inflFactor) : safetyTargetBase;
 
-    let incomePlot = income, expensePlot = expense, investPlot = investmentsTotal, netPlot = netWorth, safetyPlot = safetyTarget;
+    let incomePlot = income, expensePlot = expense, loansPlot = loansTotal, investPlot = investmentsTotal, netPlot = netWorth, safetyPlot = safetyTarget;
     if (state.inflation.display.seriesMode === 'real') {
       incomePlot = deflateToReal(incomePlot, inflFactor);
       expensePlot = deflateToReal(expensePlot, inflFactor);
+      loansPlot = deflateToReal(loansPlot, inflFactor);
       investPlot = deflateToReal(investPlot, inflFactor);
       netPlot = deflateToReal(netPlot, inflFactor);
       safetyPlot = deflateToReal(safetyPlot, inflFactor);
     }
 
-    points.push({ m, income: incomePlot, expense: expensePlot, invest: investPlot, netWorth: netPlot, safety: safetyPlot });
+    points.push({ m, income: incomePlot, expense: expensePlot, loans: loansPlot, invest: investPlot, netWorth: netPlot, safety: safetyPlot });
   }
   return points;
 }
@@ -104,14 +109,67 @@ function rateForAge(state: Store, ageYears: number): number {
   return fixed?.model.fixedRate ?? 0;
 }
 
+function calculateLoanBalance(state: Store, m: number): number {
+  let totalBalance = 0;
+  
+  for (const loan of state.loans) {
+    // Check if loan is active at this month
+    const { start, end } = loan.recurrence;
+    if (m < start.monthIndex || (end && m > end.monthIndex)) {
+      continue; // Loan not active
+    }
+    
+    // Calculate remaining balance using amortization
+    const monthsElapsed = m - start.monthIndex;
+    const totalMonths = end ? end.monthIndex - start.monthIndex : 360; // Default 30 years if no end
+    
+    if (monthsElapsed >= totalMonths) {
+      continue; // Loan paid off
+    }
+    
+    // Simple amortization calculation
+    const monthlyRate = loan.interestRate / 12;
+    const remainingMonths = totalMonths - monthsElapsed;
+    
+    if (monthlyRate > 0) {
+      // Standard amortization formula
+      const balance = loan.principal * 
+        (Math.pow(1 + monthlyRate, remainingMonths) - 1) / 
+        (monthlyRate * Math.pow(1 + monthlyRate, remainingMonths));
+      totalBalance += Math.max(0, balance);
+    } else {
+      // No interest case
+      const balance = loan.principal - (loan.monthlyPayment * monthsElapsed);
+      totalBalance += Math.max(0, balance);
+    }
+  }
+  
+  return totalBalance;
+}
+
 function safetyForMonth(state: Store, m: number): number {
-  let v = 0;
+  let maxSafetyTarget = 0;
+  
   for (const r of state.safetySavings) {
     const s = r.start.monthIndex;
     const e = r.end?.monthIndex ?? 100 * 12;
-    if (m >= s && m <= e) v = r.monthsCoverage * r.monthlyExpenses;
+    
+    if (m >= s && m <= e) {
+      // Calculate current monthly expenses for this month
+      const currentExpenses = sumActive(state.expenses, m);
+      
+      // Use the higher of rule's monthly expenses or current expenses
+      const monthlyExpenses = Math.max(r.monthlyExpenses, currentExpenses);
+      
+      // Calculate safety target: months coverage × monthly expenses
+      const safetyTarget = r.monthsCoverage * monthlyExpenses;
+      
+      // Take the maximum safety target across all active rules
+      maxSafetyTarget = Math.max(maxSafetyTarget, safetyTarget);
+    }
   }
-  return v;
+  
+  return maxSafetyTarget;
 }
 
 

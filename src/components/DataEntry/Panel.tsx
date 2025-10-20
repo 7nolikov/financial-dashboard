@@ -5,9 +5,34 @@ function uid(prefix: string) { return `${prefix}-${Math.random().toString(36).sl
 
 export function DataEntryPanel() {
   const [tab, setTab] = React.useState<'income' | 'expense' | 'investment' | 'retirement'>('income');
+  const loadPreset = useStore((s) => s.loadPreset);
+  const clearAllData = useStore((s) => s.clearAllData);
+  
   return (
     <div className="rounded-lg border bg-white">
-      <div className="flex gap-2 p-2 border-b text-sm">
+      <div className="p-3 border-b bg-slate-50">
+        <div className="flex items-center gap-3 mb-2">
+          <label className="text-sm font-medium text-slate-700">Demo Presets:</label>
+          <select 
+            onChange={(e) => e.target.value && loadPreset(e.target.value as any)}
+            className="border px-2 py-1 rounded text-sm"
+            defaultValue="worker"
+          >
+            <option value="worker">👷 Worker</option>
+            <option value="investor">📈 Investor</option>
+            <option value="businessman">💼 Businessman</option>
+            <option value="loaner">🎓 Loaner</option>
+          </select>
+          <button 
+            onClick={clearAllData}
+            className="text-xs px-3 py-1 border rounded bg-slate-100 text-slate-600 hover:bg-slate-200"
+            title="Clear all data and start from scratch"
+          >
+            Clear All
+          </button>
+        </div>
+      </div>
+      <div className="flex gap-2 p-2 border-b text-sm flex-wrap">
         <TabButton active={tab === 'income'} onClick={() => setTab('income')} title="Add monthly pay or other income">Income</TabButton>
         <TabButton active={tab === 'expense'} onClick={() => setTab('expense')} title="Add bills and other costs">Expenses</TabButton>
         <TabButton active={tab === 'investment'} onClick={() => setTab('investment')} title="Add investment contributions and rates">Investments</TabButton>
@@ -39,7 +64,7 @@ function IncomeTab() {
   const [endAge, setEndAge] = React.useState<number | ''>('');
   return (
     <div className="space-y-3">
-      <div className="flex gap-2 items-end">
+      <div className="flex gap-2 items-end flex-wrap">
         <div className="flex flex-col"><label className="text-xs">Label</label><input className="border rounded px-2 py-1" value={label} onChange={(e) => setLabel(e.target.value)} /></div>
         <div className="flex flex-col"><label className="text-xs">Amount</label><input type="number" className="border rounded px-2 py-1 w-28" value={amount} onChange={(e) => setAmount(Number(e.target.value))} /></div>
         <div className="flex flex-col"><label className="text-xs">Start age</label><input type="number" className="border rounded px-2 py-1 w-20" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} /></div>
@@ -77,7 +102,7 @@ function ExpenseTab() {
   const [endAge, setEndAge] = React.useState<number | ''>('');
   return (
     <div className="space-y-3">
-      <div className="flex gap-2 items-end">
+      <div className="flex gap-2 items-end flex-wrap">
         <div className="flex flex-col"><label className="text-xs">Label</label><input className="border rounded px-2 py-1" value={label} onChange={(e) => setLabel(e.target.value)} /></div>
         <div className="flex flex-col"><label className="text-xs">Amount</label><input type="number" className="border rounded px-2 py-1 w-28" value={amount} onChange={(e) => setAmount(Number(e.target.value))} /></div>
         <div className="flex flex-col"><label className="text-xs">Start age</label><input type="number" className="border rounded px-2 py-1 w-20" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} /></div>
@@ -116,7 +141,7 @@ function InvestmentTab() {
   const [endAge, setEndAge] = React.useState<number | ''>(65);
   return (
     <div className="space-y-3">
-      <div className="flex gap-2 items-end">
+      <div className="flex gap-2 items-end flex-wrap">
         <div className="flex flex-col"><label className="text-xs">Label</label><input className="border rounded px-2 py-1" value={label} onChange={(e) => setLabel(e.target.value)} /></div>
         <div className="flex flex-col"><label className="text-xs">Monthly</label><input type="number" className="border rounded px-2 py-1 w-28" value={recurringAmount} onChange={(e) => setRecurringAmount(Number(e.target.value))} /></div>
         <div className="flex flex-col"><label className="text-xs">APR %</label><input type="number" className="border rounded px-2 py-1 w-24" step="0.1" value={fixedRate} onChange={(e) => setFixedRate(Number(e.target.value))} /></div>

@@ -19,10 +19,10 @@ export function SettingsPanel() {
   return (
     <div className="rounded-lg border bg-white p-4">
       <div className="text-sm font-medium mb-3">Settings</div>
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="space-y-2">
           <div className="text-xs text-slate-600">Safety savings (add period)</div>
-          <div className="flex gap-2 items-end">
+          <div className="flex gap-2 items-end flex-wrap">
             <input className="border rounded px-2 py-1" placeholder="Label" value={label} onChange={(e) => setLabel(e.target.value)} />
             <input type="number" className="border rounded px-2 py-1 w-24" placeholder="Months" value={months} onChange={(e) => setMonths(Number(e.target.value))} />
             <input type="number" className="border rounded px-2 py-1 w-28" placeholder="$ per month" value={monthly} onChange={(e) => setMonthly(Number(e.target.value))} />
@@ -49,7 +49,7 @@ export function SettingsPanel() {
             }} />
           </div>
           <div className="text-xs text-slate-600">Inflation apply-to</div>
-          <div className="flex items-center gap-3 text-sm">
+          <div className="flex items-center gap-3 text-sm flex-wrap">
             {(['incomes','expenses','contributions','safetySavings'] as const).map((k) => (
               <label key={k} className="inline-flex items-center gap-1">
                 <input type="checkbox" checked={(state.inflation.applyTo as any)[k]} onChange={(e) => setInflation({ applyTo: { ...state.inflation.applyTo, [k]: e.target.checked } as any })} /> {k}

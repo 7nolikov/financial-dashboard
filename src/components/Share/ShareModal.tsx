@@ -54,13 +54,13 @@ export function ShareModal() {
   }
   
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setOpen(false)}>
-      <div className="bg-white rounded-lg shadow-xl w-[90vw] max-w-5xl p-4" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setOpen(false)}>
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] p-4 flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm font-medium">Share Preview</div>
           <button className="text-xs px-2 py-1 border rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Close</button>
         </div>
-        <div className="border rounded overflow-auto max-h-[70vh] p-2 bg-slate-50">
+        <div className="border rounded overflow-auto flex-1 p-2 bg-slate-50">
           <div id="share-preview" className="min-w-[600px]">
             {document.getElementById('timeline-capture')?.cloneNode(true) as any}
           </div>

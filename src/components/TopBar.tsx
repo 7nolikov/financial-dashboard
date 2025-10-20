@@ -1,6 +1,5 @@
 import React from 'react';
 import { useStore } from '../state/store';
-import * as htmlToImage from 'html-to-image';
 
 export function TopBar() {
   const setDOB = useStore((s) => s.setDOB);
@@ -13,11 +12,13 @@ export function TopBar() {
 
   return (
     <header className="border-b bg-white">
-      <div className="mx-auto max-w-7xl px-6 py-4 flex flex-wrap items-center gap-4 justify-between">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-4 flex flex-wrap items-center gap-4 justify-between">
         <h1 className="text-xl sm:text-2xl font-semibold">Financial Life Tracker</h1>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="text-sm text-slate-600" title="Your date of birth. Ages on the chart use this.">Date of Birth</label>
-          <input type="date" value={dobISO} onChange={(e) => setDOB(e.target.value)} className="border px-2 py-1 rounded" title="Pick your birth date" />
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-slate-600" title="Your date of birth. Ages on the chart use this.">Date of Birth</label>
+            <input type="date" value={dobISO} onChange={(e) => setDOB(e.target.value)} className="border px-2 py-1 rounded" title="Pick your birth date" />
+          </div>
           <select
             value={inflation.display.seriesMode}
             onChange={(e) => setInflation({ display: { seriesMode: e.target.value as any } })}
@@ -25,7 +26,7 @@ export function TopBar() {
             title="Nominal: includes inflation. Real: adjusted to base year."
           >
             <option value="nominal">Nominal (with inflation)</option>
-            <option value="real">Real (base year)</option>
+            <option value="real">Real (inflation-adjusted)</option>
           </select>
           <div className="flex items-center gap-1 text-sm">
             <span title="Average yearly inflation. Used if not entering a table.">Inflation %</span>

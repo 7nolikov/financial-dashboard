@@ -12,11 +12,11 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50">
       <TopBar />
-      <main className="mx-auto max-w-7xl px-6 py-6 space-y-6">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 py-6 space-y-6">
         <div id="timeline-capture">
           <AreaChart />
         </div>
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div className="max-h-96 overflow-y-auto">
             <DataEntryPanel />
           </div>

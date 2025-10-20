@@ -74,50 +74,58 @@ export function AreaChart() {
     <div className="rounded-lg border bg-white">
       <div className="flex items-center justify-between px-4 py-2 border-b">
         <div className="text-sm font-medium">Timeline</div>
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-green-500"></span>Income</span>
           <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-red-500"></span>Expenses</span>
           <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-blue-500"></span>Investments</span>
+          <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-yellow-500"></span>Loans</span>
           <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-violet-500"></span>Net Worth</span>
           <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded border-2 border-orange-500"></span>Safety</span>
         </div>
       </div>
       <div className="px-4 py-3 text-[13px]">
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           <Kpi 
-            label="Income (visible)" 
+            label="Income" 
             value={format(sum(visible.map((p) => p.income)))} 
             color="text-green-600" 
             title={`Sum of income in visible window (${state.inflation.display.seriesMode})`}
             status={sum(visible.map((p) => p.income)) > 0 ? "Good cash flow" : "No income"}
           />
           <Kpi 
-            label="Expenses (visible)" 
+            label="Expenses" 
             value={format(sum(visible.map((p) => p.expense)))} 
             color="text-red-600" 
             title={`Sum of expenses in visible window (${state.inflation.display.seriesMode})`}
             status={sum(visible.map((p) => p.expense)) > sum(visible.map((p) => p.income)) ? "⚠️ Overspending" : "Controlled"}
           />
           <Kpi 
-            label="Investments (last)" 
+            label="Investments" 
             value={format(last?.invest)} 
             color="text-blue-600" 
             title="Total investment balance at the latest visible month"
             status={last?.invest && last.invest > 100000 ? "Strong growth" : last?.invest && last.invest > 50000 ? "Building wealth" : "Early stage"}
           />
           <Kpi 
-            label="Net Worth (last)" 
+            label="Loans" 
+            value={format(last?.loans)} 
+            color="text-yellow-600" 
+            title="Total loan balance at the latest visible month"
+            status={last?.loans && last.loans > 100000 ? "High debt" : last?.loans && last.loans > 50000 ? "Moderate debt" : last?.loans && last.loans > 0 ? "Low debt" : "Debt free"}
+          />
+          <Kpi 
+            label="Net Worth" 
             value={format(last?.netWorth)} 
             color="text-violet-600" 
             title="Net worth at the latest visible month"
             status={last?.netWorth && last.netWorth < 0 ? "🚨 Negative" : last?.netWorth && last.netWorth > 500000 ? "Wealthy" : last?.netWorth && last.netWorth > 100000 ? "Comfortable" : "Building"}
           />
           <Kpi 
-            label="Safety (visible)" 
-            value={format(sum(visible.map((p) => p.safety)))} 
+            label="Safety Level" 
+            value={format(last?.safety)} 
             color="text-orange-600" 
-            title="Sum of safety savings targets over visible window"
-            status={sum(visible.map((p) => p.safety)) > 0 ? "Protected" : "No safety net"}
+            title="Safety savings target at the latest visible month"
+            status={getSafetyStatus(last?.netWorth, last?.safety)}
           />
         </div>
         <div className="mt-4 rounded border bg-white relative" ref={containerRef}>
@@ -133,8 +141,6 @@ export function AreaChart() {
               const m = Math.round(x.invert(Math.max(0, Math.min(width - 60, mx))));
               setHovered(m);
             }}
-            onMouseLeave={() => setHovered(null)}
-            style={{ cursor: 'crosshair' }}
             onMouseEnter={() => { document.body.style.overflowY = 'hidden'; }}
             onMouseLeave={() => { document.body.style.overflowY = ''; setHovered(null); }}
           >
@@ -147,6 +153,7 @@ export function AreaChart() {
                 </linearGradient>
               </defs>
               <AxisBottom x={x} width={width - 60} height={240} />
+              <AxisLeft y={y} height={240} />
               <SeriesAreas x={x} y={y} data={visible} />
               <Milestones x={x} height={240} zoom={[state.chart.zoom.minMonth, state.chart.zoom.maxMonth]} milestones={state.milestones} />
               {hovered != null ? (
@@ -161,6 +168,7 @@ export function AreaChart() {
               age={`${Math.floor(hovered/12)}y ${hovered%12}m`}
               income={hoveredPoint?.income}
               expense={hoveredPoint?.expense}
+              loans={hoveredPoint?.loans}
               invest={hoveredPoint?.invest}
               netWorth={hoveredPoint?.netWorth}
               safety={hoveredPoint?.safety}
@@ -189,6 +197,20 @@ function Kpi(props: { label: string; value: string; color?: string; title?: stri
 
 function sum(arr: number[]): number { return arr.reduce((a, b) => a + b, 0); }
 
+function getSafetyStatus(netWorth: number | undefined, safetyTarget: number | undefined): string {
+  if (!netWorth || !safetyTarget) return "No safety target";
+  
+  const safetyRatio = netWorth / safetyTarget;
+  
+  if (safetyRatio >= 1.0) {
+    return "✅ Safe";
+  } else if (safetyRatio >= 0.5) {
+    return "⚠️ Warning zone";
+  } else {
+    return "🚨 Danger zone";
+  }
+}
+
 function AxisBottom({ x, width, height }: { x: any; width: number; height: number }) {
   const ticks = 11;
   const step = (x.domain()[1] - x.domain()[0]) / (ticks - 1);
@@ -205,15 +227,45 @@ function AxisBottom({ x, width, height }: { x: any; width: number; height: numbe
   );
 }
 
+function AxisLeft({ y, height }: { y: any; height: number }) {
+  const domain = y.domain();
+  const min = domain[0];
+  const max = domain[1];
+  const range = max - min;
+  
+  // Create meaningful tick values
+  const ticks = [];
+  if (range > 0) {
+    const step = range / 5; // 5 horizontal lines
+    for (let i = 0; i <= 5; i++) {
+      const value = min + (step * i);
+      ticks.push(value);
+    }
+  }
+  
+  return (
+    <g>
+      {ticks.map((value: number) => (
+        <g key={value} transform={`translate(0, ${y(value)})`}>
+          <line x1={0} x2={-40} stroke="#f1f5f9" />
+          <text x={-45} y={4} textAnchor="end" fontSize={9} fill="#64748b">
+            {format(value)}
+          </text>
+        </g>
+      ))}
+    </g>
+  );
+}
+
 function SeriesAreas({ x, y, data }: { x: any; y: any; data: any[] }) {
   const toX = (p: any) => x(p.m);
   return (
     <g>
-      <Area data={data} x={toX} y={y} get={(p) => p.income} color="#22c55e33" stroke="#16a34a" />
-      <Area data={data} x={toX} y={y} get={(p) => p.expense} color="#ef444433" stroke="#dc2626" />
-      <Area data={data} x={toX} y={y} get={(p) => p.invest} color="#3b82f633" stroke="#2563eb" />
-      <Line data={data} x={toX} y={y} get={(p) => p.netWorth} stroke="#7c3aed" />
-      <Line data={data} x={toX} y={y} get={(p) => p.safety} stroke="#f97316" dash="4 4" />
+      <Area data={data} x={toX} y={y} get={(p: any) => p.income} color="#22c55e33" stroke="#16a34a" />
+      <Area data={data} x={toX} y={y} get={(p: any) => p.expense} color="#ef444433" stroke="#dc2626" />
+      <Area data={data} x={toX} y={y} get={(p: any) => p.invest} color="#3b82f633" stroke="#2563eb" />
+      <Line data={data} x={toX} y={y} get={(p: any) => p.netWorth} stroke="#7c3aed" />
+      <Line data={data} x={toX} y={y} get={(p: any) => p.safety} stroke="#f97316" dash="4 4" />
       
       {/* Danger zones highlighting */}
       {data.map((p: any, i: number) => {
@@ -221,14 +273,35 @@ function SeriesAreas({ x, y, data }: { x: any; y: any; data: any[] }) {
           return (
             <rect
               key={`danger-${i}`}
-              x={x(p.m) - 2}
+              x={x(p.m) - 1}
               y={0}
-              width={4}
+              width={2}
               height={260}
-              fill="rgba(239, 68, 68, 0.1)"
+              fill="rgba(239, 68, 68, 0.05)"
               className="pointer-events-none"
             />
           );
+        }
+        return null;
+      })}
+      
+      {/* Warning zones highlighting (safety level below target) */}
+      {data.map((p: any, i: number) => {
+        if (p.safety > 0 && p.netWorth > 0 && p.netWorth < p.safety) {
+          const safetyRatio = p.netWorth / p.safety;
+          if (safetyRatio >= 0.5) {
+            return (
+              <rect
+                key={`warning-${i}`}
+                x={x(p.m) - 1}
+                y={0}
+                width={2}
+                height={260}
+                fill="rgba(245, 158, 11, 0.05)"
+                className="pointer-events-none"
+              />
+            );
+          }
         }
         return null;
       })}
@@ -240,14 +313,14 @@ function Area({ data, x, y, get, color, stroke }: any) {
   const path = data.map((p: any) => ({ x: x(p), y: y(get(p)) }));
   return (
     <g>
-      <AreaClosed data={path} x={(d) => d.x} y={(d) => d.y} yScale={y} fill={color} stroke={stroke} curve={curveMonotoneX} />
+      <AreaClosed data={path} x={(d: any) => d.x} y={(d: any) => d.y} yScale={y} fill={color} stroke={stroke} curve={curveMonotoneX} />
     </g>
   );
 }
 
 function Line({ data, x, y, get, stroke, dash }: any) {
   const path = data.map((p: any) => ({ x: x(p), y: y(get(p)) }));
-  return <LinePath data={path} x={(d) => d.x} y={(d) => d.y} stroke={stroke} strokeDasharray={dash} curve={curveMonotoneX} />;
+  return <LinePath data={path} x={(d: any) => d.x} y={(d: any) => d.y} stroke={stroke} strokeDasharray={dash} curve={curveMonotoneX} />;
 }
 
 function Milestones({ x, height, zoom, milestones }: any) {
@@ -273,7 +346,7 @@ function Milestones({ x, height, zoom, milestones }: any) {
   );
 }
 
-function HoverTooltip({ x, y, age, income, expense, invest, netWorth, safety, milestone }: any) {
+function HoverTooltip({ x, y, age, income, expense, loans, invest, netWorth, safety, milestone }: any) {
   return (
     <div style={{ position: 'absolute', left: Math.max(8, x + 8), top: y, pointerEvents: 'none' }} className="px-2 py-2 rounded border bg-white text-[11px] shadow min-w-[180px]">
       <div className="font-medium">{age}</div>
@@ -281,6 +354,7 @@ function HoverTooltip({ x, y, age, income, expense, invest, netWorth, safety, mi
       <div className="mt-1 grid grid-cols-2 gap-x-2">
         <span className="text-green-600">Income</span><span className="text-right">{format(income)}</span>
         <span className="text-red-600">Expenses</span><span className="text-right">{format(expense)}</span>
+        <span className="text-yellow-600">Loans</span><span className="text-right">{format(loans)}</span>
         <span className="text-blue-600">Investments</span><span className="text-right">{format(invest)}</span>
         <span className="text-violet-600">Net Worth</span><span className="text-right">{format(netWorth)}</span>
         <span className="text-orange-600">Safety</span><span className="text-right">{format(safety)}</span>
