@@ -156,7 +156,7 @@ const presets = {
     safetySavings: [
       { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 6, monthlyExpenses: 3050 },
     ],
-    retirement: { age: 65, withdrawalRate: 0.04 },
+    retirement: { age: 65, withdrawalRate: 0.04 }, // 4% annual withdrawal rate
     milestones: [
       { id: 'ms-grad', at: { ageYears: 22, monthIndex: 22 * 12 }, label: 'First Job' },
       { id: 'ms-promotion', at: { ageYears: 28, monthIndex: 28 * 12 }, label: 'First Promotion' },
@@ -247,7 +247,7 @@ const presets = {
     safetySavings: [
       { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 12, monthlyExpenses: 7500 },
     ],
-    retirement: { age: 55, withdrawalRate: 0.035 },
+    retirement: { age: 55, withdrawalRate: 0.04 }, // Early retirement at 55 with 4% withdrawal
     milestones: [
       { id: 'ms-grad', at: { ageYears: 24, monthIndex: 24 * 12 }, label: 'Tech Career Start' },
       { id: 'ms-house', at: { ageYears: 28, monthIndex: 28 * 12 }, label: 'First Home' },
@@ -320,7 +320,7 @@ const presets = {
     safetySavings: [
       { id: 'ss-1', label: 'Business Reserve', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 12, monthlyExpenses: 10000 },
     ],
-    retirement: { age: 60, withdrawalRate: 0.03 },
+    retirement: { age: 60, withdrawalRate: 0.04 }, // 4% annual withdrawal rate
     milestones: [
       { id: 'ms-startup', at: { ageYears: 30, monthIndex: 30 * 12 }, label: 'Business Launch' },
       { id: 'ms-expansion', at: { ageYears: 40, monthIndex: 40 * 12 }, label: 'Business Expansion' },

@@ -78,7 +78,7 @@ function TabButton(props: React.PropsWithChildren<{ active: boolean; onClick: ()
       className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
         props.active 
           ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm' 
-          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800 border border-slate-300'
       }`} 
       title={props.title}
     >
@@ -204,12 +204,12 @@ function IncomeTab() {
                   <div className="text-sm text-slate-600">${i.amount.toLocaleString()}/month</div>
                 </div>
               </div>
-              <button 
-                onClick={() => removeIncome(i.id)} 
-                className="px-3 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all text-sm font-medium"
-              >
-                Delete
-              </button>
+                     <button 
+                       onClick={() => removeIncome(i.id)} 
+                       className="px-3 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all text-sm font-medium border border-red-200"
+                     >
+                       Delete
+                     </button>
             </div>
           ))}
           {incomes.length === 0 && (
@@ -273,7 +273,7 @@ function ExpenseTab() {
         {expenses.map((i) => (
           <div key={i.id} className="flex justify-between items-center p-2 border rounded bg-gray-50">
             <span className="text-sm">{i.label} – ${i.amount.toLocaleString()}/m</span>
-            <button onClick={() => removeExpense(i.id)} className="text-red-500 hover:text-red-700 text-xs">Delete</button>
+            <button onClick={() => removeExpense(i.id)} className="px-3 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all text-sm font-medium border border-red-200">Delete</button>
           </div>
         ))}
       </div>
@@ -333,7 +333,7 @@ function InvestmentTab() {
         {investments.map((i) => (
           <div key={i.id} className="flex justify-between items-center p-2 border rounded bg-gray-50">
             <span className="text-sm">{i.label} – ${(i.recurringAmount ?? 0).toLocaleString()}/m @ {((i.model.fixedRate ?? 0)*100).toFixed(1)}%</span>
-            <button onClick={() => removeInvestment(i.id)} className="text-red-500 hover:text-red-700 text-xs">Delete</button>
+            <button onClick={() => removeInvestment(i.id)} className="px-3 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all text-sm font-medium border border-red-200">Delete</button>
           </div>
         ))}
       </div>

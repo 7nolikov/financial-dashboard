@@ -135,12 +135,12 @@ export function SettingsPanel() {
                         <div className="text-xs text-slate-500">Starts at age {r.start.ageYears}</div>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => removeSafetySavings(r.id)} 
-                      className="px-3 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all text-sm font-medium"
-                    >
-                      Delete
-                    </button>
+                           <button 
+                             onClick={() => removeSafetySavings(r.id)} 
+                             className="px-3 py-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all text-sm font-medium border border-red-200"
+                           >
+                             Delete
+                           </button>
                   </div>
                 ))}
                 {rules.length === 0 && (

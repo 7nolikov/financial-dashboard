@@ -27,7 +27,7 @@ export function OnboardingTips() {
             <li><span className="font-medium">Reset Zoom</span>: button below the chart or press <code>R</code>.</li>
           </ul>
         </div>
-        <button className="px-3 py-1 border rounded bg-slate-900 text-white text-xs h-8" onClick={dismiss}>Got it</button>
+        <button className="px-4 py-2 border border-slate-300 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm" onClick={dismiss}>Got it</button>
       </div>
     </div>
   );

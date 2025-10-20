@@ -58,7 +58,7 @@ export function ShareModal() {
       <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] p-4 flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3">
           <div className="text-sm font-medium">Share Preview</div>
-          <button className="text-xs px-2 py-1 border rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Close</button>
+          <button className="px-3 py-1 border border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400 transition-all text-sm font-medium" onClick={() => setOpen(false)}>Close</button>
         </div>
         <div className="border rounded overflow-auto flex-1 p-2 bg-slate-50">
           <div id="share-preview" className="min-w-[600px]">
