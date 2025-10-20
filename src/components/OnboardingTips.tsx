@@ -6,7 +6,9 @@ export function OnboardingTips() {
   });
   if (!visible) return null;
   function dismiss() {
-    try { localStorage.setItem('flt-onboarded', '1'); } catch {}
+    try { localStorage.setItem('flt-onboarded', '1'); } catch {
+      // Ignore localStorage errors
+    }
     setVisible(false);
   }
   return (

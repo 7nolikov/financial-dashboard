@@ -31,7 +31,7 @@ export function TopBar() {
           </div>
           <select
             value={inflation.display.seriesMode}
-            onChange={(e) => setInflation({ display: { seriesMode: e.target.value as any } })}
+            onChange={(e) => setInflation({ display: { seriesMode: e.target.value as 'nominal' | 'real' } })}
             className="border px-2 py-1 rounded text-sm"
             title="Nominal: shows actual dollar amounts with inflation. Real: shows purchasing power adjusted for inflation."
           >

@@ -14,7 +14,7 @@ export function DataEntryPanel() {
         <div className="flex items-center gap-3 mb-2">
           <label className="text-sm font-medium text-slate-700">Demo Presets:</label>
           <select 
-            onChange={(e) => e.target.value && loadPreset(e.target.value as any)}
+            onChange={(e) => e.target.value && loadPreset(e.target.value as 'worker' | 'investor' | 'businessman' | 'loaner')}
             className="border px-2 py-1 rounded text-sm"
             defaultValue="worker"
           >

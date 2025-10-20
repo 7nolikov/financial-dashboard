@@ -359,7 +359,7 @@ const presets = {
 
 const dummyState = (): CoreState => presets.worker();
 
-function migrateState(persisted: any): CoreState {
+function migrateState(persisted: unknown): CoreState {
   if (!persisted || typeof persisted !== 'object') return dummyState();
   // Add future migrations here based on persisted.version
   return { ...dummyState(), ...persisted, version: CURRENT_VERSION } as CoreState;

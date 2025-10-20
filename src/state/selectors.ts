@@ -69,7 +69,7 @@ export function computeSeries(state: Store): SeriesPoint[] {
   return points;
 }
 
-function sumActive(items: { amount: number; recurrence: any }[], m: number): number {
+function sumActive(items: { amount: number; recurrence: unknown }[], m: number): number {
   let sum = 0;
   for (const it of items) {
     if (it.recurrence.kind === 'one_time') {
@@ -82,11 +82,11 @@ function sumActive(items: { amount: number; recurrence: any }[], m: number): num
   return sum;
 }
 
-function sumActiveBy(items: any[], m: number, pred: (x: any) => boolean): number {
+function sumActiveBy(items: unknown[], m: number, pred: (x: unknown) => boolean): number {
   return sumActive(items.filter(pred), m);
 }
 
-function sumActiveContribution(investments: { recurringAmount?: number; recurrence: any }[], m: number): number {
+function sumActiveContribution(investments: { recurringAmount?: number; recurrence: unknown }[], m: number): number {
   let sum = 0;
   for (const inv of investments) {
     const amt = inv.recurringAmount ?? 0;

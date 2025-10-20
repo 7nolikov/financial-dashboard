@@ -62,7 +62,7 @@ export function AreaChart() {
     e.stopPropagation();
     const delta = Math.sign(e.deltaY);
     const range = state.chart.zoom.maxMonth - state.chart.zoom.minMonth;
-    const mouseX = (e.nativeEvent as any).offsetX - padding.left;
+    const mouseX = (e.nativeEvent as MouseEvent).offsetX - padding.left;
     const centerMonth = Math.round(x.invert(Math.max(0, Math.min(innerW, mouseX))));
     const zoomFactor = delta > 0 ? 1.2 : 0.8; // out/in
     let newRange = Math.max(12, Math.min(totalMonths, Math.round(range * zoomFactor)));
@@ -75,7 +75,7 @@ export function AreaChart() {
   }
 
   function onClick(e: React.MouseEvent) {
-    const mouseX = (e.nativeEvent as any).offsetX - padding.left;
+    const mouseX = (e.nativeEvent as MouseEvent).offsetX - padding.left;
     const month = Math.round(x.invert(Math.max(0, Math.min(innerW, mouseX))));
     const label = window.prompt('Milestone label?');
     if (!label) return;
@@ -148,7 +148,7 @@ export function AreaChart() {
             onWheel={onWheel}
             onClick={onClick}
             onMouseMove={(e) => {
-              const mx = (e.nativeEvent as any).offsetX - 40;
+              const mx = (e.nativeEvent as MouseEvent).offsetX - 40;
               const m = Math.round(x.invert(Math.max(0, Math.min(width - 60, mx))));
               setHovered(m);
             }}
@@ -223,7 +223,7 @@ function getSafetyStatus(netWorth: number | undefined, safetyTarget: number | un
   }
 }
 
-function AxisBottom({ x, width, height }: { x: any; width: number; height: number }) {
+function AxisBottom({ x, _width, height }: { x: any; _width: number; height: number }) {
   const ticks = 11;
   const step = (x.domain()[1] - x.domain()[0]) / (ticks - 1);
   const values = new Array(ticks).fill(0).map((_, i) => Math.round(x.domain()[0] + i * step));
@@ -333,17 +333,17 @@ function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
 }
 
 function SeriesAreas({ x, y, data }: { x: any; y: any; data: any[] }) {
-  const toX = (p: any) => x(p.m);
+  const toX = (p: { m: number }) => x(p.m);
   return (
     <g>
-      <Area data={data} x={toX} y={y} get={(p: any) => p.income} color="#22c55e33" stroke="#16a34a" />
-      <Area data={data} x={toX} y={y} get={(p: any) => p.expense} color="#ef444433" stroke="#dc2626" />
-      <Area data={data} x={toX} y={y} get={(p: any) => p.invest} color="#3b82f633" stroke="#2563eb" />
-      <Line data={data} x={toX} y={y} get={(p: any) => p.netWorth} stroke="#7c3aed" />
-      <Line data={data} x={toX} y={y} get={(p: any) => p.safety} stroke="#f97316" dash="4 4" />
+      <Area data={data} x={toX} y={y} get={(p: { income: number }) => p.income} color="#22c55e33" stroke="#16a34a" />
+      <Area data={data} x={toX} y={y} get={(p: { expense: number }) => p.expense} color="#ef444433" stroke="#dc2626" />
+      <Area data={data} x={toX} y={y} get={(p: { invest: number }) => p.invest} color="#3b82f633" stroke="#2563eb" />
+      <Line data={data} x={toX} y={y} get={(p: { netWorth: number }) => p.netWorth} stroke="#7c3aed" />
+      <Line data={data} x={toX} y={y} get={(p: { safety: number }) => p.safety} stroke="#f97316" dash="4 4" />
       
       {/* Danger zones highlighting */}
-      {data.map((p: any, i: number) => {
+      {data.map((p: { m: number; netWorth: number }, i: number) => {
         if (p.netWorth < 0) {
           return (
             <rect
@@ -361,7 +361,7 @@ function SeriesAreas({ x, y, data }: { x: any; y: any; data: any[] }) {
       })}
       
       {/* Warning zones highlighting (safety level below target) */}
-      {data.map((p: any, i: number) => {
+      {data.map((p: { m: number; netWorth: number; safety: number }, i: number) => {
         if (p.safety > 0 && p.netWorth > 0 && p.netWorth < p.safety) {
           const safetyRatio = p.netWorth / p.safety;
           if (safetyRatio >= 0.5) {
@@ -385,17 +385,17 @@ function SeriesAreas({ x, y, data }: { x: any; y: any; data: any[] }) {
 }
 
 function Area({ data, x, y, get, color, stroke }: any) {
-  const path = data.map((p: any) => ({ x: x(p), y: y(get(p)) }));
+  const path = data.map((p: unknown) => ({ x: x(p as number), y: y(get(p)) }));
   return (
     <g>
-      <AreaClosed data={path} x={(d: any) => d.x} y={(d: any) => d.y} yScale={y} fill={color} stroke={stroke} curve={curveMonotoneX} />
+      <AreaClosed data={path} x={(d: { x: number }) => d.x} y={(d: { y: number }) => d.y} yScale={y} fill={color} stroke={stroke} curve={curveMonotoneX} />
     </g>
   );
 }
 
 function Line({ data, x, y, get, stroke, dash }: any) {
-  const path = data.map((p: any) => ({ x: x(p), y: y(get(p)) }));
-  return <LinePath data={path} x={(d: any) => d.x} y={(d: any) => d.y} stroke={stroke} strokeDasharray={dash} curve={curveMonotoneX} />;
+  const path = data.map((p: unknown) => ({ x: x(p as number), y: y(get(p)) }));
+  return <LinePath data={path} x={(d: { x: number }) => d.x} y={(d: { y: number }) => d.y} stroke={stroke} strokeDasharray={dash} curve={curveMonotoneX} />;
 }
 
 function Milestones({ x, height, zoom, milestones }: any) {
