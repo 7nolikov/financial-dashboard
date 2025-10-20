@@ -1,5 +1,6 @@
 import React from 'react';
 import { useStore } from '../state/store';
+import { HelpModal } from './Help/HelpModal';
 
 export function TopBar() {
   const setDOB = useStore((s) => s.setDOB);
@@ -7,6 +8,7 @@ export function TopBar() {
   const inflation = useStore((s) => s.inflation);
   const setInflation = useStore((s) => s.setInflation);
   const setZoom = useStore((s) => s.setZoom);
+  const [showHelp, setShowHelp] = React.useState(false);
 
   async function onShare() { useStore.getState().setOpenShare(true); }
 
@@ -40,9 +42,11 @@ export function TopBar() {
             />
           </div>
           <button onClick={() => setZoom(0, 100 * 12)} className="text-xs px-2 py-1 border rounded hover:bg-slate-50" title="Show full 0–100 years">Reset Zoom</button>
+          <button onClick={() => setShowHelp(true)} className="text-xs px-2 py-1 border rounded hover:bg-slate-50" title="Help, use cases and shortcuts">?</button>
           <button onClick={onShare} className="text-xs px-2 py-1 border rounded bg-slate-900 text-white hover:opacity-90" title="Preview and download as image">Share JPG</button>
         </div>
       </div>
+      <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
     </header>
   );
 }

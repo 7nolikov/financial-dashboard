@@ -48,14 +48,6 @@ export function SettingsPanel() {
               useStore.setState({ investments: state.investments.map((i) => ({ ...i, model: i.model.type === 'fixed' ? { type: 'fixed', fixedRate: val } : i.model })) });
             }} />
           </div>
-          <div className="text-xs text-slate-600">Inflation apply-to</div>
-          <div className="flex items-center gap-3 text-sm flex-wrap">
-            {(['incomes','expenses','contributions','safetySavings'] as const).map((k) => (
-              <label key={k} className="inline-flex items-center gap-1">
-                <input type="checkbox" checked={(state.inflation.applyTo as any)[k]} onChange={(e) => setInflation({ applyTo: { ...state.inflation.applyTo, [k]: e.target.checked } as any })} /> {k}
-              </label>
-            ))}
-          </div>
         </div>
       </div>
     </div>

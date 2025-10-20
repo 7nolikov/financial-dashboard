@@ -25,9 +25,9 @@ export function computeSeries(state: Store): SeriesPoint[] {
     const expenseBase = sumActive(state.expenses, m);
     const contribBase = sumActiveContribution(state.investments, m);
 
-    const income = state.inflation.applyTo.incomes ? indexAmountNominal(incomeBase, inflFactor) : incomeBase;
-    const expense = state.inflation.applyTo.expenses ? indexAmountNominal(expenseBase, inflFactor) : expenseBase;
-    const contrib = state.inflation.applyTo.contributions ? indexAmountNominal(contribBase, inflFactor) : contribBase;
+    const income = indexAmountNominal(incomeBase, inflFactor);
+    const expense = indexAmountNominal(expenseBase, inflFactor);
+    const contrib = indexAmountNominal(contribBase, inflFactor);
 
     // loan balance calculation
     loansTotal = calculateLoanBalance(state, m);
@@ -40,7 +40,7 @@ export function computeSeries(state: Store): SeriesPoint[] {
     // retirement withdraw (simplified)
     if (Math.floor(m / 12) >= (state.retirement?.age ?? 200)) {
       // stop employment income
-      const employment = state.inflation.applyTo.incomes ? indexAmountNominal(employmentBase, inflFactor) : employmentBase;
+      const employment = indexAmountNominal(employmentBase, inflFactor);
       const incomeWithoutEmployment = income - employment;
       const needed = Math.max(0, expense - incomeWithoutEmployment);
       const withdraw = Math.min(needed, investmentsTotal);
@@ -52,7 +52,7 @@ export function computeSeries(state: Store): SeriesPoint[] {
     netWorth += netCashflow + 0; // investments delta already captured in investmentsTotal value
 
     const safetyTargetBase = safetyForMonth(state, m);
-    const safetyTarget = state.inflation.applyTo.safetySavings ? indexAmountNominal(safetyTargetBase, inflFactor) : safetyTargetBase;
+    const safetyTarget = indexAmountNominal(safetyTargetBase, inflFactor);
 
     let incomePlot = income, expensePlot = expense, loansPlot = loansTotal, investPlot = investmentsTotal, netPlot = netWorth, safetyPlot = safetyTarget;
     if (state.inflation.display.seriesMode === 'real') {

@@ -313,12 +313,15 @@ function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
             />
             <text
               x={xPos}
-              y={yPos - 8}
+              y={ext.type === 'peak' ? yPos - 12 : yPos + 16}
               textAnchor="middle"
               fontSize={8}
               fill={ext.type === 'peak' ? '#10b981' : '#ef4444'}
               fontWeight="bold"
               fontFamily="ui-monospace, monospace"
+              stroke="white"
+              strokeWidth={2}
+              paintOrder="stroke fill"
             >
               {formatCompact(ext.value)}
             </text>

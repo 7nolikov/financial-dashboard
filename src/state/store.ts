@@ -39,7 +39,6 @@ export type InflationConfig = {
   singleRate?: number;
   yearlyRates?: Record<number, number>;
   importedMeta?: { name: string; rows: number };
-  applyTo: { incomes: boolean; expenses: boolean; contributions: boolean; safetySavings: boolean };
   display: { seriesMode: 'nominal' | 'real' };
 };
 
@@ -127,6 +126,9 @@ const presets = {
     retirement: { age: 65, withdrawalRate: 0.04 },
     milestones: [
       { id: 'ms-grad', at: { ageYears: 22, monthIndex: 22 * 12 }, label: 'First Job' },
+      { id: 'ms-house', at: { ageYears: 28, monthIndex: 28 * 12 }, label: 'Buy House' },
+      { id: 'ms-kids', at: { ageYears: 30, monthIndex: 30 * 12 }, label: 'Start Family' },
+      { id: 'ms-promotion', at: { ageYears: 35, monthIndex: 35 * 12 }, label: 'Career Peak' },
       { id: 'ms-retire', at: { ageYears: 65, monthIndex: 65 * 12 }, label: 'Retirement' },
     ],
     inflation: {
@@ -134,7 +136,6 @@ const presets = {
       baseYear: new Date().getFullYear(),
       singleRate: 0.025,
       yearlyRates: undefined,
-      applyTo: { incomes: true, expenses: true, contributions: true, safetySavings: true },
       display: { seriesMode: 'nominal' },
     },
     chart: { zoom: { minMonth: 0, maxMonth: 100 * 12 } },
@@ -199,6 +200,7 @@ const presets = {
     milestones: [
       { id: 'ms-grad', at: { ageYears: 24, monthIndex: 24 * 12 }, label: 'Tech Career' },
       { id: 'ms-house', at: { ageYears: 28, monthIndex: 28 * 12 }, label: 'First Home' },
+      { id: 'ms-invest', at: { ageYears: 32, monthIndex: 32 * 12 }, label: 'Major Investment' },
       { id: 'ms-retire', at: { ageYears: 55, monthIndex: 55 * 12 }, label: 'Early Retirement' },
     ],
     inflation: {
@@ -206,7 +208,6 @@ const presets = {
       baseYear: new Date().getFullYear(),
       singleRate: 0.025,
       yearlyRates: undefined,
-      applyTo: { incomes: true, expenses: true, contributions: true, safetySavings: true },
       display: { seriesMode: 'nominal' },
     },
     chart: { zoom: { minMonth: 0, maxMonth: 100 * 12 } },
@@ -272,6 +273,7 @@ const presets = {
     milestones: [
       { id: 'ms-startup', at: { ageYears: 30, monthIndex: 30 * 12 }, label: 'Business Start' },
       { id: 'ms-expansion', at: { ageYears: 40, monthIndex: 40 * 12 }, label: 'Expansion' },
+      { id: 'ms-success', at: { ageYears: 50, monthIndex: 50 * 12 }, label: 'Business Success' },
       { id: 'ms-retire', at: { ageYears: 60, monthIndex: 60 * 12 }, label: 'Retirement' },
     ],
     inflation: {
@@ -279,7 +281,6 @@ const presets = {
       baseYear: new Date().getFullYear(),
       singleRate: 0.025,
       yearlyRates: undefined,
-      applyTo: { incomes: true, expenses: true, contributions: true, safetySavings: true },
       display: { seriesMode: 'nominal' },
     },
     chart: { zoom: { minMonth: 0, maxMonth: 100 * 12 } },
@@ -339,7 +340,9 @@ const presets = {
     retirement: { age: 67, withdrawalRate: 0.04 },
     milestones: [
       { id: 'ms-grad', at: { ageYears: 22, monthIndex: 22 * 12 }, label: 'Graduation' },
+      { id: 'ms-job', at: { ageYears: 25, monthIndex: 25 * 12 }, label: 'First Job' },
       { id: 'ms-debt-free', at: { ageYears: 35, monthIndex: 35 * 12 }, label: 'Debt Free' },
+      { id: 'ms-house', at: { ageYears: 40, monthIndex: 40 * 12 }, label: 'Buy House' },
       { id: 'ms-retire', at: { ageYears: 67, monthIndex: 67 * 12 }, label: 'Retirement' },
     ],
     inflation: {
@@ -347,7 +350,6 @@ const presets = {
       baseYear: new Date().getFullYear(),
       singleRate: 0.025,
       yearlyRates: undefined,
-      applyTo: { incomes: true, expenses: true, contributions: true, safetySavings: true },
       display: { seriesMode: 'nominal' },
     },
     chart: { zoom: { minMonth: 0, maxMonth: 100 * 12 } },
