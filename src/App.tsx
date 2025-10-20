@@ -9,18 +9,30 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 export default function App() {
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <TopBar />
-        <main className="mx-auto max-w-7xl px-4 sm:px-6 py-6 space-y-6">
-          <div id="timeline-capture">
-            <AreaChart />
-          </div>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <div className="max-h-96 overflow-y-auto">
-              <DataEntryPanel />
+        <main className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-8">
+          {/* Main Chart Section - Full Width */}
+          <div className="mb-8">
+            <div id="timeline-capture" className="shadow-xl rounded-2xl overflow-hidden bg-white border border-slate-200">
+              <AreaChart />
             </div>
-            <div className="max-h-96 overflow-y-auto">
-              <SettingsPanel />
+          </div>
+          
+          {/* Control Panels - Responsive Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Data Entry Panel */}
+            <div className="space-y-6">
+              <div className="shadow-lg rounded-2xl overflow-hidden bg-white border border-slate-200">
+                <DataEntryPanel />
+              </div>
+            </div>
+            
+            {/* Settings Panel */}
+            <div className="space-y-6">
+              <div className="shadow-lg rounded-2xl overflow-hidden bg-white border border-slate-200">
+                <SettingsPanel />
+              </div>
             </div>
           </div>
         </main>

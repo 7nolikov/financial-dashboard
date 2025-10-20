@@ -82,26 +82,56 @@ export function AreaChart() {
     addMilestone({ id: `ms-${Date.now()}`, at: { ageYears: Math.floor(month / 12), monthIndex: month }, label });
   }
   return (
-    <div className="rounded-lg border bg-white">
-      <div className="flex items-center justify-between px-4 py-2 border-b">
-        <div className="flex items-center gap-3">
-          <div className="text-sm font-medium">Timeline</div>
-          <div className={`text-xs px-2 py-1 rounded-full ${
-            state.inflation.display.seriesMode === 'nominal' 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-blue-100 text-blue-800'
-          }`}>
-            {state.inflation.display.seriesMode === 'nominal' ? '💰 Nominal' : '📊 Real'} 
-            ({((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inflation)
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-slate-50 to-indigo-50 px-6 py-4 border-b border-slate-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
+              <span className="text-white font-bold text-lg">📊</span>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-800">Financial Timeline</h2>
+              <div className="flex items-center gap-3 mt-1">
+                <div className={`text-xs px-3 py-1 rounded-full font-medium ${
+                  state.inflation.display.seriesMode === 'nominal' 
+                    ? 'bg-green-100 text-green-800 border border-green-200' 
+                    : 'bg-blue-100 text-blue-800 border border-blue-200'
+                }`}>
+                  {state.inflation.display.seriesMode === 'nominal' ? '💰 Nominal' : '📊 Real'} 
+                  ({((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inflation)
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-green-500"></span>Income</span>
-          <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-red-500"></span>Expenses</span>
-          <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-blue-500"></span>Investments</span>
-          <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-yellow-500"></span>Loans</span>
-          <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-violet-500"></span>Net Worth</span>
-          <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded border-2 border-orange-500"></span>Safety</span>
+          
+          {/* Legend */}
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
+              <span className="inline-block w-3 h-3 rounded bg-green-500"></span>
+              <span className="font-medium text-slate-700">Income</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
+              <span className="inline-block w-3 h-3 rounded bg-red-500"></span>
+              <span className="font-medium text-slate-700">Expenses</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
+              <span className="inline-block w-3 h-3 rounded bg-blue-500"></span>
+              <span className="font-medium text-slate-700">Investments</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
+              <span className="inline-block w-3 h-3 rounded bg-yellow-500"></span>
+              <span className="font-medium text-slate-700">Loans</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
+              <span className="inline-block w-3 h-3 rounded bg-violet-500"></span>
+              <span className="font-medium text-slate-700">Net Worth</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
+              <span className="inline-block w-3 h-3 rounded border-2 border-orange-500"></span>
+              <span className="font-medium text-slate-700">Safety</span>
+            </div>
+          </div>
         </div>
       </div>
       <div className="px-4 py-3 text-[13px]">
@@ -149,7 +179,7 @@ export function AreaChart() {
             status={getSafetyStatus(last?.netWorth, last?.safety)}
           />
         </div>
-        <div className="mt-4 rounded border bg-white relative" ref={containerRef}>
+        <div className="mt-6 rounded-xl border border-slate-200 bg-white relative shadow-sm" ref={containerRef}>
           <svg
             role="img"
             width="100%"
@@ -197,9 +227,14 @@ export function AreaChart() {
               milestone={state.milestones.find((m) => m.at.monthIndex === hovered)?.label}
             />
           ) : null}
-          <div className="flex items-center justify-between px-3 py-2 border-t bg-slate-50 text-xs">
-            <button onClick={() => setZoom(0, totalMonths)} className="text-xs px-2 py-1 border rounded hover:bg-white">Reset Zoom</button>
-            <div className="text-[11px] text-slate-500">Scroll to zoom, click to add milestone</div>
+          <div className="flex items-center justify-between px-4 py-3 border-t bg-gradient-to-r from-slate-50 to-blue-50 text-xs">
+            <button 
+              onClick={() => setZoom(0, totalMonths)} 
+              className="px-3 py-1 border border-slate-300 rounded-lg hover:bg-white hover:border-slate-400 transition-all text-xs font-medium"
+            >
+              Reset Zoom
+            </button>
+            <div className="text-xs text-slate-500 font-medium">Scroll to zoom, click to add milestone</div>
           </div>
         </div>
       </div>
@@ -209,10 +244,10 @@ export function AreaChart() {
 
 function Kpi(props: { label: string; value: string; color?: string; title?: string; status?: string }) {
   return (
-    <div className="rounded-md border p-3" title={props.title}>
-      <div className="text-xs text-slate-500">{props.label}</div>
-      <div className={`text-lg font-semibold ${props.color ?? ''}`}>{props.value}</div>
-      {props.status && <div className="text-xs text-slate-400 mt-1">{props.status}</div>}
+    <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow" title={props.title}>
+      <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">{props.label}</div>
+      <div className={`text-xl font-bold ${props.color ?? 'text-slate-800'} mb-1`}>{props.value}</div>
+      {props.status && <div className="text-xs text-slate-400">{props.status}</div>}
     </div>
   );
 }
