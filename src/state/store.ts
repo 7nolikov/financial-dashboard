@@ -271,29 +271,29 @@ const presets = {
       {
         id: 'inc-business',
         label: 'Business Revenue',
-        amount: 18000, // ~$216k annually, realistic for successful small business
+        amount: 12000, // ~$144k annually, more realistic for small business
         recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 },
         category: 'business',
       },
       {
         id: 'inc-passive',
         label: 'Passive Income',
-        amount: 2500, // Rental income, royalties, etc.
+        amount: 1500, // Rental income, royalties, etc.
         recurrence: { kind: 'recurring', start: { ageYears: 40, monthIndex: 40 * 12 }, everyMonths: 1 },
         category: 'passive',
       },
     ],
     expenses: [
-      { id: 'exp-business', label: 'Business Expenses', amount: 6000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 } },
-      { id: 'exp-lifestyle', label: 'Personal Lifestyle', amount: 5000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
-      { id: 'exp-taxes', label: 'Business Taxes', amount: 4000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
+      { id: 'exp-business', label: 'Business Expenses', amount: 4000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 } },
+      { id: 'exp-lifestyle', label: 'Personal Lifestyle', amount: 3500, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
+      { id: 'exp-taxes', label: 'Business Taxes', amount: 2500, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
     ],
     loans: [
       {
         id: 'loan-business',
         label: 'Business Loan',
-        principal: 120000,
-        monthlyPayment: 2500,
+        principal: 80000,
+        monthlyPayment: 1800,
         recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 45, monthIndex: 45 * 12 }, everyMonths: 1 },
         interestRate: 0.065,
         category: 'business',
@@ -303,22 +303,22 @@ const presets = {
       {
         id: 'inv-real-estate',
         label: 'Real Estate',
-        principal: 75000,
-        recurringAmount: 4000,
+        principal: 50000,
+        recurringAmount: 2500,
         recurrence: { kind: 'recurring', start: { ageYears: 32, monthIndex: 32 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 },
         model: { type: 'fixed', fixedRate: 0.07 },
       },
       {
         id: 'inv-venture',
         label: 'Venture Capital',
-        principal: 30000,
-        recurringAmount: 3000,
+        principal: 20000,
+        recurringAmount: 2000,
         recurrence: { kind: 'recurring', start: { ageYears: 35, monthIndex: 35 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 1 },
         model: { type: 'fixed', fixedRate: 0.12 },
       },
     ],
     safetySavings: [
-      { id: 'ss-1', label: 'Business Reserve', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 18, monthlyExpenses: 15000 },
+      { id: 'ss-1', label: 'Business Reserve', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 12, monthlyExpenses: 10000 },
     ],
     retirement: { age: 60, withdrawalRate: 0.03 },
     milestones: [

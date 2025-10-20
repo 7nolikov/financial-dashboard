@@ -445,20 +445,97 @@ function Line({ data, x, y, get, stroke, dash }: any) {
 
 function Milestones({ x, height, zoom, milestones }: any) {
   const [min, max] = zoom as [number, number];
+  const visibleMilestones = milestones.filter((m: any) => m.at.monthIndex >= min && m.at.monthIndex <= max);
+  
+  // Calculate label positions with collision detection
+  const labelHeight = 20; // Approximate height of text
+  const labelSpacing = 5; // Minimum spacing between labels
+  const labelPositions: Array<{ milestone: any; x: number; y: number; width: number }> = [];
+  
+  // First pass: calculate all label positions
+  visibleMilestones.forEach((m: any) => {
+    const xPos = x(m.at.monthIndex);
+    const text = `📍 ${m.label}`;
+    const estimatedWidth = text.length * 6; // Rough estimate: 6px per character
+    labelPositions.push({
+      milestone: m,
+      x: xPos,
+      y: height - 8, // Start at bottom
+      width: estimatedWidth
+    });
+  });
+  
+  // Second pass: resolve overlaps by stacking labels
+  const resolvedPositions: Array<{ milestone: any; x: number; y: number }> = [];
+  const occupiedRanges: Array<{ x: number; width: number; bottomY: number }> = [];
+  
+  labelPositions.forEach((label) => {
+    let finalY = label.y;
+    let hasOverlap = true;
+    let attempts = 0;
+    const maxAttempts = 10; // Prevent infinite loops
+    
+    while (hasOverlap && attempts < maxAttempts) {
+      hasOverlap = false;
+      
+      // Check for horizontal overlap with existing labels
+      for (const occupied of occupiedRanges) {
+        const labelLeft = label.x - label.width / 2;
+        const labelRight = label.x + label.width / 2;
+        const occupiedLeft = occupied.x - occupied.width / 2;
+        const occupiedRight = occupied.x + occupied.width / 2;
+        
+        // Check if labels overlap horizontally
+        if (labelLeft < occupiedRight && labelRight > occupiedLeft) {
+          // Check if labels overlap vertically
+          if (finalY < occupied.bottomY + labelSpacing) {
+            hasOverlap = true;
+            finalY = occupied.bottomY + labelSpacing;
+            break;
+          }
+        }
+      }
+      
+      attempts++;
+    }
+    
+    // Add this label to occupied ranges
+    occupiedRanges.push({
+      x: label.x,
+      width: label.width,
+      bottomY: finalY + labelHeight
+    });
+    
+    resolvedPositions.push({
+      milestone: label.milestone,
+      x: label.x,
+      y: finalY
+    });
+  });
+  
   return (
     <g>
-      {milestones.filter((m: any) => m.at.monthIndex >= min && m.at.monthIndex <= max).map((m: any) => (
-        <g key={m.id}>
-          <line x1={x(m.at.monthIndex)} x2={x(m.at.monthIndex)} y1={0} y2={height} stroke="#94a3b8" strokeDasharray="2 2" />
+      {resolvedPositions.map((pos) => (
+        <g key={pos.milestone.id}>
+          <line 
+            x1={pos.x} 
+            x2={pos.x} 
+            y1={0} 
+            y2={height} 
+            stroke="#94a3b8" 
+            strokeDasharray="2 2" 
+            strokeWidth={1}
+          />
           <text
-            x={x(m.at.monthIndex)}
-            y={height - 8}
+            x={pos.x}
+            y={pos.y}
             textAnchor="middle"
             fontSize="9"
             fill="#64748b"
             className="pointer-events-none"
+            style={{ fontFamily: 'ui-sans-serif, system-ui, sans-serif' }}
           >
-            📍 {m.label}
+            📍 {pos.milestone.label}
           </text>
         </g>
       ))}
