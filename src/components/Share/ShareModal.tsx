@@ -62,7 +62,7 @@ export function ShareModal() {
         </div>
         <div className="border rounded overflow-auto flex-1 p-2 bg-slate-50">
           <div id="share-preview" className="min-w-[600px]">
-            {document.getElementById('timeline-capture')?.cloneNode(true) as HTMLElement}
+            {document.getElementById('timeline-capture')?.cloneNode(true) as React.ReactNode}
           </div>
         </div>
         <div className="mt-3 flex justify-end">

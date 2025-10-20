@@ -163,7 +163,7 @@ export function AreaChart() {
                   <stop offset="100%" stopColor="#f8fafc" />
                 </linearGradient>
               </defs>
-              <AxisBottom x={x} width={width - 60} height={240} />
+              <AxisBottom x={x} _width={width - 60} height={240} />
               <AxisLeft y={y} height={240} />
               <SeriesAreas x={x} y={y} data={visible} />
               <ExtremumMarkers x={x} y={y} data={visible} />
@@ -388,14 +388,14 @@ function Area({ data, x, y, get, color, stroke }: any) {
   const path = data.map((p: unknown) => ({ x: x(p as number), y: y(get(p)) }));
   return (
     <g>
-      <AreaClosed data={path} x={(d: { x: number }) => d.x} y={(d: { y: number }) => d.y} yScale={y} fill={color} stroke={stroke} curve={curveMonotoneX} />
+      <AreaClosed data={path} x={(d: { x: number; y: number }) => d.x} y={(d: { x: number; y: number }) => d.y} yScale={y} fill={color} stroke={stroke} curve={curveMonotoneX} />
     </g>
   );
 }
 
 function Line({ data, x, y, get, stroke, dash }: any) {
   const path = data.map((p: unknown) => ({ x: x(p as number), y: y(get(p)) }));
-  return <LinePath data={path} x={(d: { x: number }) => d.x} y={(d: { y: number }) => d.y} stroke={stroke} strokeDasharray={dash} curve={curveMonotoneX} />;
+  return <LinePath data={path} x={(d: { x: number; y: number }) => d.x} y={(d: { x: number; y: number }) => d.y} stroke={stroke} strokeDasharray={dash} curve={curveMonotoneX} />;
 }
 
 function Milestones({ x, height, zoom, milestones }: any) {
