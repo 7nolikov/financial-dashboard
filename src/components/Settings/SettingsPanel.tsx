@@ -1,0 +1,59 @@
+import React from 'react';
+import { useStore, SafetySavingsRule } from '../../state/store';
+
+function uid(prefix: string) { return `${prefix}-${Math.random().toString(36).slice(2, 8)}`; }
+
+export function SettingsPanel() {
+  const rules = useStore((s) => s.safetySavings);
+  const setInflation = useStore((s) => s.setInflation);
+  const state = useStore();
+  const [label, setLabel] = React.useState('Safety Period');
+  const [months, setMonths] = React.useState(6);
+  const [monthly, setMonthly] = React.useState(3000);
+  const [startAge, setStartAge] = React.useState(25);
+  const addRule = () => {
+    const r: SafetySavingsRule = { id: uid('ss'), label, start: { ageYears: startAge, monthIndex: startAge * 12 }, monthsCoverage: months, monthlyExpenses: monthly };
+    useStore.setState({ safetySavings: [...state.safetySavings, r] });
+  };
+  return (
+    <div className="rounded-lg border bg-white p-4">
+      <div className="text-sm font-medium mb-3">Settings</div>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <div className="text-xs text-slate-600">Safety savings (add period)</div>
+          <div className="flex gap-2 items-end">
+            <input className="border rounded px-2 py-1" placeholder="Label" value={label} onChange={(e) => setLabel(e.target.value)} />
+            <input type="number" className="border rounded px-2 py-1 w-24" placeholder="Months" value={months} onChange={(e) => setMonths(Number(e.target.value))} />
+            <input type="number" className="border rounded px-2 py-1 w-28" placeholder="$ per month" value={monthly} onChange={(e) => setMonthly(Number(e.target.value))} />
+            <input type="number" className="border rounded px-2 py-1 w-24" placeholder="Start age" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} />
+            <button className="px-3 py-1 border rounded bg-slate-900 text-white" onClick={addRule}>Add</button>
+          </div>
+          <ul className="text-sm list-disc pl-5">
+            {rules.map((r) => (<li key={r.id}>{r.label}: {r.monthsCoverage} months of ${r.monthlyExpenses}</li>))}
+          </ul>
+        </div>
+        <div className="space-y-2">
+          <div className="text-xs text-slate-600">Interest rates (global)</div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm">APR %</span>
+            <input type="number" step="0.1" className="border rounded px-2 py-1 w-24" defaultValue={6.5} onChange={(e) => {
+              const val = Math.max(0, Number(e.target.value)) / 100;
+              // update all fixed models for demo
+              useStore.setState({ investments: state.investments.map((i) => ({ ...i, model: i.model.type === 'fixed' ? { type: 'fixed', fixedRate: val } : i.model })) });
+            }} />
+          </div>
+          <div className="text-xs text-slate-600">Inflation apply-to</div>
+          <div className="flex items-center gap-3 text-sm">
+            {(['incomes','expenses','contributions','safetySavings'] as const).map((k) => (
+              <label key={k} className="inline-flex items-center gap-1">
+                <input type="checkbox" checked={(state.inflation.applyTo as any)[k]} onChange={(e) => setInflation({ applyTo: { ...state.inflation.applyTo, [k]: e.target.checked } as any })} /> {k}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
