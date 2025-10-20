@@ -84,7 +84,17 @@ export function AreaChart() {
   return (
     <div className="rounded-lg border bg-white">
       <div className="flex items-center justify-between px-4 py-2 border-b">
-        <div className="text-sm font-medium">Timeline</div>
+        <div className="flex items-center gap-3">
+          <div className="text-sm font-medium">Timeline</div>
+          <div className={`text-xs px-2 py-1 rounded-full ${
+            state.inflation.display.seriesMode === 'nominal' 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-blue-100 text-blue-800'
+          }`}>
+            {state.inflation.display.seriesMode === 'nominal' ? '💰 Nominal' : '📊 Real'} 
+            ({((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inflation)
+          </div>
+        </div>
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-green-500"></span>Income</span>
           <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-red-500"></span>Expenses</span>

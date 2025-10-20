@@ -23,23 +23,26 @@ export function TopBar() {
               type="date" 
               value={dobISO} 
               onChange={(e) => setDOB(e.target.value)} 
-              className="border px-2 py-1 rounded" 
+              className="border px-3 py-2 rounded text-sm min-w-[140px]" 
               title="Pick your birth date to align the timeline with your actual age"
               min="1900-01-01"
               max="2024-12-31"
             />
           </div>
-          <select
-            value={inflation.display.seriesMode}
-            onChange={(e) => setInflation({ display: { seriesMode: e.target.value as 'nominal' | 'real' } })}
-            className="border px-2 py-1 rounded text-sm"
-            title="Nominal: shows actual dollar amounts with inflation. Real: shows purchasing power adjusted for inflation."
-          >
-            <option value="nominal">Nominal (with inflation)</option>
-            <option value="real">Real (inflation-adjusted)</option>
-          </select>
-          <div className="flex items-center gap-1 text-sm">
-            <span title="Average yearly inflation rate. Used for all calculations.">Inflation %</span>
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-slate-600">Display Mode</label>
+            <select
+              value={inflation.display.seriesMode}
+              onChange={(e) => setInflation({ display: { seriesMode: e.target.value as 'nominal' | 'real' } })}
+              className="border px-3 py-2 rounded text-sm min-w-[180px]"
+              title="Nominal: shows actual dollar amounts with inflation. Real: shows purchasing power adjusted for inflation."
+            >
+              <option value="nominal">💰 Nominal (with inflation)</option>
+              <option value="real">📊 Real (inflation-adjusted)</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-slate-600" title="Average yearly inflation rate. Used for all calculations.">Inflation Rate</span>
             <input
               type="number"
               step="0.1"
@@ -47,13 +50,14 @@ export function TopBar() {
               max="20"
               value={((inflation.singleRate ?? 0) * 100).toFixed(1)}
               onChange={(e) => setInflation({ singleRate: Math.max(0, Math.min(20, Number(e.target.value))) / 100 })}
-              className="w-20 border px-2 py-1 rounded"
+              className="w-20 border px-3 py-2 rounded text-sm"
               title="Average yearly inflation rate (typically 2-3%)"
             />
+            <span className="text-sm text-slate-500">%</span>
           </div>
-          <button onClick={() => setZoom(0, 100 * 12)} className="text-xs px-2 py-1 border rounded hover:bg-slate-50" title="Show full 0–100 years">Reset Zoom</button>
-          <button onClick={() => setShowHelp(true)} className="text-xs px-2 py-1 border rounded hover:bg-slate-50" title="Help, use cases and shortcuts">?</button>
-          <button onClick={onShare} className="text-xs px-2 py-1 border rounded bg-slate-900 text-white hover:opacity-90" title="Preview and download as image">Share JPG</button>
+          <button onClick={() => setZoom(0, 100 * 12)} className="text-sm px-3 py-2 border rounded hover:bg-slate-50 transition-colors" title="Show full 0–100 years">Reset Zoom</button>
+          <button onClick={() => setShowHelp(true)} className="text-sm px-3 py-2 border rounded hover:bg-slate-50 transition-colors" title="Help, use cases and shortcuts">?</button>
+          <button onClick={onShare} className="text-sm px-3 py-2 border rounded bg-slate-900 text-white hover:opacity-90 transition-opacity" title="Preview and download as image">Share JPG</button>
         </div>
       </div>
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />

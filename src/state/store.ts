@@ -81,7 +81,7 @@ export type Store = CoreState & {
 const CURRENT_VERSION = 1;
 const STORAGE_KEY = 'flt-state';
 
-// Demo presets for different character types
+// Demo presets for different character types with realistic financial data
 const presets = {
   worker: (): CoreState => ({
     version: CURRENT_VERSION,
@@ -90,52 +90,86 @@ const presets = {
       {
         id: 'inc-job',
         label: 'Salary',
-        amount: 3500,
+        amount: 4200, // ~$50k annually, realistic for 22-year-old entry level
         recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
+        category: 'employment',
+      },
+      {
+        id: 'inc-raise-1',
+        label: 'Salary (Promotion)',
+        amount: 5500, // ~$66k annually, realistic for late 20s
+        recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 35, monthIndex: 35 * 12 }, everyMonths: 1 },
+        category: 'employment',
+      },
+      {
+        id: 'inc-raise-2',
+        label: 'Salary (Senior)',
+        amount: 7000, // ~$84k annually, realistic for mid-30s
+        recurrence: { kind: 'recurring', start: { ageYears: 35, monthIndex: 35 * 12 }, end: { ageYears: 50, monthIndex: 50 * 12 }, everyMonths: 1 },
+        category: 'employment',
+      },
+      {
+        id: 'inc-raise-3',
+        label: 'Salary (Manager)',
+        amount: 8500, // ~$102k annually, realistic for late career
+        recurrence: { kind: 'recurring', start: { ageYears: 50, monthIndex: 50 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
         category: 'employment',
       },
     ],
     expenses: [
-      { id: 'exp-rent', label: 'Rent', amount: 1200, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-food', label: 'Food & Bills', amount: 800, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-transport', label: 'Transport', amount: 300, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-rent', label: 'Rent/Housing', amount: 1400, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-food', label: 'Food & Groceries', amount: 600, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-transport', label: 'Transportation', amount: 400, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-insurance', label: 'Insurance', amount: 200, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-utilities', label: 'Utilities', amount: 150, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-misc', label: 'Miscellaneous', amount: 300, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
     ],
     loans: [
       {
         id: 'loan-student',
         label: 'Student Loan',
-        principal: 25000,
-        monthlyPayment: 200,
-        recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 35, monthIndex: 35 * 12 }, everyMonths: 1 },
-        interestRate: 0.045,
+        principal: 28000,
+        monthlyPayment: 280,
+        recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 32, monthIndex: 32 * 12 }, everyMonths: 1 },
+        interestRate: 0.055,
         category: 'education',
       },
     ],
     investments: [
       {
         id: 'inv-401k',
-        label: '401k',
+        label: '401k (6% match)',
         principal: 0,
-        recurringAmount: 300,
+        recurringAmount: 420, // 10% of $4200 salary
         recurrence: { kind: 'recurring', start: { ageYears: 25, monthIndex: 25 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
-        model: { type: 'fixed', fixedRate: 0.06 },
+        model: { type: 'fixed', fixedRate: 0.07 },
+      },
+      {
+        id: 'inv-roth',
+        label: 'Roth IRA',
+        principal: 0,
+        recurringAmount: 500, // Max $6000/year
+        recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
+        model: { type: 'fixed', fixedRate: 0.08 },
       },
     ],
     safetySavings: [
-      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 6, monthlyExpenses: 2300 },
+      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 6, monthlyExpenses: 3050 },
     ],
     retirement: { age: 65, withdrawalRate: 0.04 },
     milestones: [
       { id: 'ms-grad', at: { ageYears: 22, monthIndex: 22 * 12 }, label: 'First Job' },
-      { id: 'ms-house', at: { ageYears: 28, monthIndex: 28 * 12 }, label: 'Buy House' },
+      { id: 'ms-promotion', at: { ageYears: 28, monthIndex: 28 * 12 }, label: 'First Promotion' },
+      { id: 'ms-house', at: { ageYears: 32, monthIndex: 32 * 12 }, label: 'Buy House' },
       { id: 'ms-kids', at: { ageYears: 30, monthIndex: 30 * 12 }, label: 'Start Family' },
-      { id: 'ms-promotion', at: { ageYears: 35, monthIndex: 35 * 12 }, label: 'Career Peak' },
+      { id: 'ms-senior', at: { ageYears: 35, monthIndex: 35 * 12 }, label: 'Senior Role' },
+      { id: 'ms-manager', at: { ageYears: 50, monthIndex: 50 * 12 }, label: 'Management Role' },
       { id: 'ms-retire', at: { ageYears: 65, monthIndex: 65 * 12 }, label: 'Retirement' },
     ],
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
-      singleRate: 0.025,
+      singleRate: 0.03, // More realistic 3% inflation
       yearlyRates: undefined,
       display: { seriesMode: 'nominal' },
     },
@@ -149,30 +183,38 @@ const presets = {
       {
         id: 'inc-job',
         label: 'Tech Salary',
-        amount: 8000,
+        amount: 10000, // ~$120k annually, realistic for tech professional
         recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 1 },
         category: 'employment',
       },
       {
+        id: 'inc-bonus',
+        label: 'Annual Bonus',
+        amount: 2000, // ~$24k annually
+        recurrence: { kind: 'recurring', start: { ageYears: 26, monthIndex: 26 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 12 },
+        category: 'employment',
+      },
+      {
         id: 'inc-dividends',
-        label: 'Dividends',
-        amount: 500,
+        label: 'Dividend Income',
+        amount: 800, // Grows with investments
         recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 },
         category: 'investment',
       },
     ],
     expenses: [
-      { id: 'exp-mortgage', label: 'Mortgage', amount: 2500, recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 58, monthIndex: 58 * 12 }, everyMonths: 1 } },
-      { id: 'exp-living', label: 'Living Costs', amount: 2000, recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, everyMonths: 1 } },
+      { id: 'exp-mortgage', label: 'Mortgage', amount: 3000, recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 58, monthIndex: 58 * 12 }, everyMonths: 1 } },
+      { id: 'exp-living', label: 'Living Costs', amount: 2500, recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, everyMonths: 1 } },
+      { id: 'exp-taxes', label: 'Taxes', amount: 2000, recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, everyMonths: 1 } },
     ],
     loans: [
       {
         id: 'loan-mortgage',
         label: 'Mortgage',
-        principal: 400000,
-        monthlyPayment: 2500,
+        principal: 450000,
+        monthlyPayment: 3000,
         recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 58, monthIndex: 58 * 12 }, everyMonths: 1 },
-        interestRate: 0.035,
+        interestRate: 0.04,
         category: 'mortgage',
       },
     ],
@@ -180,26 +222,34 @@ const presets = {
       {
         id: 'inv-index',
         label: 'Index Fund',
-        principal: 10000,
-        recurringAmount: 2000,
+        principal: 15000,
+        recurringAmount: 3000, // 30% of salary
         recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 1 },
         model: { type: 'fixed', fixedRate: 0.08 },
       },
       {
         id: 'inv-stocks',
         label: 'Stock Portfolio',
-        principal: 5000,
-        recurringAmount: 1000,
+        principal: 8000,
+        recurringAmount: 1500,
         recurrence: { kind: 'recurring', start: { ageYears: 26, monthIndex: 26 * 12 }, end: { ageYears: 50, monthIndex: 50 * 12 }, everyMonths: 1 },
         model: { type: 'fixed', fixedRate: 0.10 },
       },
+      {
+        id: 'inv-401k',
+        label: '401k Max',
+        principal: 0,
+        recurringAmount: 1917, // Max $23k/year
+        recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 1 },
+        model: { type: 'fixed', fixedRate: 0.07 },
+      },
     ],
     safetySavings: [
-      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 12, monthlyExpenses: 4500 },
+      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 12, monthlyExpenses: 7500 },
     ],
     retirement: { age: 55, withdrawalRate: 0.035 },
     milestones: [
-      { id: 'ms-grad', at: { ageYears: 24, monthIndex: 24 * 12 }, label: 'Tech Career' },
+      { id: 'ms-grad', at: { ageYears: 24, monthIndex: 24 * 12 }, label: 'Tech Career Start' },
       { id: 'ms-house', at: { ageYears: 28, monthIndex: 28 * 12 }, label: 'First Home' },
       { id: 'ms-invest', at: { ageYears: 32, monthIndex: 32 * 12 }, label: 'Major Investment' },
       { id: 'ms-retire', at: { ageYears: 55, monthIndex: 55 * 12 }, label: 'Early Retirement' },
@@ -207,7 +257,7 @@ const presets = {
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
-      singleRate: 0.025,
+      singleRate: 0.03,
       yearlyRates: undefined,
       display: { seriesMode: 'nominal' },
     },
@@ -220,32 +270,32 @@ const presets = {
     incomes: [
       {
         id: 'inc-business',
-        label: 'Business Income',
-        amount: 15000,
+        label: 'Business Revenue',
+        amount: 18000, // ~$216k annually, realistic for successful small business
         recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 },
         category: 'business',
       },
       {
         id: 'inc-passive',
         label: 'Passive Income',
-        amount: 2000,
+        amount: 2500, // Rental income, royalties, etc.
         recurrence: { kind: 'recurring', start: { ageYears: 40, monthIndex: 40 * 12 }, everyMonths: 1 },
         category: 'passive',
       },
     ],
     expenses: [
-      { id: 'exp-business', label: 'Business Costs', amount: 5000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 } },
-      { id: 'exp-lifestyle', label: 'Lifestyle', amount: 4000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
-      { id: 'exp-taxes', label: 'Taxes', amount: 3000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
+      { id: 'exp-business', label: 'Business Expenses', amount: 6000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 } },
+      { id: 'exp-lifestyle', label: 'Personal Lifestyle', amount: 5000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
+      { id: 'exp-taxes', label: 'Business Taxes', amount: 4000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
     ],
     loans: [
       {
         id: 'loan-business',
         label: 'Business Loan',
-        principal: 100000,
-        monthlyPayment: 2000,
+        principal: 120000,
+        monthlyPayment: 2500,
         recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 45, monthIndex: 45 * 12 }, everyMonths: 1 },
-        interestRate: 0.06,
+        interestRate: 0.065,
         category: 'business',
       },
     ],
@@ -253,34 +303,34 @@ const presets = {
       {
         id: 'inv-real-estate',
         label: 'Real Estate',
-        principal: 50000,
-        recurringAmount: 3000,
+        principal: 75000,
+        recurringAmount: 4000,
         recurrence: { kind: 'recurring', start: { ageYears: 32, monthIndex: 32 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 },
         model: { type: 'fixed', fixedRate: 0.07 },
       },
       {
         id: 'inv-venture',
         label: 'Venture Capital',
-        principal: 20000,
-        recurringAmount: 2000,
+        principal: 30000,
+        recurringAmount: 3000,
         recurrence: { kind: 'recurring', start: { ageYears: 35, monthIndex: 35 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 1 },
         model: { type: 'fixed', fixedRate: 0.12 },
       },
     ],
     safetySavings: [
-      { id: 'ss-1', label: 'Business Reserve', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 18, monthlyExpenses: 12000 },
+      { id: 'ss-1', label: 'Business Reserve', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 18, monthlyExpenses: 15000 },
     ],
     retirement: { age: 60, withdrawalRate: 0.03 },
     milestones: [
-      { id: 'ms-startup', at: { ageYears: 30, monthIndex: 30 * 12 }, label: 'Business Start' },
-      { id: 'ms-expansion', at: { ageYears: 40, monthIndex: 40 * 12 }, label: 'Expansion' },
+      { id: 'ms-startup', at: { ageYears: 30, monthIndex: 30 * 12 }, label: 'Business Launch' },
+      { id: 'ms-expansion', at: { ageYears: 40, monthIndex: 40 * 12 }, label: 'Business Expansion' },
       { id: 'ms-success', at: { ageYears: 50, monthIndex: 50 * 12 }, label: 'Business Success' },
       { id: 'ms-retire', at: { ageYears: 60, monthIndex: 60 * 12 }, label: 'Retirement' },
     ],
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
-      singleRate: 0.025,
+      singleRate: 0.03,
       yearlyRates: undefined,
       display: { seriesMode: 'nominal' },
     },
@@ -294,49 +344,56 @@ const presets = {
       {
         id: 'inc-job',
         label: 'Entry Salary',
-        amount: 2800,
+        amount: 3500, // ~$42k annually, realistic for entry level
         recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
+        category: 'employment',
+      },
+      {
+        id: 'inc-raise',
+        label: 'Salary Increase',
+        amount: 4500, // ~$54k annually, after some experience
+        recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
         category: 'employment',
       },
     ],
     expenses: [
-      { id: 'exp-rent', label: 'Rent', amount: 1000, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-loans', label: 'Student Loans', amount: 400, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 35, monthIndex: 35 * 12 }, everyMonths: 1 } },
-      { id: 'exp-living', label: 'Living Costs', amount: 600, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-credit', label: 'Credit Card', amount: 200, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
+      { id: 'exp-rent', label: 'Rent', amount: 1200, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-loans', label: 'Student Loan Payment', amount: 450, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 35, monthIndex: 35 * 12 }, everyMonths: 1 } },
+      { id: 'exp-living', label: 'Living Costs', amount: 800, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-credit', label: 'Credit Card Payment', amount: 250, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
     ],
     loans: [
       {
         id: 'loan-student',
         label: 'Student Loan',
         principal: 35000,
-        monthlyPayment: 400,
+        monthlyPayment: 450,
         recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 35, monthIndex: 35 * 12 }, everyMonths: 1 },
-        interestRate: 0.055,
+        interestRate: 0.065,
         category: 'education',
       },
       {
         id: 'loan-credit',
-        label: 'Credit Card',
-        principal: 5000,
-        monthlyPayment: 200,
+        label: 'Credit Card Debt',
+        principal: 8000,
+        monthlyPayment: 250,
         recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 },
-        interestRate: 0.18,
+        interestRate: 0.22,
         category: 'credit',
       },
     ],
     investments: [
       {
         id: 'inv-401k',
-        label: '401k Match',
+        label: '401k (Minimal)',
         principal: 0,
-        recurringAmount: 150,
+        recurringAmount: 200, // Only 5% of salary
         recurrence: { kind: 'recurring', start: { ageYears: 25, monthIndex: 25 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
         model: { type: 'fixed', fixedRate: 0.06 },
       },
     ],
     safetySavings: [
-      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 3, monthlyExpenses: 2200 },
+      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 3, monthlyExpenses: 2700 },
     ],
     retirement: { age: 67, withdrawalRate: 0.04 },
     milestones: [
@@ -349,7 +406,7 @@ const presets = {
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
-      singleRate: 0.025,
+      singleRate: 0.03,
       yearlyRates: undefined,
       display: { seriesMode: 'nominal' },
     },

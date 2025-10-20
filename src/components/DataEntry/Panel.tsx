@@ -15,7 +15,7 @@ export function DataEntryPanel() {
           <label className="text-sm font-medium text-slate-700">Demo Presets:</label>
           <select 
             onChange={(e) => e.target.value && loadPreset(e.target.value as 'worker' | 'investor' | 'businessman' | 'loaner')}
-            className="border px-2 py-1 rounded text-sm"
+            className="border px-3 py-2 rounded text-sm min-w-[140px]"
             defaultValue="worker"
           >
             <option value="worker">👷 Worker</option>
@@ -25,7 +25,7 @@ export function DataEntryPanel() {
           </select>
           <button 
             onClick={clearAllData}
-            className="text-xs px-3 py-1 border rounded bg-slate-100 text-slate-600 hover:bg-slate-200"
+            className="text-sm px-3 py-2 border rounded bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
             title="Clear all data and start from scratch"
           >
             Clear All
@@ -50,7 +50,17 @@ export function DataEntryPanel() {
 
 function TabButton(props: React.PropsWithChildren<{ active: boolean; onClick: () => void; title?: string }>) {
   return (
-    <button onClick={props.onClick} className={`px-2 py-1 rounded ${props.active ? 'bg-slate-900 text-white' : 'border'}`} title={props.title}>{props.children}</button>
+    <button 
+      onClick={props.onClick} 
+      className={`px-3 py-2 rounded text-sm transition-colors ${
+        props.active 
+          ? 'bg-slate-900 text-white' 
+          : 'border hover:bg-slate-50'
+      }`} 
+      title={props.title}
+    >
+      {props.children}
+    </button>
   );
 }
 
@@ -86,12 +96,12 @@ function IncomeTab() {
     <div className="space-y-3">
       <div className="text-xs text-slate-600 mb-2">Add monthly income sources (salary, freelance, etc.)</div>
       <div className="flex gap-2 items-end flex-wrap">
-        <div className="flex flex-col"><label className="text-xs">Label</label><input className="border rounded px-2 py-1" placeholder="e.g., Salary" value={label} onChange={(e) => setLabel(e.target.value)} /></div>
-        <div className="flex flex-col"><label className="text-xs">Monthly Amount ($)</label><input type="number" className="border rounded px-2 py-1 w-28" placeholder="3500" min="0" value={amount} onChange={(e) => setAmount(Number(e.target.value))} /></div>
-        <div className="flex flex-col"><label className="text-xs">Start Age</label><input type="number" className="border rounded px-2 py-1 w-20" placeholder="22" min="0" max="100" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} /></div>
-        <div className="flex flex-col"><label className="text-xs">End Age (optional)</label><input type="number" className="border rounded px-2 py-1 w-20" placeholder="65" min="0" max="100" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">Label</label><input className="border rounded px-3 py-2 text-sm" placeholder="e.g., Salary" value={label} onChange={(e) => setLabel(e.target.value)} /></div>
+        <div className="flex flex-col"><label className="text-xs">Monthly Amount ($)</label><input type="number" className="border rounded px-3 py-2 text-sm w-32" placeholder="3500" min="0" value={amount} onChange={(e) => setAmount(Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">Start Age</label><input type="number" className="border rounded px-3 py-2 text-sm w-24" placeholder="22" min="0" max="100" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">End Age (optional)</label><input type="number" className="border rounded px-3 py-2 text-sm w-24" placeholder="65" min="0" max="100" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} /></div>
         <button
-          className={`px-3 py-1 border rounded ${isAdding ? 'bg-gray-400' : 'bg-slate-900'} text-white`}
+          className={`px-3 py-2 border rounded text-sm transition-colors ${isAdding ? 'bg-gray-400' : 'bg-slate-900 hover:opacity-90'} text-white`}
           disabled={isAdding}
           onClick={handleAdd}
         >
