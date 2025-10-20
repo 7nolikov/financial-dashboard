@@ -62,23 +62,41 @@ function IncomeTab() {
   const [amount, setAmount] = React.useState(1000);
   const [startAge, setStartAge] = React.useState(22);
   const [endAge, setEndAge] = React.useState<number | ''>('');
+  const [isAdding, setIsAdding] = React.useState(false);
+  
+  const handleAdd = async () => {
+    if (!label.trim() || amount <= 0 || startAge < 0 || startAge > 100) return;
+    setIsAdding(true);
+    try {
+      const inc: Income = {
+        id: uid('inc'), label, amount,
+        recurrence: { kind: 'recurring', start: { ageYears: startAge, monthIndex: startAge * 12 }, end: endAge === '' ? undefined : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 }, everyMonths: 1 },
+      };
+      addIncome(inc);
+      setLabel('New Income');
+      setAmount(1000);
+      setStartAge(22);
+      setEndAge('');
+    } finally {
+      setIsAdding(false);
+    }
+  };
+  
   return (
     <div className="space-y-3">
+      <div className="text-xs text-slate-600 mb-2">Add monthly income sources (salary, freelance, etc.)</div>
       <div className="flex gap-2 items-end flex-wrap">
-        <div className="flex flex-col"><label className="text-xs">Label</label><input className="border rounded px-2 py-1" value={label} onChange={(e) => setLabel(e.target.value)} /></div>
-        <div className="flex flex-col"><label className="text-xs">Amount</label><input type="number" className="border rounded px-2 py-1 w-28" value={amount} onChange={(e) => setAmount(Number(e.target.value))} /></div>
-        <div className="flex flex-col"><label className="text-xs">Start age</label><input type="number" className="border rounded px-2 py-1 w-20" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} /></div>
-        <div className="flex flex-col"><label className="text-xs">End age</label><input type="number" className="border rounded px-2 py-1 w-20" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">Label</label><input className="border rounded px-2 py-1" placeholder="e.g., Salary" value={label} onChange={(e) => setLabel(e.target.value)} /></div>
+        <div className="flex flex-col"><label className="text-xs">Monthly Amount ($)</label><input type="number" className="border rounded px-2 py-1 w-28" placeholder="3500" min="0" value={amount} onChange={(e) => setAmount(Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">Start Age</label><input type="number" className="border rounded px-2 py-1 w-20" placeholder="22" min="0" max="100" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">End Age (optional)</label><input type="number" className="border rounded px-2 py-1 w-20" placeholder="65" min="0" max="100" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} /></div>
         <button
-          className="px-3 py-1 border rounded bg-slate-900 text-white"
-          onClick={() => {
-            const inc: Income = {
-              id: uid('inc'), label, amount,
-              recurrence: { kind: 'recurring', start: { ageYears: startAge, monthIndex: startAge * 12 }, end: endAge === '' ? undefined : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 }, everyMonths: 1 },
-            };
-            addIncome(inc);
-          }}
-        >Add</button>
+          className={`px-3 py-1 border rounded ${isAdding ? 'bg-gray-400' : 'bg-slate-900'} text-white`}
+          disabled={isAdding}
+          onClick={handleAdd}
+        >
+          {isAdding ? 'Adding...' : 'Add'}
+        </button>
       </div>
       <div className="space-y-2 max-h-48 overflow-y-auto">
         {incomes.map((i) => (
@@ -100,23 +118,41 @@ function ExpenseTab() {
   const [amount, setAmount] = React.useState(1000);
   const [startAge, setStartAge] = React.useState(22);
   const [endAge, setEndAge] = React.useState<number | ''>('');
+  const [isAdding, setIsAdding] = React.useState(false);
+  
+  const handleAdd = async () => {
+    if (!label.trim() || amount <= 0 || startAge < 0 || startAge > 100) return;
+    setIsAdding(true);
+    try {
+      const exp: Expense = {
+        id: uid('exp'), label, amount,
+        recurrence: { kind: 'recurring', start: { ageYears: startAge, monthIndex: startAge * 12 }, end: endAge === '' ? undefined : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 }, everyMonths: 1 },
+      };
+      addExpense(exp);
+      setLabel('New Expense');
+      setAmount(1000);
+      setStartAge(22);
+      setEndAge('');
+    } finally {
+      setIsAdding(false);
+    }
+  };
+  
   return (
     <div className="space-y-3">
+      <div className="text-xs text-slate-600 mb-2">Add monthly expenses (rent, utilities, groceries, etc.)</div>
       <div className="flex gap-2 items-end flex-wrap">
-        <div className="flex flex-col"><label className="text-xs">Label</label><input className="border rounded px-2 py-1" value={label} onChange={(e) => setLabel(e.target.value)} /></div>
-        <div className="flex flex-col"><label className="text-xs">Amount</label><input type="number" className="border rounded px-2 py-1 w-28" value={amount} onChange={(e) => setAmount(Number(e.target.value))} /></div>
-        <div className="flex flex-col"><label className="text-xs">Start age</label><input type="number" className="border rounded px-2 py-1 w-20" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} /></div>
-        <div className="flex flex-col"><label className="text-xs">End age</label><input type="number" className="border rounded px-2 py-1 w-20" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">Label</label><input className="border rounded px-2 py-1" placeholder="e.g., Rent" value={label} onChange={(e) => setLabel(e.target.value)} /></div>
+        <div className="flex flex-col"><label className="text-xs">Monthly Amount ($)</label><input type="number" className="border rounded px-2 py-1 w-28" placeholder="1200" min="0" value={amount} onChange={(e) => setAmount(Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">Start Age</label><input type="number" className="border rounded px-2 py-1 w-20" placeholder="22" min="0" max="100" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">End Age (optional)</label><input type="number" className="border rounded px-2 py-1 w-20" placeholder="65" min="0" max="100" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} /></div>
         <button
-          className="px-3 py-1 border rounded bg-slate-900 text-white"
-          onClick={() => {
-            const exp: Expense = {
-              id: uid('exp'), label, amount,
-              recurrence: { kind: 'recurring', start: { ageYears: startAge, monthIndex: startAge * 12 }, end: endAge === '' ? undefined : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 }, everyMonths: 1 },
-            };
-            addExpense(exp);
-          }}
-        >Add</button>
+          className={`px-3 py-1 border rounded ${isAdding ? 'bg-gray-400' : 'bg-slate-900'} text-white`}
+          disabled={isAdding}
+          onClick={handleAdd}
+        >
+          {isAdding ? 'Adding...' : 'Add'}
+        </button>
       </div>
       <div className="space-y-2 max-h-48 overflow-y-auto">
         {expenses.map((i) => (
@@ -139,25 +175,44 @@ function InvestmentTab() {
   const [fixedRate, setFixedRate] = React.useState(6.5);
   const [startAge, setStartAge] = React.useState(22);
   const [endAge, setEndAge] = React.useState<number | ''>(65);
+  const [isAdding, setIsAdding] = React.useState(false);
+  
+  const handleAdd = async () => {
+    if (!label.trim() || recurringAmount <= 0 || fixedRate < 0 || startAge < 0 || startAge > 100) return;
+    setIsAdding(true);
+    try {
+      const inv: Investment = {
+        id: uid('inv'), label, principal: 0, recurringAmount,
+        recurrence: { kind: 'recurring', start: { ageYears: startAge, monthIndex: startAge * 12 }, end: endAge === '' ? undefined : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 }, everyMonths: 1 },
+        model: { type: 'fixed', fixedRate: fixedRate / 100 },
+      };
+      addInvestment(inv);
+      setLabel('New Investment');
+      setRecurringAmount(500);
+      setFixedRate(6.5);
+      setStartAge(22);
+      setEndAge(65);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+  
   return (
     <div className="space-y-3">
+      <div className="text-xs text-slate-600 mb-2">Add monthly investment contributions (401k, IRA, brokerage, etc.)</div>
       <div className="flex gap-2 items-end flex-wrap">
-        <div className="flex flex-col"><label className="text-xs">Label</label><input className="border rounded px-2 py-1" value={label} onChange={(e) => setLabel(e.target.value)} /></div>
-        <div className="flex flex-col"><label className="text-xs">Monthly</label><input type="number" className="border rounded px-2 py-1 w-28" value={recurringAmount} onChange={(e) => setRecurringAmount(Number(e.target.value))} /></div>
-        <div className="flex flex-col"><label className="text-xs">APR %</label><input type="number" className="border rounded px-2 py-1 w-24" step="0.1" value={fixedRate} onChange={(e) => setFixedRate(Number(e.target.value))} /></div>
-        <div className="flex flex-col"><label className="text-xs">Start age</label><input type="number" className="border rounded px-2 py-1 w-20" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} /></div>
-        <div className="flex flex-col"><label className="text-xs">End age</label><input type="number" className="border rounded px-2 py-1 w-20" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">Label</label><input className="border rounded px-2 py-1" placeholder="e.g., 401k" value={label} onChange={(e) => setLabel(e.target.value)} /></div>
+        <div className="flex flex-col"><label className="text-xs">Monthly Contribution ($)</label><input type="number" className="border rounded px-2 py-1 w-28" placeholder="500" min="0" value={recurringAmount} onChange={(e) => setRecurringAmount(Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">Expected APR %</label><input type="number" className="border rounded px-2 py-1 w-24" step="0.1" min="0" max="50" placeholder="6.5" value={fixedRate} onChange={(e) => setFixedRate(Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">Start Age</label><input type="number" className="border rounded px-2 py-1 w-20" placeholder="22" min="0" max="100" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">End Age</label><input type="number" className="border rounded px-2 py-1 w-20" placeholder="65" min="0" max="100" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} /></div>
         <button
-          className="px-3 py-1 border rounded bg-slate-900 text-white"
-          onClick={() => {
-            const inv: Investment = {
-              id: uid('inv'), label, principal: 0, recurringAmount,
-              recurrence: { kind: 'recurring', start: { ageYears: startAge, monthIndex: startAge * 12 }, end: endAge === '' ? undefined : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 }, everyMonths: 1 },
-              model: { type: 'fixed', fixedRate: fixedRate / 100 },
-            };
-            addInvestment(inv);
-          }}
-        >Add</button>
+          className={`px-3 py-1 border rounded ${isAdding ? 'bg-gray-400' : 'bg-slate-900'} text-white`}
+          disabled={isAdding}
+          onClick={handleAdd}
+        >
+          {isAdding ? 'Adding...' : 'Add'}
+        </button>
       </div>
       <div className="space-y-2 max-h-48 overflow-y-auto">
         {investments.map((i) => (
@@ -176,11 +231,35 @@ function RetirementTab() {
   const setR = useStore((s) => s.setRetirement);
   const [age, setAge] = React.useState(r?.age ?? 65);
   const [rate, setRate] = React.useState(r?.withdrawalRate ? r.withdrawalRate * 100 : 4);
+  const [isSaving, setIsSaving] = React.useState(false);
+  
+  const handleSave = async () => {
+    if (age < 50 || age > 100 || rate < 0 || rate > 20) return;
+    setIsSaving(true);
+    try {
+      setR({ age, withdrawalRate: rate/100 });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
   return (
-    <div className="flex items-end gap-2">
-      <div className="flex flex-col"><label className="text-xs">Retirement age</label><input type="number" className="border rounded px-2 py-1 w-24" value={age} onChange={(e) => setAge(Number(e.target.value))} /></div>
-      <div className="flex flex-col"><label className="text-xs">Withdrawal %</label><input type="number" className="border rounded px-2 py-1 w-24" step="0.1" value={rate} onChange={(e) => setRate(Number(e.target.value))} /></div>
-      <button className="px-3 py-1 border rounded bg-slate-900 text-white" onClick={() => setR({ age, withdrawalRate: rate/100 })}>Save</button>
+    <div className="space-y-3">
+      <div className="text-xs text-slate-600 mb-2">Set your retirement age and annual withdrawal rate</div>
+      <div className="flex items-end gap-2">
+        <div className="flex flex-col"><label className="text-xs">Retirement Age</label><input type="number" className="border rounded px-2 py-1 w-24" min="50" max="100" placeholder="65" value={age} onChange={(e) => setAge(Number(e.target.value))} /></div>
+        <div className="flex flex-col"><label className="text-xs">Annual Withdrawal %</label><input type="number" className="border rounded px-2 py-1 w-24" step="0.1" min="0" max="20" placeholder="4.0" value={rate} onChange={(e) => setRate(Number(e.target.value))} /></div>
+        <button 
+          className={`px-3 py-1 border rounded ${isSaving ? 'bg-gray-400' : 'bg-slate-900'} text-white`}
+          disabled={isSaving}
+          onClick={handleSave}
+        >
+          {isSaving ? 'Saving...' : 'Save'}
+        </button>
+      </div>
+      <div className="text-xs text-slate-500">
+        💡 Common withdrawal rates: 3-4% (conservative), 4-5% (moderate), 5%+ (aggressive)
+      </div>
     </div>
   );
 }
