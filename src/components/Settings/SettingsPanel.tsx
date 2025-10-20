@@ -6,7 +6,6 @@ function uid(prefix: string) { return `${prefix}-${Math.random().toString(36).sl
 export function SettingsPanel() {
   const rules = useStore((s) => s.safetySavings);
   const removeSafetySavings = useStore((s) => s.removeSafetySavings);
-  const setInflation = useStore((s) => s.setInflation);
   const state = useStore();
   const [label, setLabel] = React.useState('Safety Period');
   const [months, setMonths] = React.useState(6);

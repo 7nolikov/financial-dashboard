@@ -9,11 +9,11 @@ describe('Store Presets', () => {
     const state = useStore.getState();
     expect(state.dobISO).toBe('1990-01-01');
     expect(state.incomes).toHaveLength(1);
-    expect(state.incomes[0].label).toBe('Salary');
-    expect(state.incomes[0].amount).toBe(3500);
+    expect(state.incomes[0]?.label).toBe('Salary');
+    expect(state.incomes[0]?.amount).toBe(3500);
     expect(state.expenses).toHaveLength(3);
     expect(state.investments).toHaveLength(1);
-    expect(state.investments[0].label).toBe('401k');
+    expect(state.investments[0]?.label).toBe('401k');
   });
 
   it('should load investor preset with correct data', () => {
@@ -23,8 +23,8 @@ describe('Store Presets', () => {
     const state = useStore.getState();
     expect(state.dobISO).toBe('1985-01-01');
     expect(state.incomes).toHaveLength(2);
-    expect(state.incomes[0].label).toBe('Tech Salary');
-    expect(state.incomes[0].amount).toBe(8000);
+    expect(state.incomes[0]?.label).toBe('Tech Salary');
+    expect(state.incomes[0]?.amount).toBe(8000);
     expect(state.investments).toHaveLength(2);
     expect(state.retirement?.age).toBe(55);
   });

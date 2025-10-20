@@ -111,9 +111,11 @@ function rateForAge(state: Store, ageYears: number): number {
 
 function calculateLoanBalance(state: Store, m: number): number {
   let totalBalance = 0;
-  
+
   for (const loan of state.loans) {
     // Check if loan is active at this month
+    if (loan.recurrence.kind !== 'recurring') continue;
+    
     const { start, end } = loan.recurrence;
     if (m < start.monthIndex || (end && m > end.monthIndex)) {
       continue; // Loan not active

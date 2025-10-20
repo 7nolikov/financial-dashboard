@@ -239,7 +239,7 @@ function AxisBottom({ x, width, height }: { x: any; width: number; height: numbe
   );
 }
 
-function AxisLeft({ y, height }: { y: any; height: number }) {
+function AxisLeft({ y, height: _height }: { y: any; height: number }) {
   const domain = y.domain();
   const min = domain[0];
   const max = domain[1];

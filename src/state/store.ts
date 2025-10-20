@@ -62,6 +62,7 @@ export type Store = CoreState & {
   addExpense: (e: Expense) => void;
   addInvestment: (inv: Investment) => void;
   addLoan: (loan: Loan) => void;
+  addMilestone: (m: Milestone) => void;
   removeIncome: (id: string) => void;
   removeExpense: (id: string) => void;
   removeInvestment: (id: string) => void;
@@ -373,7 +374,7 @@ export const useStore = create<Store>()(
       addExpense: (e) => set({ expenses: [...get().expenses, e] }),
       addInvestment: (inv) => set({ investments: [...get().investments, inv] }),
       addLoan: (loan) => set({ loans: [...get().loans, loan] }),
-      addMilestone: (m) => set({ milestones: [...get().milestones, m] }),
+      addMilestone: (m: Milestone) => set({ milestones: [...get().milestones, m] }),
       removeIncome: (id) => set({ incomes: get().incomes.filter(i => i.id !== id) }),
       removeExpense: (id) => set({ expenses: get().expenses.filter(e => e.id !== id) }),
       removeInvestment: (id) => set({ investments: get().investments.filter(i => i.id !== id) }),
@@ -400,7 +401,7 @@ export const useStore = create<Store>()(
       name: STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
       version: CURRENT_VERSION,
-      migrate: (persisted, version) => migrateState(persisted),
+      migrate: (persisted, _version) => migrateState(persisted),
       partialize: (state) => state,
     },
   ),
