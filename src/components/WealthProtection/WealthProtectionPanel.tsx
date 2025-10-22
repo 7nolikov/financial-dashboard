@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, TrendingDown, DollarSign, Shield } from 'lucide-react';
+import { AlertTriangle, TrendingDown, Shield } from 'lucide-react';
 import type { WealthValidationResult } from '../../lib/validation/wealth-protection';
 
 interface WealthProtectionPanelProps {
@@ -54,24 +54,6 @@ export function WealthProtectionPanel({ validation, className = '' }: WealthProt
               <li key={index} className="text-yellow-700 text-sm flex items-start gap-2">
                 <span className="text-yellow-500 mt-0.5">•</span>
                 <span>{warning}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Suggestions - Action Items */}
-      {validation.suggestions.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-blue-800 mb-2">
-            <DollarSign className="h-5 w-5" />
-            <h3 className="font-semibold">Recommendations</h3>
-          </div>
-          <ul className="space-y-1">
-            {validation.suggestions.map((suggestion, index) => (
-              <li key={index} className="text-blue-700 text-sm flex items-start gap-2">
-                <span className="text-blue-500 mt-0.5">•</span>
-                <span>{suggestion}</span>
               </li>
             ))}
           </ul>

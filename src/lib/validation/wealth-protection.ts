@@ -74,18 +74,7 @@ export function validateWealthProtection(
     );
   }
 
-  // Generate suggestions based on analysis
-  if (negativeWealthWithInvestments.length > 0) {
-    suggestions.push('Consider reducing monthly expenses');
-    suggestions.push('Increase emergency fund target');
-    suggestions.push('Review investment withdrawal strategy');
-  }
-
-  if (savingsDepletedScenarios.length > 0) {
-    suggestions.push('Build larger emergency fund');
-    suggestions.push('Reduce high-risk expenses');
-    suggestions.push('Consider additional income sources');
-  }
+  // No suggestions - removed per user request
 
   return {
     isValid: errors.length === 0,

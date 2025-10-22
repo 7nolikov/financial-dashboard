@@ -98,21 +98,21 @@ export function AreaChart() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-50 to-indigo-50 px-6 py-4 border-b border-slate-200">
+      <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-6 py-4 border-b border-slate-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-lg">📊</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center shadow-sm">
+              <span className="text-white font-bold text-lg">📈</span>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-800">Financial Timeline</h2>
+              <h2 className="text-xl font-bold text-slate-800">Financial Projection Timeline</h2>
               <div className="flex items-center gap-3 mt-1">
-                <div className={`text-xs px-3 py-1 rounded-full font-medium ${
+                <div className={`text-xs px-3 py-1 rounded-md font-semibold ${
                   state.inflation.display.seriesMode === 'nominal' 
-                    ? 'bg-green-100 text-green-800 border border-green-200' 
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
                     : 'bg-blue-100 text-blue-800 border border-blue-200'
                 }`}>
-                  {state.inflation.display.seriesMode === 'nominal' ? '💰 Nominal' : '📊 Real'} 
+                  {state.inflation.display.seriesMode === 'nominal' ? 'Nominal Values' : 'Real Values'} 
                   ({((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inflation)
                 </div>
               </div>
@@ -120,30 +120,30 @@ export function AreaChart() {
           </div>
           
           {/* Legend */}
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
-              <span className="inline-block w-3 h-3 rounded bg-green-500"></span>
-              <span className="font-medium text-slate-700">Income</span>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
+              <span className="inline-block w-3 h-3 rounded bg-emerald-500"></span>
+              <span className="font-semibold text-slate-700">Income</span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
               <span className="inline-block w-3 h-3 rounded bg-red-500"></span>
-              <span className="font-medium text-slate-700">Expenses</span>
+              <span className="font-semibold text-slate-700">Expenses</span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
               <span className="inline-block w-3 h-3 rounded bg-blue-500"></span>
-              <span className="font-medium text-slate-700">Investments</span>
+              <span className="font-semibold text-slate-700">Investments</span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
-              <span className="inline-block w-3 h-3 rounded bg-yellow-500"></span>
-              <span className="font-medium text-slate-700">Loans</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
+              <span className="inline-block w-3 h-3 rounded bg-amber-500"></span>
+              <span className="font-semibold text-slate-700">Loans</span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
               <span className="inline-block w-3 h-3 rounded bg-violet-500"></span>
-              <span className="font-medium text-slate-700">Net Worth</span>
+              <span className="font-semibold text-slate-700">Net Worth</span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
               <span className="inline-block w-3 h-3 rounded border-2 border-orange-500"></span>
-              <span className="font-medium text-slate-700">Safety</span>
+              <span className="font-semibold text-slate-700">Safety</span>
             </div>
           </div>
         </div>
@@ -242,14 +242,14 @@ export function AreaChart() {
               milestone={state.milestones.find((m) => m.at.monthIndex === hovered)?.label}
             />
           ) : null}
-          <div className="flex items-center justify-between px-4 py-3 border-t bg-gradient-to-r from-slate-50 to-blue-50 text-xs">
+          <div className="flex items-center justify-between px-4 py-3 border-t bg-gradient-to-r from-slate-50 to-slate-100 text-xs">
             <button 
               onClick={() => setZoom(0, totalMonths)} 
-              className="px-3 py-1 border border-slate-300 rounded-lg hover:bg-white hover:border-slate-400 transition-all text-xs font-medium"
+              className="px-4 py-2 border border-slate-300 rounded-md hover:bg-white hover:border-slate-400 transition-all text-xs font-semibold text-slate-700"
             >
               Reset Zoom
             </button>
-            <div className="text-xs text-slate-500 font-medium">Scroll to zoom, click to add milestone</div>
+            <div className="text-xs text-slate-600 font-medium">Scroll to zoom • Click to add milestone</div>
           </div>
         </div>
       </div>
@@ -259,10 +259,10 @@ export function AreaChart() {
 
 function Kpi(props: { label: string; value: string; color?: string; title?: string; status?: string }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow" title={props.title}>
-      <div className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">{props.label}</div>
+    <div className="bg-white rounded-lg border border-slate-200 p-4 shadow-sm hover:shadow-md transition-all duration-200" title={props.title}>
+      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{props.label}</div>
       <div className={`text-xl font-bold ${props.color ?? 'text-slate-800'} mb-1`}>{props.value}</div>
-      {props.status && <div className="text-xs text-slate-400">{props.status}</div>}
+      {props.status && <div className="text-xs text-slate-500 font-medium">{props.status}</div>}
     </div>
   );
 }
@@ -287,14 +287,31 @@ function AxisBottom({ x, _width, height }: { x: any; _width: number; height: num
   const ticks = 11;
   const step = (x.domain()[1] - x.domain()[0]) / (ticks - 1);
   const values = new Array(ticks).fill(0).map((_, i) => Math.round(x.domain()[0] + i * step));
+  const minAge = values.length > 0 ? Math.floor((values[0] ?? 0) / 12) : 0;
+  const maxAge = values.length > 0 ? Math.floor((values[values.length - 1] ?? 0) / 12) : 100;
+  
   return (
     <g transform={`translate(0, ${height})`}>
+      {/* Axis line */}
+      <line x1={0} x2={_width} y1={0} y2={0} stroke="#e2e8f0" strokeWidth={1} />
+      
+      {/* Grid lines and labels */}
       {values.map((m: number) => (
         <g key={m} transform={`translate(${x(m)}, 0)`}>
-          <line y1={0} y2={-height} stroke="#f1f5f9" />
-          <text y={18} textAnchor="middle" fontSize={10} fill="#475569">{Math.floor(m / 12)}y</text>
+          <line y1={0} y2={-height} stroke="#f1f5f9" strokeWidth={1} />
+          <text y={18} textAnchor="middle" fontSize={10} fill="#64748b" fontWeight="500">
+            {Math.floor(m / 12)}y
+          </text>
         </g>
       ))}
+      
+      {/* Axis labels */}
+      <text x={0} y={35} fontSize={11} fill="#475569" fontWeight="600" textAnchor="start">
+        Age: {minAge}y
+      </text>
+      <text x={_width} y={35} fontSize={11} fill="#475569" fontWeight="600" textAnchor="end">
+        Age: {maxAge}y
+      </text>
     </g>
   );
 }
@@ -317,14 +334,29 @@ function AxisLeft({ y, height: _height }: { y: any; height: number }) {
   
   return (
     <g>
+      {/* Axis line */}
+      <line x1={0} x2={0} y1={0} y2={_height} stroke="#e2e8f0" strokeWidth={1} />
+      
+      {/* Grid lines and labels */}
       {ticks.map((value: number) => (
         <g key={value} transform={`translate(0, ${y(value)})`}>
-          <line x1={0} x2={-40} stroke="#e2e8f0" strokeWidth={1} />
-          <text x={-45} y={4} textAnchor="end" fontSize={9} fill="#64748b" fontFamily="ui-monospace, monospace">
+          <line x1={0} x2={-40} stroke="#f1f5f9" strokeWidth={1} />
+          <text x={-45} y={4} textAnchor="end" fontSize={9} fill="#64748b" fontFamily="ui-monospace, monospace" fontWeight="500">
             {formatCompact(value)}
           </text>
         </g>
       ))}
+      
+      {/* Axis labels */}
+      <text x={-50} y={_height / 2} fontSize={11} fill="#475569" fontWeight="600" textAnchor="middle" transform={`rotate(-90, -50, ${_height / 2})`}>
+        Amount ($)
+      </text>
+      <text x={-50} y={10} fontSize={9} fill="#64748b" textAnchor="middle" transform={`rotate(-90, -50, 10)`}>
+        {formatCompact(max)}
+      </text>
+      <text x={-50} y={_height - 5} fontSize={9} fill="#64748b" textAnchor="middle" transform={`rotate(-90, -50, ${_height - 5})`}>
+        {formatCompact(min)}
+      </text>
     </g>
   );
 }
