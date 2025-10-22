@@ -5,13 +5,45 @@ import { DataEntryPanel } from './components/DataEntry/Panel';
 import { SettingsPanel } from './components/Settings/SettingsPanel';
 import { ShareModal } from './components/Share/ShareModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { WealthProtectionPanel } from './components/WealthProtection/WealthProtectionPanel';
+import { useStore } from './state/store';
+import { computeSeries } from './state/selectors';
+import { validateWealthProtection, validatePresetData } from './lib/validation/wealth-protection';
+import { useMemo } from 'react';
 
 export default function App() {
+  const state = useStore();
+  
+  // Compute wealth protection validation
+  const wealthValidation = useMemo(() => {
+    const series = computeSeries(state);
+    const scenarios = series.map(point => ({
+      monthIndex: point.m,
+      netWorth: point.netWorth,
+      investmentsTotal: point.invest,
+      monthlyIncome: point.income,
+      monthlyExpenses: point.expense,
+      monthlyContributions: point.cashFlow > 0 ? point.cashFlow : 0,
+      wealthWarning: point.wealthWarning,
+      savingsDepleted: point.savingsDepleted,
+      investmentWithdrawal: point.investmentWithdrawal
+    }));
+    
+    return validateWealthProtection(scenarios, state);
+  }, [state]);
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <TopBar />
         <main className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-6">
+          {/* Wealth Protection Panel */}
+          {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
+            <div className="mb-6">
+              <WealthProtectionPanel validation={wealthValidation} />
+            </div>
+          )}
+          
           {/* Main Chart Section - Full Width */}
           <div className="mb-6">
             <div id="timeline-capture" className="shadow-xl rounded-2xl overflow-hidden bg-white border border-slate-200">

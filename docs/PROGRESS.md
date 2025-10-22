@@ -11,6 +11,12 @@
 - [x] Implemented safety level warnings and danger zones.
 - [x] Added demo presets (Worker, Investor, Businessman, Loaner).
 - [x] Improved UI/UX with responsive design and clear labeling.
+- [x] Fixed critical calculation bugs in investment and net worth logic.
+- [x] Implemented wealth protection validation system.
+- [x] Added soft validations for negative wealth scenarios.
+- [x] Created comprehensive wealth protection tests.
+- [x] Fixed preset data inconsistencies (investor/businessman contribution rates).
+- [x] Added wealth warning indicators and recommendations.
 - [ ] Testing (unit/integration/e2e), Allure, Hurl.
 - [ ] GitHub Actions CI/CD pipeline setup.
 - [ ] Graph visualization improvements (extremums, better scales).

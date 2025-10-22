@@ -223,7 +223,7 @@ const presets = {
         id: 'inv-index',
         label: 'Index Fund',
         principal: 15000,
-        recurringAmount: 3000, // 30% of salary
+        recurringAmount: 2000, // 20% of salary - more realistic
         recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 1 },
         model: { type: 'fixed', fixedRate: 0.08 },
       },
@@ -231,7 +231,7 @@ const presets = {
         id: 'inv-stocks',
         label: 'Stock Portfolio',
         principal: 8000,
-        recurringAmount: 1500,
+        recurringAmount: 1000, // Reduced to maintain positive cash flow
         recurrence: { kind: 'recurring', start: { ageYears: 26, monthIndex: 26 * 12 }, end: { ageYears: 50, monthIndex: 50 * 12 }, everyMonths: 1 },
         model: { type: 'fixed', fixedRate: 0.10 },
       },
@@ -304,7 +304,7 @@ const presets = {
         id: 'inv-real-estate',
         label: 'Real Estate',
         principal: 50000,
-        recurringAmount: 2500,
+        recurringAmount: 1500, // Reduced to maintain positive cash flow
         recurrence: { kind: 'recurring', start: { ageYears: 32, monthIndex: 32 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 },
         model: { type: 'fixed', fixedRate: 0.07 },
       },
@@ -312,7 +312,7 @@ const presets = {
         id: 'inv-venture',
         label: 'Venture Capital',
         principal: 20000,
-        recurringAmount: 2000,
+        recurringAmount: 1000, // Reduced to maintain positive cash flow
         recurrence: { kind: 'recurring', start: { ageYears: 35, monthIndex: 35 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 1 },
         model: { type: 'fixed', fixedRate: 0.12 },
       },

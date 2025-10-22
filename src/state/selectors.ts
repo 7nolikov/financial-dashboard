@@ -11,6 +11,8 @@ export type SeriesPoint = {
   safety: number;
   cashFlow: number;
   savingsDepleted: boolean;
+  wealthWarning: boolean;
+  investmentWithdrawal: number;
 };
 
 export function computeSeries(state: Store): SeriesPoint[] {
@@ -49,7 +51,10 @@ export function computeSeries(state: Store): SeriesPoint[] {
     // Investment growth calculation
     const apr = rateForAge(state, Math.floor(m / 12));
     const r_m = apr / 12;
-    investmentsTotal = investmentsTotal * (1 + r_m) + contrib;
+    
+    // Add initial principal for investments that start this month
+    const initialPrincipal = sumInitialPrincipal(state.investments, m);
+    investmentsTotal = investmentsTotal * (1 + r_m) + contrib + initialPrincipal;
 
     // Calculate available funds for expenses
     let availableFunds = income;
@@ -104,12 +109,15 @@ export function computeSeries(state: Store): SeriesPoint[] {
     // Calculate net cash flow
     const netCashflow = income - expense - contrib;
     
-    // Update net worth
-    netWorth += netCashflow;
+    // Update net worth (accounting for investment withdrawals)
+    netWorth += netCashflow - investmentWithdrawal;
     
     // Check if savings are depleted (negative net worth and no investments)
     const previousSavingsDepleted = savingsDepleted;
     savingsDepleted = netWorth < 0 && investmentsTotal <= 0;
+    
+    // Check for wealth warnings (negative net worth with investments available)
+    const wealthWarning = netWorth < 0 && investmentsTotal > 0;
     
     // If savings just got depleted, this is an extremum point
     const isExtremumPoint = !previousSavingsDepleted && savingsDepleted;
@@ -147,7 +155,9 @@ export function computeSeries(state: Store): SeriesPoint[] {
       netWorth: netPlot, 
       safety: safetyPlot,
       cashFlow: cashFlowPlot,
-      savingsDepleted: isExtremumPoint
+      savingsDepleted: isExtremumPoint,
+      wealthWarning,
+      investmentWithdrawal: state.inflation.display.seriesMode === 'real' ? deflateToReal(investmentWithdrawal, inflFactor) : investmentWithdrawal
     });
   }
   
@@ -178,6 +188,17 @@ function sumActiveContribution(investments: { recurringAmount?: number; recurren
     const r = inv.recurrence;
     if (r.kind === 'recurring' && m >= r.start.monthIndex && (r.end?.monthIndex == null || m <= r.end.monthIndex) && ((m - r.start.monthIndex) % r.everyMonths === 0)) {
       sum += amt;
+    }
+  }
+  return sum;
+}
+
+function sumInitialPrincipal(investments: { principal: number; recurrence: Recurrence }[], m: number): number {
+  let sum = 0;
+  for (const inv of investments) {
+    const r = inv.recurrence;
+    if (r.kind === 'recurring' && m === r.start.monthIndex) {
+      sum += inv.principal;
     }
   }
   return sum;
