@@ -16,6 +16,7 @@ export type WealthScenario = {
   monthlyContributions: number;
   wealthWarning: boolean;
   savingsDepleted: boolean;
+  investmentWithdrawal: number;
 };
 
 /**
@@ -23,7 +24,7 @@ export type WealthScenario = {
  */
 export function validateWealthProtection(
   scenarios: WealthScenario[],
-  state: Store
+  _state: Store
 ): WealthValidationResult {
   const warnings: string[] = [];
   const errors: string[] = [];
@@ -179,7 +180,10 @@ function findConsecutiveNegativeWealth(scenarios: WealthScenario[]): number {
   let currentConsecutive = 1;
 
   for (let i = 1; i < scenarios.length; i++) {
-    if (scenarios[i].monthIndex === scenarios[i - 1].monthIndex + 1) {
+    const current = scenarios[i];
+    const previous = scenarios[i - 1];
+    
+    if (current && previous && current.monthIndex === previous.monthIndex + 1) {
       currentConsecutive++;
       maxConsecutive = Math.max(maxConsecutive, currentConsecutive);
     } else {
@@ -211,7 +215,7 @@ function getCurrentAge(state: Store): number {
  */
 export function generateWealthProtectionRecommendations(
   scenarios: WealthScenario[],
-  state: Store
+  _state: Store
 ): string[] {
   const recommendations: string[] = [];
 

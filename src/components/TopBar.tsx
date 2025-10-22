@@ -14,24 +14,24 @@ export function TopBar() {
 
   return (
     <header className="bg-white border-b border-slate-200 shadow-sm">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+      <div className="mx-auto max-w-[1400px] px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4 sm:gap-6">
           {/* Logo and Title */}
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-xl">💰</span>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-lg sm:text-xl">💰</span>
             </div>
             <div>
-              <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                 Financial Life Tracker
               </h1>
-              <p className="text-sm text-slate-500 mt-1">Visualize your financial future</p>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">Visualize your financial future</p>
             </div>
           </div>
           
           {/* Controls */}
           <div className="flex-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {/* Date of Birth */}
               <div className="space-y-2">
                 <label className="text-xs font-medium text-slate-600 uppercase tracking-wide" title="Your date of birth. Ages on the chart use this.">

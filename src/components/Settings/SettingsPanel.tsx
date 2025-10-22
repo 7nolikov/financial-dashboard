@@ -31,16 +31,16 @@ export function SettingsPanel() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-50 to-purple-50 px-6 py-4 border-b border-slate-200">
+      <div className="bg-gradient-to-r from-slate-50 to-purple-50 px-4 sm:px-6 py-4 border-b border-slate-200">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Settings & Configuration</h2>
-          <p className="text-sm text-slate-600 mt-1">Configure safety savings and investment defaults</p>
+          <h2 className="text-lg sm:text-xl font-bold text-slate-800">Settings & Configuration</h2>
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">Configure safety savings and investment defaults</p>
         </div>
       </div>
       
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Safety Savings */}
           <div className="space-y-6">
             <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">

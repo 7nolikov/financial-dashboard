@@ -33,16 +33,30 @@ export function AreaChart() {
   const hoveredPoint = hovered != null ? visible.find((p) => p.m === hovered) : undefined;
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = React.useState<number>(1000);
+  const [isMobile, setIsMobile] = React.useState<boolean>(false);
+  
   React.useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => setWidth(el.clientWidth));
+    
+    const updateDimensions = () => {
+      setWidth(el.clientWidth);
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    const ro = new ResizeObserver(updateDimensions);
     ro.observe(el);
-    setWidth(el.clientWidth);
-    return () => ro.disconnect();
+    updateDimensions();
+    
+    window.addEventListener('resize', updateDimensions);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', updateDimensions);
+    };
   }, []);
-  const height = 260;
-  const padding = { left: 40, right: 20, top: 10, bottom: 30 };
+  
+  const height = isMobile ? 200 : 260;
+  const padding = { left: isMobile ? 30 : 40, right: 20, top: 10, bottom: 30 };
   const innerW = width - padding.left - padding.right;
   const innerH = height - padding.top - padding.bottom;
 

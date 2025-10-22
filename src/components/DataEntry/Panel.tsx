@@ -11,56 +11,62 @@ export function DataEntryPanel() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-50 to-blue-50 px-6 py-4 border-b border-slate-200">
-        <div className="flex items-center justify-between">
+      <div className="bg-gradient-to-r from-slate-50 to-blue-50 px-4 sm:px-6 py-4 border-b border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-800">Financial Data Entry</h2>
-            <p className="text-sm text-slate-600 mt-1">Add and manage your financial information</p>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-800">Financial Data Entry</h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">Add and manage your financial information</p>
           </div>
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium text-slate-700">Demo Presets:</label>
-            <select 
-              onChange={(e) => e.target.value && loadPreset(e.target.value as 'worker' | 'investor' | 'businessman' | 'loaner')}
-              className="border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-w-[160px]"
-              defaultValue="worker"
-            >
-              <option value="worker">👷 Worker</option>
-              <option value="investor">📈 Investor</option>
-              <option value="businessman">💼 Businessman</option>
-              <option value="loaner">🎓 Loaner</option>
-            </select>
-            <button 
-              onClick={clearAllData}
-              className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all text-sm font-medium"
-              title="Clear all data and start from scratch"
-            >
-              Clear All
-            </button>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <label className="text-xs sm:text-sm font-medium text-slate-700">Demo Presets:</label>
+            <div className="flex gap-2">
+              <select 
+                onChange={(e) => e.target.value && loadPreset(e.target.value as 'worker' | 'investor' | 'businessman' | 'loaner')}
+                className="flex-1 sm:min-w-[160px] border border-slate-300 px-3 py-2 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                defaultValue="worker"
+              >
+                <option value="worker">👷 Worker</option>
+                <option value="investor">📈 Investor</option>
+                <option value="businessman">💼 Businessman</option>
+                <option value="loaner">🎓 Loaner</option>
+              </select>
+              <button 
+                onClick={clearAllData}
+                className="px-3 sm:px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all text-xs sm:text-sm font-medium whitespace-nowrap"
+                title="Clear all data and start from scratch"
+              >
+                Clear All
+              </button>
+            </div>
           </div>
         </div>
       </div>
       
       {/* Tabs */}
       <div className="bg-white border-b border-slate-200">
-        <div className="flex gap-1 p-2">
+        <div className="flex flex-wrap gap-1 p-2">
           <TabButton active={tab === 'income'} onClick={() => setTab('income')} title="Add monthly pay or other income">
-            💰 Income
+            <span className="hidden sm:inline">💰 Income</span>
+            <span className="sm:hidden">💰</span>
           </TabButton>
           <TabButton active={tab === 'expense'} onClick={() => setTab('expense')} title="Add bills and other costs">
-            💸 Expenses
+            <span className="hidden sm:inline">💸 Expenses</span>
+            <span className="sm:hidden">💸</span>
           </TabButton>
           <TabButton active={tab === 'investment'} onClick={() => setTab('investment')} title="Add investment contributions and rates">
-            📈 Investments
+            <span className="hidden sm:inline">📈 Investments</span>
+            <span className="sm:hidden">📈</span>
           </TabButton>
           <TabButton active={tab === 'retirement'} onClick={() => setTab('retirement')} title="Set retirement age and withdrawal %">
-            🏖️ Retirement
+            <span className="hidden sm:inline">🏖️ Retirement</span>
+            <span className="sm:hidden">🏖️</span>
           </TabButton>
         </div>
       </div>
       
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {tab === 'income' && <IncomeTab />}
           {tab === 'expense' && <ExpenseTab />}
           {tab === 'investment' && <InvestmentTab />}
