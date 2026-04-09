@@ -1,9 +1,13 @@
 import React from 'react';
 import { useStore } from '../../state/store';
+import type { Milestone } from '../../state/store';
 import { useSeries } from '../../state/SeriesContext';
+import type { SeriesPoint } from '../../state/selectors';
 import { scaleLinear } from '@visx/scale';
 import { AreaClosed, LinePath } from '@visx/shape';
 import { curveMonotoneX } from '@visx/curve';
+
+type LinearScale = ReturnType<typeof scaleLinear<number>>;
 
 function format(n: number | undefined) {
   if (n == null) return '-';
@@ -344,10 +348,11 @@ function getSafetyStatus(netWorth: number | undefined, safetyTarget: number | un
   else return '🚨 Danger zone';
 }
 
-function AxisBottom({ x, innerW, innerH }: { x: any; innerW: number; innerH: number }) {
+function AxisBottom({ x, innerW, innerH }: { x: LinearScale; innerW: number; innerH: number }) {
   const ticks = 11;
-  const step = (x.domain()[1] - x.domain()[0]) / (ticks - 1);
-  const values = new Array(ticks).fill(0).map((_, i) => Math.round(x.domain()[0] + i * step));
+  const [d0 = 0, d1 = 0] = x.domain();
+  const step = (d1 - d0) / (ticks - 1);
+  const values = new Array(ticks).fill(0).map((_, i) => Math.round(d0 + i * step));
   const minAge = values.length > 0 ? Math.floor((values[0] ?? 0) / 12) : 0;
   const maxAge = values.length > 0 ? Math.floor((values[values.length - 1] ?? 0) / 12) : 100;
 
@@ -372,10 +377,8 @@ function AxisBottom({ x, innerW, innerH }: { x: any; innerW: number; innerH: num
   );
 }
 
-function AxisLeft({ y, innerH }: { y: any; innerH: number }) {
-  const domain = y.domain();
-  const min = domain[0];
-  const max = domain[1];
+function AxisLeft({ y, innerH }: { y: LinearScale; innerH: number }) {
+  const [min = 0, max = 0] = y.domain();
   const range = max - min;
 
   const ticks: number[] = [];
@@ -401,17 +404,17 @@ function AxisLeft({ y, innerH }: { y: any; innerH: number }) {
   );
 }
 
-function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
+function ExtremumMarkers({ x, y, data }: { x: LinearScale; y: LinearScale; data: SeriesPoint[] }) {
   if (data.length < 3) return null;
 
   const extremums: Array<{ index: number; value: number; type: 'peak' | 'trough' | 'savings-depleted' }> = [];
 
   for (let i = 1; i < data.length - 1; i++) {
-    const prev = data[i - 1].netWorth;
-    const curr = data[i].netWorth;
-    const next = data[i + 1].netWorth;
+    const prev = data[i - 1]!.netWorth;
+    const curr = data[i]!.netWorth;
+    const next = data[i + 1]!.netWorth;
 
-    if (data[i].savingsDepleted) {
+    if (data[i]!.savingsDepleted) {
       extremums.push({ index: i, value: curr, type: 'savings-depleted' });
     } else if (curr > prev && curr > next) {
       extremums.push({ index: i, value: curr, type: 'peak' });
@@ -427,7 +430,7 @@ function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
   return (
     <g>
       {[...peaks, ...troughs, ...savingsDepleted].map((ext, i) => {
-        const point = data[ext.index];
+        const point = data[ext.index]!;
         const xPos = x(point.m);
         const yPos = y(ext.value);
         let fillColor = '#ef4444';
@@ -464,8 +467,8 @@ function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
  * worst-case goes from ~2,400 SVG elements to a handful.
  */
 function computeZoneRanges(
-  data: Array<{ m: number }>,
-  predicate: (p: any) => boolean,
+  data: SeriesPoint[],
+  predicate: (p: SeriesPoint) => boolean,
 ): Array<{ start: number; end: number }> {
   const ranges: Array<{ start: number; end: number }> = [];
   let start: number | null = null;
@@ -482,7 +485,7 @@ function computeZoneRanges(
   return ranges;
 }
 
-function SeriesAreas({ x, y, data, innerH }: { x: any; y: any; data: any[]; innerH: number }) {
+function SeriesAreas({ x, y, data, innerH }: { x: LinearScale; y: LinearScale; data: SeriesPoint[]; innerH: number }) {
   const toX = (p: { m: number }) => x(p.m);
 
   const dangerRanges = React.useMemo(
@@ -531,8 +534,8 @@ function SeriesAreas({ x, y, data, innerH }: { x: any; y: any; data: any[]; inne
   );
 }
 
-function Area({ data, x, y, get, color, stroke }: any) {
-  const path = data.map((p: unknown) => ({ x: x(p as number), y: y(get(p)) }));
+function Area({ data, x, y, get, color, stroke }: { data: SeriesPoint[]; x: (p: SeriesPoint) => number; y: LinearScale; get: (p: SeriesPoint) => number; color: string; stroke: string }) {
+  const path = data.map((p) => ({ x: x(p), y: y(get(p)) }));
   return (
     <g>
       <AreaClosed data={path} x={(d: { x: number; y: number }) => d.x} y={(d: { x: number; y: number }) => d.y} yScale={y} fill={color} stroke={stroke} curve={curveMonotoneX} />
@@ -540,27 +543,27 @@ function Area({ data, x, y, get, color, stroke }: any) {
   );
 }
 
-function Line({ data, x, y, get, stroke, dash }: any) {
-  const path = data.map((p: unknown) => ({ x: x(p as number), y: y(get(p)) }));
+function Line({ data, x, y, get, stroke, dash }: { data: SeriesPoint[]; x: (p: SeriesPoint) => number; y: LinearScale; get: (p: SeriesPoint) => number; stroke: string; dash?: string }) {
+  const path = data.map((p) => ({ x: x(p), y: y(get(p)) }));
   return <LinePath data={path} x={(d: { x: number; y: number }) => d.x} y={(d: { x: number; y: number }) => d.y} stroke={stroke} strokeDasharray={dash} curve={curveMonotoneX} />;
 }
 
-function Milestones({ x, innerH, zoom, milestones }: any) {
-  const [min, max] = zoom as [number, number];
-  const visibleMilestones = milestones.filter((m: any) => m.at.monthIndex >= min && m.at.monthIndex <= max);
+function Milestones({ x, innerH, zoom, milestones }: { x: LinearScale; innerH: number; zoom: [number, number]; milestones: Milestone[] }) {
+  const [min, max] = zoom;
+  const visibleMilestones = milestones.filter((m) => m.at.monthIndex >= min && m.at.monthIndex <= max);
 
   const labelHeight = 20;
   const labelSpacing = 5;
-  const labelPositions: Array<{ milestone: any; x: number; y: number; width: number }> = [];
+  const labelPositions: Array<{ milestone: Milestone; x: number; y: number; width: number }> = [];
 
-  visibleMilestones.forEach((m: any) => {
+  visibleMilestones.forEach((m) => {
     const xPos = x(m.at.monthIndex);
     const text = `📍 ${m.label}`;
     const estimatedWidth = text.length * 6;
     labelPositions.push({ milestone: m, x: xPos, y: innerH - 8, width: estimatedWidth });
   });
 
-  const resolvedPositions: Array<{ milestone: any; x: number; y: number }> = [];
+  const resolvedPositions: Array<{ milestone: Milestone; x: number; y: number }> = [];
   const occupiedRanges: Array<{ x: number; width: number; bottomY: number }> = [];
 
   labelPositions.forEach((label) => {
@@ -610,7 +613,7 @@ function Milestones({ x, innerH, zoom, milestones }: any) {
   );
 }
 
-function HoverTooltip({ x, y, containerWidth, age, income, expense, loans, invest, netWorth, safety, cashFlow, milestone }: any) {
+function HoverTooltip({ x, y, containerWidth, age, income, expense, loans, invest, netWorth, safety, cashFlow, milestone }: { x: number; y: number; containerWidth: number; age: string; income: number | undefined; expense: number | undefined; loans: number | undefined; invest: number | undefined; netWorth: number | undefined; safety: number | undefined; cashFlow: number | undefined; milestone: string | undefined }) {
   const tooltipWidth = 210;
   const left = x + 8 + tooltipWidth > containerWidth ? x - tooltipWidth - 8 : x + 8;
   return (

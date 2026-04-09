@@ -52,7 +52,7 @@ export function ShareModal() {
     setTimeout(() => setCopied(false), 2500);
   }
 
-  function buildViralText(url: string): string {
+  function buildViralText(_url: string): string {
     const dobYear = new Date(state.dobISO).getFullYear();
     const currentYear = new Date().getFullYear();
     const currentAge = currentYear - dobYear;
