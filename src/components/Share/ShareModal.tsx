@@ -1,5 +1,6 @@
 import React from 'react';
 import { useStore } from '../../state/store';
+import { useSeries } from '../../state/SeriesContext';
 import { buildShareURL } from '../../lib/sharing';
 import * as htmlToImage from 'html-to-image';
 
@@ -7,10 +8,26 @@ export function ShareModal() {
   const open = useStore((s) => s.openShare);
   const setOpen = useStore((s) => s.setOpenShare);
   const state = useStore();
+  const series = useSeries();
   const [loading, setLoading] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
 
   if (!open) return null;
+
+  // Use same series-based FIRE calculation as FireInsights for consistency.
+  const dobYear = new Date(state.dobISO).getFullYear();
+  const currentYear = new Date().getFullYear();
+  const currentAgeMonths = Math.max(0, (currentYear - dobYear) * 12);
+  const currentMonthPoint = series[Math.min(currentAgeMonths, series.length - 1)];
+  const annualExpenses = (currentMonthPoint?.expense ?? 0) * 12;
+  const fireNumber = annualExpenses * 25;
+  const currentInvestments = currentMonthPoint?.invest ?? 0;
+  const fireProgress = fireNumber > 0 ? Math.min(100, (currentInvestments / fireNumber) * 100) : 0;
+  let fireAge: number | null = null;
+  for (const point of series) {
+    if (point.invest >= fireNumber && fireNumber > 0) { fireAge = Math.floor(point.m / 12); break; }
+  }
+  const currentAge = Math.floor(currentAgeMonths / 12);
 
   async function download() {
     const el = document.getElementById('timeline-capture');
@@ -52,45 +69,33 @@ export function ShareModal() {
     setTimeout(() => setCopied(false), 2500);
   }
 
-  function buildViralText(_url: string): string {
-    const dobYear = new Date(state.dobISO).getFullYear();
-    const currentYear = new Date().getFullYear();
-    const currentAge = currentYear - dobYear;
+  function buildViralText(): string {
     const retirementAge = state.retirement?.age ?? 65;
-
-    // Calculate FIRE number from expenses
-    const totalMonthlyExpenses = state.expenses.reduce((sum, e) => {
-      if (e.recurrence.kind === 'recurring') {
-        const startAge = e.recurrence.start.ageYears;
-        if (startAge <= currentAge) return sum + e.amount;
-      }
-      return sum;
-    }, 0);
-    const fireNumber = totalMonthlyExpenses * 12 * 25;
-
-    const totalInvested = state.investments.reduce((sum, inv) => sum + (inv.principal ?? 0), 0);
-    const progress = fireNumber > 0 ? Math.min(100, (totalInvested / fireNumber) * 100) : 0;
-
-    if (fireNumber <= 0) {
-      return `I just mapped my entire financial life from age ${currentAge} to ${retirementAge}. Income, investments, debt, retirement — all in one chart.\n\nFree tool, zero signup, your data never leaves your browser:`;
-    }
-
     const fireStr = fireNumber >= 1_000_000
       ? `$${(fireNumber / 1_000_000).toFixed(1)}M`
       : `$${(fireNumber / 1_000).toFixed(0)}K`;
 
-    if (progress < 10) {
-      return `Hard truth: I need ${fireStr} to be financially independent and I'm only ${progress.toFixed(0)}% there.\n\nJust mapped my retirement trajectory. The gap is real.\n\nFree tool, no signup, your numbers stay private:`;
+    if (fireNumber <= 0) {
+      return `Just mapped my entire financial life — income, investments, debt and retirement in one interactive chart.\n\nFree, zero signup, your data never leaves your browser. Try it yourself:`;
     }
-    if (progress >= 100) {
-      return `I mapped my financial life and I'm at ${progress.toFixed(0)}% of my FIRE number (${fireStr}).\n\nFree tool that shows your entire financial future — zero signup, data never leaves your browser:`;
+    if (fireProgress >= 100) {
+      return `I mapped my financial life and I've hit my FIRE number (${fireStr}). Financially independent.\n\nFree tool, zero signup, all data stays private in your browser. Run your own numbers:`;
     }
-    return `Just ran my numbers. FIRE number: ${fireStr}. I'm ${progress.toFixed(0)}% there.\n\nAt this rate I'll reach financial independence before retirement at ${retirementAge}.\n\nFree tool, no signup, your data stays private:`;
+    if (fireProgress < 10) {
+      return `Hard truth: I need ${fireStr} to be financially independent and I'm only ${fireProgress.toFixed(0)}% there.\n\nJust mapped my retirement trajectory. The gap is very real.\n\nFree tool, no signup, your numbers stay private. Check yours:`;
+    }
+    if (fireAge != null) {
+      const yearsToFire = fireAge - currentAge;
+      const earlyBy = retirementAge - fireAge;
+      const earlyStr = earlyBy > 0 ? ` — ${earlyBy} years before standard retirement` : '';
+      return `Just ran the numbers. My FIRE number is ${fireStr} and I'm ${fireProgress.toFixed(0)}% there.\n\nAt my current rate I'll hit financial independence at age ${fireAge}${earlyStr}.\n\n${yearsToFire > 0 ? `${yearsToFire} years to go. ` : ''}Free tool, zero signup, data never leaves your browser. Run yours:`;
+    }
+    return `Ran my numbers. FIRE number: ${fireStr}. I'm ${fireProgress.toFixed(0)}% there at age ${currentAge}.\n\nNeed to increase savings rate to reach independence before retirement at ${retirementAge}.\n\nFree tool, zero signup, data stays private. Try it:`;
   }
 
   function tweetShare() {
     const url = buildShareURL(state);
-    const text = buildViralText(url);
+    const text = buildViralText();
     const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
     window.open(tweetUrl, '_blank', 'noopener,noreferrer,width=600,height=400');
   }
