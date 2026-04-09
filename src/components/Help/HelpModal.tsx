@@ -9,14 +9,14 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden border border-slate-200">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-5xl w-full max-h-[96vh] overflow-hidden border border-slate-200">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6 text-white">
-          <div className="flex justify-between items-center">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-8 py-4 sm:py-6 text-white">
+          <div className="flex justify-between items-center gap-3">
             <div>
-              <h2 className="text-3xl font-bold mb-2">Financial Life Tracker</h2>
-              <p className="text-blue-100 text-lg">Help & User Guide</p>
+              <h2 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">Financial Life Tracker</h2>
+              <p className="text-blue-100 text-sm sm:text-lg">Help & User Guide</p>
             </div>
             <button 
               onClick={onClose} 
@@ -31,7 +31,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
         </div>
 
         {/* Content */}
-        <div className="p-8 overflow-y-auto max-h-[calc(95vh-120px)]">
+        <div className="p-4 sm:p-8 overflow-y-auto max-h-[calc(96vh-90px)] sm:max-h-[calc(96vh-120px)]">
           
           {/* Quick Start Guide */}
           <div className="mb-8">

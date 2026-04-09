@@ -374,7 +374,7 @@ export function AreaChart() {
           {pendingMilestone && (
             <div
               className="absolute top-2 z-20 bg-white border border-blue-300 rounded-xl shadow-xl p-3 flex flex-col gap-2 min-w-[220px]"
-              style={{ left: Math.min(pendingMilestone.x, width - 240) }}
+              style={{ left: Math.max(0, Math.min(pendingMilestone.x, width - 240)) }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-xs font-semibold text-slate-700">
@@ -382,7 +382,7 @@ export function AreaChart() {
               </div>
               <input
                 ref={milestoneInputRef}
-                className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-h-[44px]"
                 placeholder="e.g. Buy a house"
                 value={milestoneLabel}
                 onChange={(e) => setMilestoneLabel(e.target.value)}
@@ -394,13 +394,13 @@ export function AreaChart() {
               />
               <div className="flex gap-2 justify-end">
                 <button
-                  className="px-3 py-1 text-xs border border-slate-300 rounded-lg hover:bg-slate-50 font-medium"
+                  className="px-3 py-2 text-xs border border-slate-300 rounded-lg hover:bg-slate-50 font-medium min-h-[44px]"
                   onClick={() => setPendingMilestone(null)}
                 >
                   Cancel
                 </button>
                 <button
-                  className="px-3 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50"
+                  className="px-3 py-2 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 min-h-[44px]"
                   disabled={!milestoneLabel.trim()}
                   onClick={confirmMilestone}
                 >
