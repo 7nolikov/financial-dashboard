@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../../state/store';
-import { computeSeries } from '../../state/selectors';
+import { useSeries } from '../../state/SeriesContext';
 import { scaleLinear } from '@visx/scale';
 import { AreaClosed, LinePath } from '@visx/shape';
 import { curveMonotoneX } from '@visx/curve';
@@ -25,7 +25,7 @@ export function AreaChart() {
   const state = useStore();
   const setZoom = useStore((s) => s.setZoom);
   const addMilestone = useStore((s) => s.addMilestone);
-  const series = React.useMemo(() => computeSeries(state), [state]);
+  const series = useSeries(); // shared — no recomputation on zoom
   const visible = series.slice(state.chart.zoom.minMonth, state.chart.zoom.maxMonth);
   const last = visible.at(-1);
   const totalMonths = 100 * 12;
@@ -458,8 +458,42 @@ function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
   );
 }
 
+/**
+ * Collapse a boolean predicate over data into a list of contiguous [start, end]
+ * month ranges. Renders O(ranges) rects instead of O(data.length) rects —
+ * worst-case goes from ~2,400 SVG elements to a handful.
+ */
+function computeZoneRanges(
+  data: Array<{ m: number }>,
+  predicate: (p: any) => boolean,
+): Array<{ start: number; end: number }> {
+  const ranges: Array<{ start: number; end: number }> = [];
+  let start: number | null = null;
+  for (const p of data) {
+    if (predicate(p)) {
+      if (start === null) start = p.m;
+    } else {
+      if (start !== null) { ranges.push({ start, end: p.m }); start = null; }
+    }
+  }
+  if (start !== null && data.length > 0) {
+    ranges.push({ start, end: data[data.length - 1]!.m });
+  }
+  return ranges;
+}
+
 function SeriesAreas({ x, y, data, innerH }: { x: any; y: any; data: any[]; innerH: number }) {
   const toX = (p: { m: number }) => x(p.m);
+
+  const dangerRanges = React.useMemo(
+    () => computeZoneRanges(data, (p) => p.netWorth < 0),
+    [data],
+  );
+  const warningRanges = React.useMemo(
+    () => computeZoneRanges(data, (p) => p.safety > 0 && p.netWorth > 0 && p.netWorth < p.safety && p.netWorth / p.safety >= 0.5),
+    [data],
+  );
+
   return (
     <g>
       <Area data={data} x={toX} y={y} get={(p: { income: number }) => p.income} color="#22c55e33" stroke="#16a34a" />
@@ -468,28 +502,31 @@ function SeriesAreas({ x, y, data, innerH }: { x: any; y: any; data: any[]; inne
       <Line data={data} x={toX} y={y} get={(p: { netWorth: number }) => p.netWorth} stroke="#7c3aed" />
       <Line data={data} x={toX} y={y} get={(p: { safety: number }) => p.safety} stroke="#f97316" dash="4 4" />
 
-      {/* Danger zones */}
-      {data.map((p: { m: number; netWorth: number }, i: number) => {
-        if (p.netWorth < 0) {
-          return (
-            <rect key={`danger-${i}`} x={x(p.m) - 1} y={0} width={2} height={innerH} fill="rgba(239, 68, 68, 0.05)" className="pointer-events-none" />
-          );
-        }
-        return null;
-      })}
+      {/* Danger zones — one rect per contiguous range, not per data point */}
+      {dangerRanges.map((r) => (
+        <rect
+          key={`danger-${r.start}`}
+          x={x(r.start)}
+          y={0}
+          width={Math.max(1, x(r.end) - x(r.start))}
+          height={innerH}
+          fill="rgba(239,68,68,0.06)"
+          className="pointer-events-none"
+        />
+      ))}
 
-      {/* Warning zones */}
-      {data.map((p: { m: number; netWorth: number; safety: number }, i: number) => {
-        if (p.safety > 0 && p.netWorth > 0 && p.netWorth < p.safety) {
-          const safetyRatio = p.netWorth / p.safety;
-          if (safetyRatio >= 0.5) {
-            return (
-              <rect key={`warning-${i}`} x={x(p.m) - 1} y={0} width={2} height={innerH} fill="rgba(245, 158, 11, 0.05)" className="pointer-events-none" />
-            );
-          }
-        }
-        return null;
-      })}
+      {/* Warning zones — one rect per contiguous range */}
+      {warningRanges.map((r) => (
+        <rect
+          key={`warning-${r.start}`}
+          x={x(r.start)}
+          y={0}
+          width={Math.max(1, x(r.end) - x(r.start))}
+          height={innerH}
+          fill="rgba(245,158,11,0.06)"
+          className="pointer-events-none"
+        />
+      ))}
     </g>
   );
 }

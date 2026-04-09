@@ -459,7 +459,10 @@ export const useStore = create<Store>()(
       storage: createJSONStorage(() => localStorage),
       version: CURRENT_VERSION,
       migrate: (persisted, _version) => migrateState(persisted),
-      partialize: (state) => state,
+      // Persist only financial data — exclude UI-only fields (zoom, openShare)
+      // so that zooming and opening modals does NOT write to localStorage.
+      partialize: ({ version, dobISO, incomes, expenses, investments, loans, safetySavings, retirement, milestones, inflation }) =>
+        ({ version, dobISO, incomes, expenses, investments, loans, safetySavings, retirement, milestones, inflation }),
     },
   ),
 );
