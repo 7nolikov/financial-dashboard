@@ -34,27 +34,36 @@ export function AreaChart() {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = React.useState<number>(1000);
   const [isMobile, setIsMobile] = React.useState<boolean>(false);
-  
+  const [pendingMilestone, setPendingMilestone] = React.useState<{ month: number; x: number } | null>(null);
+  const [milestoneLabel, setMilestoneLabel] = React.useState('');
+  const milestoneInputRef = React.useRef<HTMLInputElement | null>(null);
+
   React.useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    
+
     const updateDimensions = () => {
       setWidth(el.clientWidth);
       setIsMobile(window.innerWidth < 640);
     };
-    
+
     const ro = new ResizeObserver(updateDimensions);
     ro.observe(el);
     updateDimensions();
-    
+
     window.addEventListener('resize', updateDimensions);
     return () => {
       ro.disconnect();
       window.removeEventListener('resize', updateDimensions);
     };
   }, []);
-  
+
+  React.useEffect(() => {
+    if (pendingMilestone && milestoneInputRef.current) {
+      milestoneInputRef.current.focus();
+    }
+  }, [pendingMilestone]);
+
   const height = isMobile ? 200 : 260;
   const padding = { left: isMobile ? 30 : 40, right: 20, top: 10, bottom: 30 };
   const innerW = width - padding.left - padding.right;
@@ -71,14 +80,13 @@ export function AreaChart() {
   const y = scaleLinear<number>({ domain: yDomain, range: [innerH, 0] });
 
   function onWheel(e: React.WheelEvent) {
-    // prevent page scroll only when pointer is over the chart area
     e.preventDefault();
     e.stopPropagation();
     const delta = Math.sign(e.deltaY);
     const range = state.chart.zoom.maxMonth - state.chart.zoom.minMonth;
     const mouseX = (e.nativeEvent as MouseEvent).offsetX - padding.left;
     const centerMonth = Math.round(x.invert(Math.max(0, Math.min(innerW, mouseX))));
-    const zoomFactor = delta > 0 ? 1.2 : 0.8; // out/in
+    const zoomFactor = delta > 0 ? 1.2 : 0.8;
     let newRange = Math.max(12, Math.min(totalMonths, Math.round(range * zoomFactor)));
     let min = centerMonth - Math.round(newRange / 2);
     let max = centerMonth + Math.round(newRange / 2);
@@ -89,12 +97,29 @@ export function AreaChart() {
   }
 
   function onClick(e: React.MouseEvent) {
+    if (pendingMilestone) return;
     const mouseX = (e.nativeEvent as MouseEvent).offsetX - padding.left;
     const month = Math.round(x.invert(Math.max(0, Math.min(innerW, mouseX))));
-    const label = window.prompt('Milestone label?');
-    if (!label) return;
-    addMilestone({ id: `ms-${Date.now()}`, at: { ageYears: Math.floor(month / 12), monthIndex: month }, label });
+    const svgRect = containerRef.current?.getBoundingClientRect();
+    const clickX = e.clientX - (svgRect?.left ?? 0);
+    setPendingMilestone({ month, x: clickX });
+    setMilestoneLabel('');
   }
+
+  function confirmMilestone() {
+    if (!pendingMilestone || !milestoneLabel.trim()) {
+      setPendingMilestone(null);
+      return;
+    }
+    addMilestone({
+      id: `ms-${Date.now()}`,
+      at: { ageYears: Math.floor(pendingMilestone.month / 12), monthIndex: pendingMilestone.month },
+      label: milestoneLabel.trim(),
+    });
+    setPendingMilestone(null);
+    setMilestoneLabel('');
+  }
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -108,17 +133,17 @@ export function AreaChart() {
               <h2 className="text-xl font-bold text-slate-800">Financial Projection Timeline</h2>
               <div className="flex items-center gap-3 mt-1">
                 <div className={`text-xs px-3 py-1 rounded-md font-semibold ${
-                  state.inflation.display.seriesMode === 'nominal' 
-                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                  state.inflation.display.seriesMode === 'nominal'
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                     : 'bg-blue-100 text-blue-800 border border-blue-200'
                 }`}>
-                  {state.inflation.display.seriesMode === 'nominal' ? 'Nominal Values' : 'Real Values'} 
+                  {state.inflation.display.seriesMode === 'nominal' ? 'Nominal Values' : 'Real Values'}
                   ({((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inflation)
                 </div>
               </div>
             </div>
           </div>
-          
+
           {/* Legend */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
@@ -150,45 +175,45 @@ export function AreaChart() {
       </div>
       <div className="px-4 py-3 text-[13px]">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Kpi 
-            label="Income" 
-            value={format(sum(visible.map((p) => p.income)))} 
-            color="text-green-600" 
+          <Kpi
+            label="Income"
+            value={format(sum(visible.map((p) => p.income)))}
+            color="text-green-600"
             title={`Sum of income in visible window (${state.inflation.display.seriesMode})`}
-            status={sum(visible.map((p) => p.income)) > 0 ? "Good cash flow" : "No income"}
+            status={sum(visible.map((p) => p.income)) > 0 ? 'Good cash flow' : 'No income'}
           />
-          <Kpi 
-            label="Expenses" 
-            value={format(sum(visible.map((p) => p.expense)))} 
-            color="text-red-600" 
+          <Kpi
+            label="Expenses"
+            value={format(sum(visible.map((p) => p.expense)))}
+            color="text-red-600"
             title={`Sum of expenses in visible window (${state.inflation.display.seriesMode})`}
-            status={sum(visible.map((p) => p.expense)) > sum(visible.map((p) => p.income)) ? "⚠️ Overspending" : "Controlled"}
+            status={sum(visible.map((p) => p.expense)) > sum(visible.map((p) => p.income)) ? '⚠️ Overspending' : 'Controlled'}
           />
-          <Kpi 
-            label="Investments" 
-            value={format(last?.invest)} 
-            color="text-blue-600" 
+          <Kpi
+            label="Investments"
+            value={format(last?.invest)}
+            color="text-blue-600"
             title="Total investment balance at the latest visible month"
-            status={last?.invest && last.invest > 100000 ? "Strong growth" : last?.invest && last.invest > 50000 ? "Building wealth" : "Early stage"}
+            status={last?.invest && last.invest > 100000 ? 'Strong growth' : last?.invest && last.invest > 50000 ? 'Building wealth' : 'Early stage'}
           />
-          <Kpi 
-            label="Loans" 
-            value={format(last?.loans)} 
-            color="text-yellow-600" 
+          <Kpi
+            label="Loans"
+            value={format(last?.loans)}
+            color="text-yellow-600"
             title="Total loan balance at the latest visible month"
-            status={last?.loans && last.loans > 100000 ? "High debt" : last?.loans && last.loans > 50000 ? "Moderate debt" : last?.loans && last.loans > 0 ? "Low debt" : "Debt free"}
+            status={last?.loans && last.loans > 100000 ? 'High debt' : last?.loans && last.loans > 50000 ? 'Moderate debt' : last?.loans && last.loans > 0 ? 'Low debt' : 'Debt free'}
           />
-          <Kpi 
-            label="Net Worth" 
-            value={format(last?.netWorth)} 
-            color="text-violet-600" 
+          <Kpi
+            label="Net Worth"
+            value={format(last?.netWorth)}
+            color="text-violet-600"
             title="Net worth at the latest visible month"
-            status={last?.netWorth && last.netWorth < 0 ? "🚨 Negative" : last?.netWorth && last.netWorth > 500000 ? "Wealthy" : last?.netWorth && last.netWorth > 100000 ? "Comfortable" : "Building"}
+            status={last?.netWorth && last.netWorth < 0 ? '🚨 Negative' : last?.netWorth && last.netWorth > 500000 ? 'Wealthy' : last?.netWorth && last.netWorth > 100000 ? 'Comfortable' : 'Building'}
           />
-          <Kpi 
-            label="Safety Level" 
-            value={format(last?.safety)} 
-            color="text-orange-600" 
+          <Kpi
+            label="Safety Level"
+            value={format(last?.safety)}
+            color="text-orange-600"
             title="Safety savings target at the latest visible month"
             status={getSafetyStatus(last?.netWorth, last?.safety)}
           />
@@ -196,42 +221,84 @@ export function AreaChart() {
         <div className="mt-6 rounded-xl border border-slate-200 bg-white relative shadow-sm" ref={containerRef}>
           <svg
             role="img"
+            aria-label="Financial projection timeline chart"
             width="100%"
-            height={260}
-            viewBox={`0 0 ${width} ${260}`}
+            height={height}
+            viewBox={`0 0 ${width} ${height}`}
             onWheel={onWheel}
             onClick={onClick}
             onMouseMove={(e) => {
-              const mx = (e.nativeEvent as MouseEvent).offsetX - 40;
-              const m = Math.round(x.invert(Math.max(0, Math.min(width - 60, mx))));
+              const mx = (e.nativeEvent as MouseEvent).offsetX - padding.left;
+              const m = Math.round(x.invert(Math.max(0, Math.min(innerW, mx))));
               setHovered(m);
             }}
-            onMouseEnter={() => { document.body.style.overflowY = 'hidden'; }}
-            onMouseLeave={() => { document.body.style.overflowY = ''; setHovered(null); }}
+            onMouseLeave={() => { setHovered(null); }}
           >
-            <g transform={`translate(${40},${10})`}>
-              <rect x={0} y={0} width={width - 60} height={240} fill="url(#bg)" />
+            <g transform={`translate(${padding.left},${padding.top})`}>
+              <rect x={0} y={0} width={innerW} height={innerH} fill="url(#bg)" />
               <defs>
                 <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
                   <stop offset="0%" stopColor="#ffffff" />
                   <stop offset="100%" stopColor="#f8fafc" />
                 </linearGradient>
               </defs>
-              <AxisBottom x={x} _width={width - 60} height={240} />
-              <AxisLeft y={y} height={240} />
-              <SeriesAreas x={x} y={y} data={visible} />
+              <AxisBottom x={x} innerW={innerW} innerH={innerH} />
+              <AxisLeft y={y} innerH={innerH} />
+              <SeriesAreas x={x} y={y} data={visible} innerH={innerH} />
               <ExtremumMarkers x={x} y={y} data={visible} />
-              <Milestones x={x} height={240} zoom={[state.chart.zoom.minMonth, state.chart.zoom.maxMonth]} milestones={state.milestones} />
-              {hovered != null ? (
-                <line x1={x(hovered)} x2={x(hovered)} y1={0} y2={240} stroke="#94a3b8" strokeDasharray="4 4" />
-              ) : null}
+              <Milestones x={x} innerH={innerH} zoom={[state.chart.zoom.minMonth, state.chart.zoom.maxMonth]} milestones={state.milestones} />
+              {hovered != null && (
+                <line x1={x(hovered)} x2={x(hovered)} y1={0} y2={innerH} stroke="#94a3b8" strokeDasharray="4 4" />
+              )}
             </g>
           </svg>
-          {hovered != null ? (
+
+          {/* Inline milestone input */}
+          {pendingMilestone && (
+            <div
+              className="absolute top-2 z-20 bg-white border border-blue-300 rounded-xl shadow-xl p-3 flex flex-col gap-2 min-w-[220px]"
+              style={{ left: Math.min(pendingMilestone.x, width - 240) }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-xs font-semibold text-slate-700">
+                📍 Add milestone at age {Math.floor(pendingMilestone.month / 12)}
+              </div>
+              <input
+                ref={milestoneInputRef}
+                className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                placeholder="e.g. Buy a house"
+                value={milestoneLabel}
+                onChange={(e) => setMilestoneLabel(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') confirmMilestone();
+                  if (e.key === 'Escape') setPendingMilestone(null);
+                }}
+                maxLength={40}
+              />
+              <div className="flex gap-2 justify-end">
+                <button
+                  className="px-3 py-1 text-xs border border-slate-300 rounded-lg hover:bg-slate-50 font-medium"
+                  onClick={() => setPendingMilestone(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-3 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50"
+                  disabled={!milestoneLabel.trim()}
+                  onClick={confirmMilestone}
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          )}
+
+          {hovered != null && (
             <HoverTooltip
-              x={40 + x(hovered)}
-              y={12}
-              age={`${Math.floor(hovered/12)}y ${hovered%12}m`}
+              x={padding.left + x(hovered)}
+              y={padding.top + 2}
+              containerWidth={width}
+              age={`${Math.floor(hovered / 12)}y ${hovered % 12}m`}
               income={hoveredPoint?.income}
               expense={hoveredPoint?.expense}
               loans={hoveredPoint?.loans}
@@ -241,10 +308,10 @@ export function AreaChart() {
               cashFlow={hoveredPoint?.cashFlow}
               milestone={state.milestones.find((m) => m.at.monthIndex === hovered)?.label}
             />
-          ) : null}
+          )}
           <div className="flex items-center justify-between px-4 py-3 border-t bg-gradient-to-r from-slate-50 to-slate-100 text-xs">
-            <button 
-              onClick={() => setZoom(0, totalMonths)} 
+            <button
+              onClick={() => setZoom(0, totalMonths)}
               className="px-4 py-2 border border-slate-300 rounded-md hover:bg-white hover:border-slate-400 transition-all text-xs font-semibold text-slate-700"
             >
               Reset Zoom
@@ -270,154 +337,106 @@ function Kpi(props: { label: string; value: string; color?: string; title?: stri
 function sum(arr: number[]): number { return arr.reduce((a, b) => a + b, 0); }
 
 function getSafetyStatus(netWorth: number | undefined, safetyTarget: number | undefined): string {
-  if (!netWorth || !safetyTarget) return "No safety target";
-  
+  if (!netWorth || !safetyTarget) return 'No safety target';
   const safetyRatio = netWorth / safetyTarget;
-  
-  if (safetyRatio >= 1.0) {
-    return "✅ Safe";
-  } else if (safetyRatio >= 0.5) {
-    return "⚠️ Warning zone";
-  } else {
-    return "🚨 Danger zone";
-  }
+  if (safetyRatio >= 1.0) return '✅ Safe';
+  else if (safetyRatio >= 0.5) return '⚠️ Warning zone';
+  else return '🚨 Danger zone';
 }
 
-function AxisBottom({ x, _width, height }: { x: any; _width: number; height: number }) {
+function AxisBottom({ x, innerW, innerH }: { x: any; innerW: number; innerH: number }) {
   const ticks = 11;
   const step = (x.domain()[1] - x.domain()[0]) / (ticks - 1);
   const values = new Array(ticks).fill(0).map((_, i) => Math.round(x.domain()[0] + i * step));
   const minAge = values.length > 0 ? Math.floor((values[0] ?? 0) / 12) : 0;
   const maxAge = values.length > 0 ? Math.floor((values[values.length - 1] ?? 0) / 12) : 100;
-  
+
   return (
-    <g transform={`translate(0, ${height})`}>
-      {/* Axis line */}
-      <line x1={0} x2={_width} y1={0} y2={0} stroke="#e2e8f0" strokeWidth={1} />
-      
-      {/* Grid lines and labels */}
+    <g transform={`translate(0, ${innerH})`}>
+      <line x1={0} x2={innerW} y1={0} y2={0} stroke="#e2e8f0" strokeWidth={1} />
       {values.map((m: number) => (
         <g key={m} transform={`translate(${x(m)}, 0)`}>
-          <line y1={0} y2={-height} stroke="#f1f5f9" strokeWidth={1} />
+          <line y1={0} y2={-innerH} stroke="#f1f5f9" strokeWidth={1} />
           <text y={18} textAnchor="middle" fontSize={10} fill="#64748b" fontWeight="500">
             {Math.floor(m / 12)}y
           </text>
         </g>
       ))}
-      
-      {/* Axis labels */}
       <text x={0} y={35} fontSize={11} fill="#475569" fontWeight="600" textAnchor="start">
         Age: {minAge}y
       </text>
-      <text x={_width} y={35} fontSize={11} fill="#475569" fontWeight="600" textAnchor="end">
+      <text x={innerW} y={35} fontSize={11} fill="#475569" fontWeight="600" textAnchor="end">
         Age: {maxAge}y
       </text>
     </g>
   );
 }
 
-function AxisLeft({ y, height: _height }: { y: any; height: number }) {
+function AxisLeft({ y, innerH }: { y: any; innerH: number }) {
   const domain = y.domain();
   const min = domain[0];
   const max = domain[1];
   const range = max - min;
-  
-  // Create meaningful tick values with better formatting
-  const ticks = [];
+
+  const ticks: number[] = [];
   if (range > 0) {
-    const step = range / 6; // 6 horizontal lines for better readability
+    const step = range / 6;
     for (let i = 0; i <= 6; i++) {
-      const value = min + (step * i);
-      ticks.push(value);
+      ticks.push(min + step * i);
     }
   }
-  
+
   return (
     <g>
-      {/* Axis line */}
-      <line x1={0} x2={0} y1={0} y2={_height} stroke="#e2e8f0" strokeWidth={1} />
-      
-      {/* Grid lines and labels */}
+      <line x1={0} x2={0} y1={0} y2={innerH} stroke="#e2e8f0" strokeWidth={1} />
       {ticks.map((value: number) => (
         <g key={value} transform={`translate(0, ${y(value)})`}>
-          <line x1={0} x2={-40} stroke="#f1f5f9" strokeWidth={1} />
-          <text x={-45} y={4} textAnchor="end" fontSize={9} fill="#64748b" fontFamily="ui-monospace, monospace" fontWeight="500">
+          <line x1={0} x2={-6} stroke="#e2e8f0" strokeWidth={1} />
+          <text x={-10} y={4} textAnchor="end" fontSize={9} fill="#64748b" fontFamily="ui-monospace, monospace" fontWeight="500">
             {formatCompact(value)}
           </text>
         </g>
       ))}
-      
-      {/* Axis labels */}
-      <text x={-50} y={_height / 2} fontSize={11} fill="#475569" fontWeight="600" textAnchor="middle" transform={`rotate(-90, -50, ${_height / 2})`}>
-        Amount ($)
-      </text>
-      <text x={-50} y={10} fontSize={9} fill="#64748b" textAnchor="middle" transform={`rotate(-90, -50, 10)`}>
-        {formatCompact(max)}
-      </text>
-      <text x={-50} y={_height - 5} fontSize={9} fill="#64748b" textAnchor="middle" transform={`rotate(-90, -50, ${_height - 5})`}>
-        {formatCompact(min)}
-      </text>
     </g>
   );
 }
 
 function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
   if (data.length < 3) return null;
-  
-  // Find peaks and troughs for Net Worth
+
   const extremums: Array<{ index: number; value: number; type: 'peak' | 'trough' | 'savings-depleted' }> = [];
-  
+
   for (let i = 1; i < data.length - 1; i++) {
     const prev = data[i - 1].netWorth;
     const curr = data[i].netWorth;
     const next = data[i + 1].netWorth;
-    
-    // Check for savings depletion extremum first
+
     if (data[i].savingsDepleted) {
       extremums.push({ index: i, value: curr, type: 'savings-depleted' });
-    }
-    // Peak: higher than neighbors
-    else if (curr > prev && curr > next) {
+    } else if (curr > prev && curr > next) {
       extremums.push({ index: i, value: curr, type: 'peak' });
-    }
-    // Trough: lower than neighbors
-    else if (curr < prev && curr < next) {
+    } else if (curr < prev && curr < next) {
       extremums.push({ index: i, value: curr, type: 'trough' });
     }
   }
-  
-  // Only show the most significant extremums (top 3 peaks, bottom 3 troughs, and all savings depletion points)
+
   const peaks = extremums.filter(e => e.type === 'peak').sort((a, b) => b.value - a.value).slice(0, 3);
   const troughs = extremums.filter(e => e.type === 'trough').sort((a, b) => a.value - b.value).slice(0, 3);
   const savingsDepleted = extremums.filter(e => e.type === 'savings-depleted');
-  
+
   return (
     <g>
       {[...peaks, ...troughs, ...savingsDepleted].map((ext, i) => {
         const point = data[ext.index];
         const xPos = x(point.m);
         const yPos = y(ext.value);
-        
-        let fillColor = '#ef4444'; // Default red
+        let fillColor = '#ef4444';
         let label = formatCompact(ext.value);
-        
-        if (ext.type === 'peak') {
-          fillColor = '#10b981'; // Green
-        } else if (ext.type === 'savings-depleted') {
-          fillColor = '#dc2626'; // Dark red
-          label = '💸 Depleted';
-        }
-        
+        if (ext.type === 'peak') fillColor = '#10b981';
+        else if (ext.type === 'savings-depleted') { fillColor = '#dc2626'; label = '💸 Depleted'; }
         return (
           <g key={`extremum-${i}`}>
-            <circle
-              cx={xPos}
-              cy={yPos}
-              r={ext.type === 'savings-depleted' ? 6 : 4}
-              fill={fillColor}
-              stroke="white"
-              strokeWidth={2}
-            />
+            <circle cx={xPos} cy={yPos} r={ext.type === 'savings-depleted' ? 6 : 4} fill={fillColor} stroke="white" strokeWidth={2} />
             <text
               x={xPos}
               y={ext.type === 'peak' ? yPos - 12 : yPos + 16}
@@ -439,7 +458,7 @@ function ExtremumMarkers({ x, y, data }: { x: any; y: any; data: any[] }) {
   );
 }
 
-function SeriesAreas({ x, y, data }: { x: any; y: any; data: any[] }) {
+function SeriesAreas({ x, y, data, innerH }: { x: any; y: any; data: any[]; innerH: number }) {
   const toX = (p: { m: number }) => x(p.m);
   return (
     <g>
@@ -448,40 +467,24 @@ function SeriesAreas({ x, y, data }: { x: any; y: any; data: any[] }) {
       <Area data={data} x={toX} y={y} get={(p: { invest: number }) => p.invest} color="#3b82f633" stroke="#2563eb" />
       <Line data={data} x={toX} y={y} get={(p: { netWorth: number }) => p.netWorth} stroke="#7c3aed" />
       <Line data={data} x={toX} y={y} get={(p: { safety: number }) => p.safety} stroke="#f97316" dash="4 4" />
-      
-      {/* Danger zones highlighting */}
+
+      {/* Danger zones */}
       {data.map((p: { m: number; netWorth: number }, i: number) => {
         if (p.netWorth < 0) {
           return (
-            <rect
-              key={`danger-${i}`}
-              x={x(p.m) - 1}
-              y={0}
-              width={2}
-              height={260}
-              fill="rgba(239, 68, 68, 0.05)"
-              className="pointer-events-none"
-            />
+            <rect key={`danger-${i}`} x={x(p.m) - 1} y={0} width={2} height={innerH} fill="rgba(239, 68, 68, 0.05)" className="pointer-events-none" />
           );
         }
         return null;
       })}
-      
-      {/* Warning zones highlighting (safety level below target) */}
+
+      {/* Warning zones */}
       {data.map((p: { m: number; netWorth: number; safety: number }, i: number) => {
         if (p.safety > 0 && p.netWorth > 0 && p.netWorth < p.safety) {
           const safetyRatio = p.netWorth / p.safety;
           if (safetyRatio >= 0.5) {
             return (
-              <rect
-                key={`warning-${i}`}
-                x={x(p.m) - 1}
-                y={0}
-                width={2}
-                height={260}
-                fill="rgba(245, 158, 11, 0.05)"
-                className="pointer-events-none"
-              />
+              <rect key={`warning-${i}`} x={x(p.m) - 1} y={0} width={2} height={innerH} fill="rgba(245, 158, 11, 0.05)" className="pointer-events-none" />
             );
           }
         }
@@ -505,51 +508,36 @@ function Line({ data, x, y, get, stroke, dash }: any) {
   return <LinePath data={path} x={(d: { x: number; y: number }) => d.x} y={(d: { x: number; y: number }) => d.y} stroke={stroke} strokeDasharray={dash} curve={curveMonotoneX} />;
 }
 
-function Milestones({ x, height, zoom, milestones }: any) {
+function Milestones({ x, innerH, zoom, milestones }: any) {
   const [min, max] = zoom as [number, number];
   const visibleMilestones = milestones.filter((m: any) => m.at.monthIndex >= min && m.at.monthIndex <= max);
-  
-  // Calculate label positions with collision detection
-  const labelHeight = 20; // Approximate height of text
-  const labelSpacing = 5; // Minimum spacing between labels
+
+  const labelHeight = 20;
+  const labelSpacing = 5;
   const labelPositions: Array<{ milestone: any; x: number; y: number; width: number }> = [];
-  
-  // First pass: calculate all label positions
+
   visibleMilestones.forEach((m: any) => {
     const xPos = x(m.at.monthIndex);
     const text = `📍 ${m.label}`;
-    const estimatedWidth = text.length * 6; // Rough estimate: 6px per character
-    labelPositions.push({
-      milestone: m,
-      x: xPos,
-      y: height - 8, // Start at bottom
-      width: estimatedWidth
-    });
+    const estimatedWidth = text.length * 6;
+    labelPositions.push({ milestone: m, x: xPos, y: innerH - 8, width: estimatedWidth });
   });
-  
-  // Second pass: resolve overlaps by stacking labels
+
   const resolvedPositions: Array<{ milestone: any; x: number; y: number }> = [];
   const occupiedRanges: Array<{ x: number; width: number; bottomY: number }> = [];
-  
+
   labelPositions.forEach((label) => {
     let finalY = label.y;
     let hasOverlap = true;
     let attempts = 0;
-    const maxAttempts = 10; // Prevent infinite loops
-    
-    while (hasOverlap && attempts < maxAttempts) {
+    while (hasOverlap && attempts < 10) {
       hasOverlap = false;
-      
-      // Check for horizontal overlap with existing labels
       for (const occupied of occupiedRanges) {
         const labelLeft = label.x - label.width / 2;
         const labelRight = label.x + label.width / 2;
         const occupiedLeft = occupied.x - occupied.width / 2;
         const occupiedRight = occupied.x + occupied.width / 2;
-        
-        // Check if labels overlap horizontally
         if (labelLeft < occupiedRight && labelRight > occupiedLeft) {
-          // Check if labels overlap vertically
           if (finalY < occupied.bottomY + labelSpacing) {
             hasOverlap = true;
             finalY = occupied.bottomY + labelSpacing;
@@ -557,37 +545,17 @@ function Milestones({ x, height, zoom, milestones }: any) {
           }
         }
       }
-      
       attempts++;
     }
-    
-    // Add this label to occupied ranges
-    occupiedRanges.push({
-      x: label.x,
-      width: label.width,
-      bottomY: finalY + labelHeight
-    });
-    
-    resolvedPositions.push({
-      milestone: label.milestone,
-      x: label.x,
-      y: finalY
-    });
+    occupiedRanges.push({ x: label.x, width: label.width, bottomY: finalY + labelHeight });
+    resolvedPositions.push({ milestone: label.milestone, x: label.x, y: finalY });
   });
-  
+
   return (
     <g>
       {resolvedPositions.map((pos) => (
         <g key={pos.milestone.id}>
-          <line 
-            x1={pos.x} 
-            x2={pos.x} 
-            y1={0} 
-            y2={height} 
-            stroke="#94a3b8" 
-            strokeDasharray="2 2" 
-            strokeWidth={1}
-          />
+          <line x1={pos.x} x2={pos.x} y1={0} y2={innerH} stroke="#94a3b8" strokeDasharray="2 2" strokeWidth={1} />
           <text
             x={pos.x}
             y={pos.y}
@@ -605,9 +573,11 @@ function Milestones({ x, height, zoom, milestones }: any) {
   );
 }
 
-function HoverTooltip({ x, y, age, income, expense, loans, invest, netWorth, safety, cashFlow, milestone }: any) {
+function HoverTooltip({ x, y, containerWidth, age, income, expense, loans, invest, netWorth, safety, cashFlow, milestone }: any) {
+  const tooltipWidth = 210;
+  const left = x + 8 + tooltipWidth > containerWidth ? x - tooltipWidth - 8 : x + 8;
   return (
-    <div style={{ position: 'absolute', left: Math.max(8, x + 8), top: y, pointerEvents: 'none' }} className="px-3 py-2 rounded-lg border bg-white text-[11px] shadow-lg min-w-[200px]">
+    <div style={{ position: 'absolute', left: Math.max(8, left), top: y, pointerEvents: 'none' }} className="px-3 py-2 rounded-lg border bg-white text-[11px] shadow-lg min-w-[200px]">
       <div className="font-medium text-slate-800">{age}</div>
       {milestone ? <div className="text-[10px] text-slate-500 mb-1">📍 {milestone}</div> : null}
       <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-1">
@@ -622,5 +592,3 @@ function HoverTooltip({ x, y, age, income, expense, loans, invest, netWorth, saf
     </div>
   );
 }
-
-

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useStore } from '../state/store';
 import { HelpModal } from './Help/HelpModal';
+import { buildShareURL } from '../lib/sharing';
 
 export function TopBar() {
   const setDOB = useStore((s) => s.setDOB);
@@ -9,8 +10,31 @@ export function TopBar() {
   const setInflation = useStore((s) => s.setInflation);
   const setZoom = useStore((s) => s.setZoom);
   const [showHelp, setShowHelp] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
 
-  async function onShare() { useStore.getState().setOpenShare(true); }
+  async function onShare() {
+    useStore.getState().setOpenShare(true);
+  }
+
+  async function onCopyLink() {
+    const state = useStore.getState();
+    const url = buildShareURL(state);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // Fallback for browsers without clipboard API
+      const input = document.createElement('input');
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  }
 
   return (
     <header className="bg-white border-b border-slate-200 shadow-sm">
@@ -25,10 +49,10 @@ export function TopBar() {
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                 Financial Life Tracker
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">Visualize your financial future</p>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">Plan your path to financial independence</p>
             </div>
           </div>
-          
+
           {/* Controls */}
           <div className="flex-1">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -37,17 +61,17 @@ export function TopBar() {
                 <label className="text-xs font-medium text-slate-600 uppercase tracking-wide" title="Your date of birth. Ages on the chart use this.">
                   Date of Birth
                 </label>
-                <input 
-                  type="date" 
-                  value={dobISO} 
-                  onChange={(e) => setDOB(e.target.value)} 
-                  className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
+                <input
+                  type="date"
+                  value={dobISO}
+                  onChange={(e) => setDOB(e.target.value)}
+                  className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   title="Pick your birth date to align the timeline with your actual age"
                   min="1900-01-01"
                   max="2024-12-31"
                 />
               </div>
-              
+
               {/* Display Mode */}
               <div className="space-y-2">
                 <label className="text-xs font-medium text-slate-600 uppercase tracking-wide">Display Mode</label>
@@ -61,7 +85,7 @@ export function TopBar() {
                   <option value="real">📊 Real (inflation-adjusted)</option>
                 </select>
               </div>
-              
+
               {/* Inflation Rate */}
               <div className="space-y-2">
                 <label className="text-xs font-medium text-slate-600 uppercase tracking-wide" title="Average yearly inflation rate. Used for all calculations.">
@@ -81,31 +105,42 @@ export function TopBar() {
                   <span className="text-sm text-slate-500 font-medium">%</span>
                 </div>
               </div>
-              
+
               {/* Action Buttons */}
               <div className="space-y-2">
                 <label className="text-xs font-medium text-slate-600 uppercase tracking-wide">Actions</label>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setZoom(0, 100 * 12)} 
-                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm hover:bg-slate-50 hover:border-slate-400 transition-all font-medium" 
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => setZoom(0, 100 * 12)}
+                    className="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-lg text-sm hover:bg-slate-50 hover:border-slate-400 transition-all font-medium"
                     title="Show full 0–100 years"
                   >
                     Reset Zoom
                   </button>
-                  <button 
-                    onClick={() => setShowHelp(true)} 
-                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm hover:bg-slate-50 hover:border-slate-400 transition-all font-medium" 
+                  <button
+                    onClick={() => setShowHelp(true)}
+                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm hover:bg-slate-50 hover:border-slate-400 transition-all font-medium"
                     title="Help, use cases and shortcuts"
                   >
                     ?
                   </button>
-                  <button 
-                    onClick={onShare} 
-                    className="px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-sm hover:from-blue-700 hover:to-indigo-700 transition-all font-medium shadow-sm" 
+                  <button
+                    onClick={onCopyLink}
+                    className={`px-3 py-2 rounded-lg text-sm transition-all font-medium border ${
+                      copied
+                        ? 'bg-emerald-600 text-white border-emerald-600'
+                        : 'border-slate-300 hover:bg-slate-50 hover:border-slate-400'
+                    }`}
+                    title="Copy shareable link to clipboard"
+                  >
+                    {copied ? '✓ Copied!' : '🔗 Share'}
+                  </button>
+                  <button
+                    onClick={onShare}
+                    className="px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-sm hover:from-blue-700 hover:to-indigo-700 transition-all font-medium shadow-sm"
                     title="Preview and download as image"
                   >
-                    Share JPG
+                    JPG
                   </button>
                 </div>
               </div>
@@ -117,5 +152,3 @@ export function TopBar() {
     </header>
   );
 }
-
-
