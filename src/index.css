@@ -35,9 +35,9 @@ code, pre { font-feature-settings: "tnum" 1, "lnum" 1; }
 /* Tap highlight off on mobile */
 * { -webkit-tap-highlight-color: transparent; }
 
-/* Ensure minimum 44 × 44 touch targets for all buttons and links */
+/* Ensure minimum 44 × 44 touch targets for all buttons and links (WCAG AA) */
 button, a, input[type="checkbox"], input[type="radio"], select {
-  min-height: 36px;
+  min-height: 44px;
 }
 
 /* Confetti particle keyframes */
@@ -47,7 +47,7 @@ button, a, input[type="checkbox"], input[type="radio"], select {
 }
 @keyframes confetti-sway {
   0%, 100% { margin-left: 0; }
-  50%       { margin-left: 50px; }
+  50%       { margin-left: 20px; }
 }
 
 .confetti-particle {
