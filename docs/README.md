@@ -9,8 +9,5 @@ This folder contains the authoritative documentation for architecture, state sch
 - TESTING.md – unit/integration/e2e strategy, Allure, Hurl
 - ACCEPTANCE_CRITERIA.md – mapped from the product plan
 - WORKFLOW.md – TDD, Conventional Commits, Make targets
-- PROGRESS.md – running log of work completed
 - DECISIONS.md – ADR-style records (keep short, high-signal)
 - RELEASE.md – production readiness checklist
-
-See `../financial.plan.md` for the full product plan.
