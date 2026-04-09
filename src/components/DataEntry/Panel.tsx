@@ -32,7 +32,7 @@ export function DataEntryPanel() {
             <label className="text-xs sm:text-sm font-medium text-slate-700">Demo Presets:</label>
             <div className="flex gap-2">
               <select
-                onChange={(e) => e.target.value && loadPreset(e.target.value as 'worker' | 'investor' | 'businessman' | 'loaner')}
+                onChange={(e) => e.target.value && loadPreset(e.target.value as 'worker' | 'investor' | 'businessman' | 'loaner' | 'average')}
                 className="flex-1 sm:min-w-[160px] border border-slate-300 px-3 py-2 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 defaultValue="worker"
               >
@@ -40,6 +40,7 @@ export function DataEntryPanel() {
                 <option value="investor">📈 Investor</option>
                 <option value="businessman">💼 Businessman</option>
                 <option value="loaner">🎓 Loaner</option>
+                <option value="average">😰 Average American</option>
               </select>
               <button
                 onClick={handleClearAll}

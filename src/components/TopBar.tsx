@@ -1,7 +1,6 @@
 import React from 'react';
 import { useStore } from '../state/store';
 import { HelpModal } from './Help/HelpModal';
-import { buildShareURL } from '../lib/sharing';
 
 export function TopBar() {
   const setDOB = useStore((s) => s.setDOB);
@@ -10,30 +9,9 @@ export function TopBar() {
   const setInflation = useStore((s) => s.setInflation);
   const setZoom = useStore((s) => s.setZoom);
   const [showHelp, setShowHelp] = React.useState(false);
-  const [copied, setCopied] = React.useState(false);
 
-  async function onShare() {
+  function onShare() {
     useStore.getState().setOpenShare(true);
-  }
-
-  async function onCopyLink() {
-    const state = useStore.getState();
-    const url = buildShareURL(state);
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    } catch {
-      // Fallback for browsers without clipboard API
-      const input = document.createElement('input');
-      input.value = url;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand('copy');
-      document.body.removeChild(input);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    }
   }
 
   return (
@@ -68,7 +46,7 @@ export function TopBar() {
                   className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   title="Pick your birth date to align the timeline with your actual age"
                   min="1900-01-01"
-                  max="2024-12-31"
+                  max={new Date().toISOString().slice(0, 10)}
                 />
               </div>
 
@@ -125,22 +103,11 @@ export function TopBar() {
                     ?
                   </button>
                   <button
-                    onClick={onCopyLink}
-                    className={`px-3 py-2 rounded-lg text-sm transition-all font-medium border ${
-                      copied
-                        ? 'bg-emerald-600 text-white border-emerald-600'
-                        : 'border-slate-300 hover:bg-slate-50 hover:border-slate-400'
-                    }`}
-                    title="Copy shareable link to clipboard"
-                  >
-                    {copied ? '✓ Copied!' : '🔗 Share'}
-                  </button>
-                  <button
                     onClick={onShare}
                     className="px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-sm hover:from-blue-700 hover:to-indigo-700 transition-all font-medium shadow-sm"
-                    title="Preview and download as image"
+                    title="Share your financial plan — copy link, tweet, LinkedIn, or export image"
                   >
-                    JPG
+                    📤 Share
                   </button>
                 </div>
               </div>

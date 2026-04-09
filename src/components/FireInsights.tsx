@@ -1,6 +1,7 @@
 import React from 'react';
 import { useStore } from '../state/store';
 import { useSeries } from '../state/SeriesContext';
+import { buildShareURL } from '../lib/sharing';
 
 function formatCurrency(n: number): string {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
@@ -50,6 +51,26 @@ export function FireInsights() {
 
   if (fireNumber <= 0 || annualExpenses <= 0) {
     return null; // Don't show if no expenses defined
+  }
+
+  function shareFIREtweet() {
+    const state = useStore.getState();
+    const url = buildShareURL(state);
+    const currentAge = Math.floor(currentAgeMonths / 12);
+
+    let text: string;
+    if (isFireAchieved) {
+      text = `I'm already financially independent. FIRE number: ${formatCurrency(fireNumber)}. 100% there.\n\nMapped my entire financial life with this free tool — zero signup, data never leaves my browser:`;
+    } else if (fireAge != null && yearsToFire != null && yearsToFire > 0) {
+      const gapToRetirement = retirementAge - (fireAge ?? retirementAge);
+      const earlyStr = gapToRetirement > 0 ? ` — ${gapToRetirement} years before standard retirement` : '';
+      text = `Just ran the numbers. My FIRE number is ${formatCurrency(fireNumber)} and I'm ${progress.toFixed(0)}% there.\n\nAt my current rate I'll hit financial independence at age ${fireAge}${earlyStr}.\n\nFree tool, zero signup, your data never leaves your browser:`;
+    } else {
+      text = `Hard truth: at my current savings rate I won't reach financial independence by retirement.\n\nI need ${formatCurrency(fireNumber)} and I'm only ${progress.toFixed(0)}% there at age ${currentAge}.\n\nFree tool that maps your entire financial life — zero signup:`;
+    }
+
+    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(tweetUrl, '_blank', 'noopener,noreferrer,width=600,height=400');
   }
 
   return (
@@ -105,6 +126,18 @@ export function FireInsights() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Share CTA */}
+      <div className="px-6 pb-4 flex justify-end">
+        <button
+          onClick={shareFIREtweet}
+          className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm font-semibold transition-all border border-white/30"
+          title="Tweet your FIRE progress with real numbers"
+        >
+          <span>𝕏</span>
+          <span>Share my FIRE number</span>
+        </button>
       </div>
 
       {/* Progress bar */}
