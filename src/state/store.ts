@@ -73,7 +73,7 @@ export type Store = CoreState & {
   setRetirement: (r: Retirement) => void;
   openShare: boolean;
   setOpenShare: (v: boolean) => void;
-  loadPreset: (presetName: 'worker' | 'investor' | 'businessman' | 'loaner') => void;
+  loadPreset: (presetName: 'worker' | 'investor' | 'businessman' | 'loaner' | 'average') => void;
   reset: () => void;
   clearAllData: () => void;
 };
@@ -412,6 +412,76 @@ const presets = {
     },
     chart: { zoom: { minMonth: 0, maxMonth: 100 * 12 } },
   }),
+
+  // "Average American" — wake-up call preset based on real median stats.
+  // Median household income, average savings rate (~5%), near-zero retirement savings at 41.
+  // The chart will show a brutal retirement shortfall — that's the point.
+  average: (): CoreState => ({
+    version: CURRENT_VERSION,
+    dobISO: '1985-01-01', // age ~41
+    incomes: [
+      {
+        id: 'inc-job',
+        label: 'Median Household Income',
+        amount: 6300, // ~$75.6k/yr — 2024 US median household income
+        recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 67, monthIndex: 67 * 12 }, everyMonths: 1 },
+        category: 'employment',
+      },
+      {
+        id: 'inc-ss',
+        label: 'Social Security (est.)',
+        amount: 1900, // avg SS benefit ~$1,900/mo
+        recurrence: { kind: 'recurring', start: { ageYears: 67, monthIndex: 67 * 12 }, everyMonths: 1 },
+        category: 'government',
+      },
+    ],
+    expenses: [
+      { id: 'exp-housing', label: 'Rent / Mortgage', amount: 1800, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-food', label: 'Food & Groceries', amount: 700, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-transport', label: 'Transportation', amount: 850, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-healthcare', label: 'Healthcare', amount: 450, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-utilities', label: 'Utilities & Phone', amount: 300, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-entertainment', label: 'Entertainment & Dining', amount: 400, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-misc', label: 'Miscellaneous', amount: 350, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+    ],
+    loans: [
+      {
+        id: 'loan-car',
+        label: 'Car Loan',
+        principal: 25000,
+        monthlyPayment: 480,
+        recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 35, monthIndex: 35 * 12 }, everyMonths: 1 },
+        interestRate: 0.075,
+        category: 'auto',
+      },
+    ],
+    investments: [
+      {
+        id: 'inv-401k',
+        label: '401k (5% savings rate)',
+        principal: 35000, // avg 401k balance around 41 for non-savers
+        recurringAmount: 315, // 5% of $6,300 — the "average American" barely saves
+        recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 67, monthIndex: 67 * 12 }, everyMonths: 1 },
+        model: { type: 'fixed', fixedRate: 0.07 },
+      },
+    ],
+    safetySavings: [
+      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 1, monthlyExpenses: 4850 },
+    ],
+    retirement: { age: 67, withdrawalRate: 0.04 },
+    milestones: [
+      { id: 'ms-job', at: { ageYears: 22, monthIndex: 22 * 12 }, label: 'Started Working' },
+      { id: 'ms-retire', at: { ageYears: 67, monthIndex: 67 * 12 }, label: 'Retirement' },
+    ],
+    inflation: {
+      mode: 'single',
+      baseYear: new Date().getFullYear(),
+      singleRate: 0.03,
+      yearlyRates: undefined,
+      display: { seriesMode: 'nominal' },
+    },
+    chart: { zoom: { minMonth: 0, maxMonth: 100 * 12 } },
+  }),
 };
 
 const dummyState = (): CoreState => presets.worker();
@@ -442,7 +512,7 @@ export const useStore = create<Store>()(
       setRetirement: (r) => set({ retirement: r }),
       openShare: false,
       setOpenShare: (v) => set({ openShare: v }),
-      loadPreset: (presetName) => set(presets[presetName]()),
+      loadPreset: (presetName) => set(presets[presetName as keyof typeof presets]()),
       reset: () => set(presets.worker()),
       clearAllData: () => set({
         ...presets.worker(),
