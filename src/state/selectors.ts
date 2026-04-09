@@ -1,13 +1,13 @@
 import { InflationMode, deflateToReal, inflationFactorSinceBase, indexAmountNominal } from '../lib/calc/inflation';
-import type { Store, Recurrence } from './store';
+import type { CoreState, Recurrence } from './store';
 
-export type SeriesPoint = { 
-  m: number; 
-  income: number; 
-  expense: number; 
-  loans: number; 
-  invest: number; 
-  netWorth: number; 
+export type SeriesPoint = {
+  m: number;
+  income: number;
+  expense: number;
+  loans: number;
+  invest: number;
+  netWorth: number;
   safety: number;
   cashFlow: number;
   savingsDepleted: boolean;
@@ -15,7 +15,17 @@ export type SeriesPoint = {
   investmentWithdrawal: number;
 };
 
-export function computeSeries(state: Store): SeriesPoint[] {
+/**
+ * Minimal input type for computeSeries — only the fields it actually reads.
+ * This lets callers (and the SeriesContext) subscribe to only these fields,
+ * so UI-only state changes (zoom, openShare) do NOT trigger recomputation.
+ */
+export type ComputationInput = Pick<
+  CoreState,
+  'dobISO' | 'incomes' | 'expenses' | 'investments' | 'loans' | 'safetySavings' | 'retirement' | 'inflation'
+>;
+
+export function computeSeries(state: ComputationInput): SeriesPoint[] {
   const months = 100 * 12;
   const points: SeriesPoint[] = [];
   let investmentsTotal = 0;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../state/store';
-import { computeSeries } from '../state/selectors';
+import { useSeries } from '../state/SeriesContext';
 
 function formatCurrency(n: number): string {
   if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
@@ -10,7 +10,7 @@ function formatCurrency(n: number): string {
 
 export function FireInsights() {
   const state = useStore();
-  const series = React.useMemo(() => computeSeries(state), [state]);
+  const series = useSeries(); // shared — no extra recomputation
 
   const dobYear = new Date(state.dobISO).getFullYear();
   const currentYear = new Date().getFullYear();
