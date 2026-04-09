@@ -107,12 +107,13 @@ function TabButton(props: React.PropsWithChildren<{ active: boolean; onClick: ()
   return (
     <button
       onClick={props.onClick}
-      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+      className={`px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] ${
         props.active
           ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm'
           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800 border border-slate-300'
       }`}
       title={props.title}
+      aria-pressed={props.active}
     >
       {props.children}
     </button>

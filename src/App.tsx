@@ -36,7 +36,7 @@ function AppShell() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <TopBar />
-      <main className="mx-auto max-w-[1600px] px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6">
+      <main className="mx-auto max-w-[1600px] px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 safe-x">
         {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
           <div className="mb-4 sm:mb-6">
             <WealthProtectionPanel validation={wealthValidation} />
@@ -64,6 +64,25 @@ function AppShell() {
           </div>
         </div>
       </main>
+
+      {/* Viral footer CTA */}
+      <footer className="border-t border-slate-200 bg-white safe-bottom safe-x">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="text-center sm:text-left">
+            <p className="text-sm font-semibold text-slate-700">Know someone who should run their numbers?</p>
+            <p className="text-xs text-slate-500">100% free · zero signup · data never leaves the browser</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => useStore.getState().setOpenShare(true)}
+              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-sm font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm min-h-[44px]"
+            >
+              📤 Challenge a Friend
+            </button>
+          </div>
+        </div>
+      </footer>
+
       <ShareModal />
     </div>
   );
