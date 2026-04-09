@@ -60,13 +60,13 @@ export function FireInsights() {
 
     let text: string;
     if (isFireAchieved) {
-      text = `I'm already financially independent. FIRE number: ${formatCurrency(fireNumber)}. 100% there.\n\nMapped my entire financial life with this free tool — zero signup, data never leaves my browser:`;
+      text = `I'm already financially independent. FIRE number: ${formatCurrency(fireNumber)}. 100% there.\n\nMapped my entire financial life with this free tool — zero signup, data never leaves my browser. Run your numbers:`;
     } else if (fireAge != null && yearsToFire != null && yearsToFire > 0) {
       const gapToRetirement = retirementAge - (fireAge ?? retirementAge);
       const earlyStr = gapToRetirement > 0 ? ` — ${gapToRetirement} years before standard retirement` : '';
-      text = `Just ran the numbers. My FIRE number is ${formatCurrency(fireNumber)} and I'm ${progress.toFixed(0)}% there.\n\nAt my current rate I'll hit financial independence at age ${fireAge}${earlyStr}.\n\nFree tool, zero signup, your data never leaves your browser:`;
+      text = `Just ran the numbers. My FIRE number is ${formatCurrency(fireNumber)} and I'm ${progress.toFixed(0)}% there.\n\nAt my current rate I'll hit financial independence at age ${fireAge}${earlyStr}.\n\nFree tool, zero signup, your data never leaves your browser. Try it:`;
     } else {
-      text = `Hard truth: at my current savings rate I won't reach financial independence by retirement.\n\nI need ${formatCurrency(fireNumber)} and I'm only ${progress.toFixed(0)}% there at age ${currentAge}.\n\nFree tool that maps your entire financial life — zero signup:`;
+      text = `Hard truth: at my current savings rate I won't reach financial independence by retirement.\n\nI need ${formatCurrency(fireNumber)} and I'm only ${progress.toFixed(0)}% there at age ${currentAge}.\n\nFree tool that maps your entire financial life — zero signup. Check yours:`;
     }
 
     const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;

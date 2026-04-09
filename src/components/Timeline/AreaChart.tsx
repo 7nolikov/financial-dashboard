@@ -42,36 +42,163 @@ export function AreaChart() {
   const [milestoneLabel, setMilestoneLabel] = React.useState('');
   const milestoneInputRef = React.useRef<HTMLInputElement | null>(null);
 
+  const height = isMobile ? 200 : 260;
+  const padding = { left: isMobile ? 30 : 40, right: 20, top: 10, bottom: 30 };
+  const innerW = width - padding.left - padding.right;
+  const innerH = height - padding.top - padding.bottom;
+
+  // Stable ref so event listeners added once can always read current values.
+  const stateRef = React.useRef({ zoom: state.chart.zoom, innerW, padding, totalMonths });
+  stateRef.current = { zoom: state.chart.zoom, innerW, padding, totalMonths };
+
+  // Touch tracking ref for pan / pinch-to-zoom.
+  const touchRef = React.useRef<{
+    type: 'pan' | 'pinch';
+    startX: number;
+    startMinMonth: number;
+    startMaxMonth: number;
+    initialDistance: number;
+    centerMonth: number;
+    tapX: number;
+    tapY: number;
+  } | null>(null);
+
   React.useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
+    // ResizeObserver handles all size changes — no window resize listener needed.
     const updateDimensions = () => {
       setWidth(el.clientWidth);
       setIsMobile(window.innerWidth < 640);
     };
-
     const ro = new ResizeObserver(updateDimensions);
     ro.observe(el);
     updateDimensions();
 
-    window.addEventListener('resize', updateDimensions);
+    // Non-passive wheel listener so preventDefault() actually works in Chrome.
+    const wheelHandler = (e: WheelEvent) => {
+      e.preventDefault();
+      const { zoom, innerW: iW, padding: p } = stateRef.current;
+      const range = zoom.maxMonth - zoom.minMonth;
+      const delta = Math.sign(e.deltaY);
+      const rect = el.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left - p.left;
+      const xScale = scaleLinear<number>({ domain: [zoom.minMonth, zoom.maxMonth], range: [0, iW] });
+      const centerMonth = Math.round(xScale.invert(Math.max(0, Math.min(iW, mouseX))));
+      const zoomFactor = delta > 0 ? 1.2 : 0.8;
+      const total = 100 * 12;
+      let newRange = Math.max(12, Math.min(total, Math.round(range * zoomFactor)));
+      let min = centerMonth - Math.round(newRange / 2);
+      let max = centerMonth + Math.round(newRange / 2);
+      if (min < 0) { max -= min; min = 0; }
+      if (max > total) { min -= (max - total); max = total; }
+      setZoom(Math.max(0, min), Math.min(total, max));
+    };
+    el.addEventListener('wheel', wheelHandler, { passive: false });
+
+    // Non-passive touchstart/touchmove so we can prevent page scroll during pan/pinch.
+    const touchStartHandler = (e: TouchEvent) => {
+      const { zoom, innerW: iW, padding: p } = stateRef.current;
+      const rect = el.getBoundingClientRect();
+      if (e.touches.length === 1) {
+        const t = e.touches[0]!;
+        touchRef.current = {
+          type: 'pan',
+          startX: t.clientX,
+          startMinMonth: zoom.minMonth,
+          startMaxMonth: zoom.maxMonth,
+          initialDistance: 0,
+          centerMonth: 0,
+          tapX: t.clientX - rect.left - p.left,
+          tapY: t.clientY - rect.top - p.top,
+        };
+      } else if (e.touches.length === 2) {
+        e.preventDefault();
+        const t0 = e.touches[0]!; const t1 = e.touches[1]!;
+        const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+        const midX = (t0.clientX + t1.clientX) / 2 - rect.left - p.left;
+        const xScale = scaleLinear<number>({ domain: [zoom.minMonth, zoom.maxMonth], range: [0, iW] });
+        const centerMonth = Math.round(xScale.invert(Math.max(0, Math.min(iW, midX))));
+        touchRef.current = {
+          type: 'pinch',
+          startX: 0,
+          startMinMonth: zoom.minMonth,
+          startMaxMonth: zoom.maxMonth,
+          initialDistance: dist,
+          centerMonth,
+          tapX: 0,
+          tapY: 0,
+        };
+      }
+    };
+    const touchMoveHandler = (e: TouchEvent) => {
+      if (!touchRef.current) return;
+      e.preventDefault();
+      const { innerW: iW } = stateRef.current;
+      const total = 100 * 12;
+      const cur = touchRef.current;
+      if (e.touches.length === 1 && cur.type === 'pan') {
+        const t = e.touches[0]!;
+        const range = cur.startMaxMonth - cur.startMinMonth;
+        const pixelsPerMonth = iW / range;
+        const dx = t.clientX - cur.startX;
+        const monthDelta = Math.round(dx / pixelsPerMonth);
+        let newMin = cur.startMinMonth - monthDelta;
+        let newMax = cur.startMaxMonth - monthDelta;
+        if (newMin < 0) { newMax -= newMin; newMin = 0; }
+        if (newMax > total) { newMin -= (newMax - total); newMax = total; }
+        setZoom(Math.max(0, newMin), Math.min(total, newMax));
+      } else if (e.touches.length === 2 && cur.type === 'pinch') {
+        const t0 = e.touches[0]!; const t1 = e.touches[1]!;
+        const currentDist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+        if (currentDist < 1 || cur.initialDistance < 1) return;
+        const scale = currentDist / cur.initialDistance;
+        const initialRange = cur.startMaxMonth - cur.startMinMonth;
+        let newRange = Math.max(12, Math.min(total, Math.round(initialRange / scale)));
+        let newMin = cur.centerMonth - Math.round(newRange / 2);
+        let newMax = cur.centerMonth + Math.round(newRange / 2);
+        if (newMin < 0) { newMax -= newMin; newMin = 0; }
+        if (newMax > total) { newMin -= (newMax - total); newMax = total; }
+        setZoom(Math.max(0, newMin), Math.min(total, newMax));
+      }
+    };
+    const touchEndHandler = (e: TouchEvent) => {
+      // Detect tap (short drag < 10px) to open milestone dialog on mobile.
+      if (e.changedTouches.length === 1 && touchRef.current?.type === 'pan') {
+        const t = e.changedTouches[0]!;
+        const dx = Math.abs(t.clientX - touchRef.current.startX);
+        if (dx < 10) {
+          const rect = el.getBoundingClientRect();
+          const { zoom, innerW: iW, padding: p } = stateRef.current;
+          const tapX = t.clientX - rect.left - p.left;
+          const xScale = scaleLinear<number>({ domain: [zoom.minMonth, zoom.maxMonth], range: [0, iW] });
+          const month = Math.round(xScale.invert(Math.max(0, Math.min(iW, tapX))));
+          const clickX = t.clientX - rect.left;
+          setPendingMilestone({ month, x: clickX });
+          setMilestoneLabel('');
+        }
+      }
+      touchRef.current = null;
+    };
+    el.addEventListener('touchstart', touchStartHandler, { passive: false });
+    el.addEventListener('touchmove', touchMoveHandler, { passive: false });
+    el.addEventListener('touchend', touchEndHandler);
+
     return () => {
       ro.disconnect();
-      window.removeEventListener('resize', updateDimensions);
+      el.removeEventListener('wheel', wheelHandler);
+      el.removeEventListener('touchstart', touchStartHandler);
+      el.removeEventListener('touchmove', touchMoveHandler);
+      el.removeEventListener('touchend', touchEndHandler);
     };
-  }, []);
+  }, []); // empty deps — state accessed via stateRef, setZoom is store-stable
 
   React.useEffect(() => {
     if (pendingMilestone && milestoneInputRef.current) {
       milestoneInputRef.current.focus();
     }
   }, [pendingMilestone]);
-
-  const height = isMobile ? 200 : 260;
-  const padding = { left: isMobile ? 30 : 40, right: 20, top: 10, bottom: 30 };
-  const innerW = width - padding.left - padding.right;
-  const innerH = height - padding.top - padding.bottom;
 
   const x = scaleLinear<number>({ domain: [state.chart.zoom.minMonth, state.chart.zoom.maxMonth], range: [0, innerW] });
   const yDomain = React.useMemo(() => {
@@ -82,23 +209,6 @@ export function AreaChart() {
     return [min, max] as [number, number];
   }, [visible]);
   const y = scaleLinear<number>({ domain: yDomain, range: [innerH, 0] });
-
-  function onWheel(e: React.WheelEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    const delta = Math.sign(e.deltaY);
-    const range = state.chart.zoom.maxMonth - state.chart.zoom.minMonth;
-    const mouseX = (e.nativeEvent as MouseEvent).offsetX - padding.left;
-    const centerMonth = Math.round(x.invert(Math.max(0, Math.min(innerW, mouseX))));
-    const zoomFactor = delta > 0 ? 1.2 : 0.8;
-    let newRange = Math.max(12, Math.min(totalMonths, Math.round(range * zoomFactor)));
-    let min = centerMonth - Math.round(newRange / 2);
-    let max = centerMonth + Math.round(newRange / 2);
-    if (min < 0) { max -= min; min = 0; }
-    if (max > totalMonths) { min -= (max - totalMonths); max = totalMonths; }
-    min = Math.max(0, min); max = Math.min(totalMonths, max);
-    setZoom(min, max);
-  }
 
   function onClick(e: React.MouseEvent) {
     if (pendingMilestone) return;
@@ -148,32 +258,31 @@ export function AreaChart() {
             </div>
           </div>
 
-          {/* Legend */}
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
-              <span className="inline-block w-3 h-3 rounded bg-emerald-500"></span>
-              <span className="font-semibold text-slate-700">Income</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
-              <span className="inline-block w-3 h-3 rounded bg-red-500"></span>
-              <span className="font-semibold text-slate-700">Expenses</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
-              <span className="inline-block w-3 h-3 rounded bg-blue-500"></span>
-              <span className="font-semibold text-slate-700">Investments</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
-              <span className="inline-block w-3 h-3 rounded bg-amber-500"></span>
-              <span className="font-semibold text-slate-700">Loans</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
-              <span className="inline-block w-3 h-3 rounded bg-violet-500"></span>
-              <span className="font-semibold text-slate-700">Net Worth</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
-              <span className="inline-block w-3 h-3 rounded border-2 border-orange-500"></span>
-              <span className="font-semibold text-slate-700">Safety</span>
-            </div>
+          {/* Legend — compact on mobile, full on desktop */}
+          <div className="hidden sm:flex flex-wrap items-center gap-2 text-xs">
+            {[
+              { color: 'bg-emerald-500', label: 'Income' },
+              { color: 'bg-red-500', label: 'Expenses' },
+              { color: 'bg-blue-500', label: 'Investments' },
+              { color: 'bg-amber-500', label: 'Loans' },
+              { color: 'bg-violet-500', label: 'Net Worth' },
+            ].map(({ color, label }) => (
+              <div key={label} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
+                <span className={`inline-block w-3 h-3 rounded ${color}`}></span>
+                <span className="font-semibold text-slate-700">{label}</span>
+              </div>
+            ))}
+          </div>
+          {/* Mobile-only compact legend */}
+          <div className="flex sm:hidden items-center gap-2">
+            {[
+              { color: 'bg-emerald-500', title: 'Income' },
+              { color: 'bg-red-500', title: 'Expenses' },
+              { color: 'bg-blue-500', title: 'Investments' },
+              { color: 'bg-violet-500', title: 'Net Worth' },
+            ].map(({ color, title }) => (
+              <span key={title} title={title} className={`inline-block w-3 h-3 rounded ${color}`}></span>
+            ))}
           </div>
         </div>
       </div>
@@ -229,7 +338,7 @@ export function AreaChart() {
             width="100%"
             height={height}
             viewBox={`0 0 ${width} ${height}`}
-            onWheel={onWheel}
+            style={{ touchAction: 'none' }}
             onClick={onClick}
             onMouseMove={(e) => {
               const mx = (e.nativeEvent as MouseEvent).offsetX - padding.left;
@@ -320,7 +429,8 @@ export function AreaChart() {
             >
               Reset Zoom
             </button>
-            <div className="text-xs text-slate-600 font-medium">Scroll to zoom • Click to add milestone</div>
+            <div className="text-xs text-slate-600 font-medium hidden sm:block">Scroll to zoom • Click to add milestone</div>
+            <div className="text-xs text-slate-600 font-medium sm:hidden">Pinch to zoom • Pan to scroll • Tap to add milestone</div>
           </div>
         </div>
       </div>

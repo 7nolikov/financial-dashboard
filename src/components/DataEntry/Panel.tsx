@@ -1,13 +1,14 @@
 import React from 'react';
-import { useStore, Income, Expense, Investment } from '../../state/store';
+import { useStore, Income, Expense, Investment, Loan } from '../../state/store';
 
 function uid(prefix: string) { return `${prefix}-${Math.random().toString(36).slice(2, 8)}`; }
 
 export function DataEntryPanel() {
-  const [tab, setTab] = React.useState<'income' | 'expense' | 'investment' | 'retirement'>('income');
+  const [tab, setTab] = React.useState<'income' | 'expense' | 'investment' | 'loan' | 'retirement'>('income');
   const loadPreset = useStore((s) => s.loadPreset);
   const clearAllData = useStore((s) => s.clearAllData);
   const [confirmClear, setConfirmClear] = React.useState(false);
+  const [activePreset, setActivePreset] = React.useState('worker');
 
   function handleClearAll() {
     if (confirmClear) {
@@ -32,9 +33,13 @@ export function DataEntryPanel() {
             <label className="text-xs sm:text-sm font-medium text-slate-700">Demo Presets:</label>
             <div className="flex gap-2">
               <select
-                onChange={(e) => e.target.value && loadPreset(e.target.value as 'worker' | 'investor' | 'businessman' | 'loaner' | 'average')}
+                value={activePreset}
+                onChange={(e) => {
+                  const v = e.target.value as 'worker' | 'investor' | 'businessman' | 'loaner' | 'average';
+                  setActivePreset(v);
+                  loadPreset(v);
+                }}
                 className="flex-1 sm:min-w-[160px] border border-slate-300 px-3 py-2 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                defaultValue="worker"
               >
                 <option value="worker">👷 Worker</option>
                 <option value="investor">📈 Investor</option>
@@ -73,6 +78,10 @@ export function DataEntryPanel() {
             <span className="hidden sm:inline">📈 Investments</span>
             <span className="sm:hidden">📈</span>
           </TabButton>
+          <TabButton active={tab === 'loan'} onClick={() => setTab('loan')} title="Add loans and debt (mortgage, student, car, etc.)">
+            <span className="hidden sm:inline">🏦 Loans</span>
+            <span className="sm:hidden">🏦</span>
+          </TabButton>
           <TabButton active={tab === 'retirement'} onClick={() => setTab('retirement')} title="Set retirement age and withdrawal %">
             <span className="hidden sm:inline">🏖️ Retirement</span>
             <span className="sm:hidden">🏖️</span>
@@ -86,6 +95,7 @@ export function DataEntryPanel() {
           {tab === 'income' && <IncomeTab />}
           {tab === 'expense' && <ExpenseTab />}
           {tab === 'investment' && <InvestmentTab />}
+          {tab === 'loan' && <LoanTab />}
           {tab === 'retirement' && <RetirementTab />}
         </div>
       </div>
@@ -382,6 +392,125 @@ function InvestmentTab() {
   );
 }
 
+function LoanTab() {
+  const loans = useStore((s) => s.loans);
+  const addLoan = useStore((s) => s.addLoan);
+  const removeLoan = useStore((s) => s.removeLoan);
+  const [label, setLabel] = React.useState('New Loan');
+  const [principal, setPrincipal] = React.useState(10000);
+  const [monthlyPayment, setMonthlyPayment] = React.useState(200);
+  const [interestRate, setInterestRate] = React.useState(5.0);
+  const [startAge, setStartAge] = React.useState(22);
+  const [endAge, setEndAge] = React.useState<number | ''>(32);
+  const [category, setCategory] = React.useState('other');
+  const [isAdding, setIsAdding] = React.useState(false);
+
+  const handleAdd = async () => {
+    if (!label.trim() || principal <= 0 || monthlyPayment <= 0 || startAge < 0 || startAge > 100) return;
+    setIsAdding(true);
+    try {
+      const loan: Loan = {
+        id: uid('loan'), label, principal, monthlyPayment,
+        interestRate: interestRate / 100,
+        category,
+        recurrence: {
+          kind: 'recurring',
+          start: { ageYears: startAge, monthIndex: startAge * 12 },
+          end: endAge === '' ? undefined : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 },
+          everyMonths: 1,
+        },
+      };
+      addLoan(loan);
+      setLabel('New Loan');
+      setPrincipal(10000);
+      setMonthlyPayment(200);
+      setInterestRate(5.0);
+      setStartAge(22);
+      setEndAge(32);
+      setCategory('other');
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <FormCard icon="🏦" title="Add Loan / Debt" subtitle="Track mortgages, student loans, car loans, credit cards and more" color="violet">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Label</label>
+            <input className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="e.g., Mortgage" value={label} onChange={(e) => setLabel(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Category</label>
+            <select className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="mortgage">🏠 Mortgage</option>
+              <option value="education">🎓 Student Loan</option>
+              <option value="car">🚗 Car Loan</option>
+              <option value="credit">💳 Credit Card</option>
+              <option value="business">💼 Business Loan</option>
+              <option value="other">📋 Other</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Principal ($)</label>
+            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="10000" min="0" value={principal} onChange={(e) => setPrincipal(Number(e.target.value))} />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Monthly Payment ($)</label>
+            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="200" min="0" value={monthlyPayment} onChange={(e) => setMonthlyPayment(Number(e.target.value))} />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Interest Rate (APR %)</label>
+            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" step="0.1" min="0" max="50" placeholder="5.0" value={interestRate} onChange={(e) => setInterestRate(Number(e.target.value))} />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Start Age</label>
+            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="22" min="0" max="100" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} />
+          </div>
+          <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+            <label className="text-sm font-medium text-slate-700">End Age (optional)</label>
+            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="32" min="0" max="100" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} />
+          </div>
+        </div>
+        <div className="mt-4 p-3 bg-violet-100 rounded-lg border border-violet-200">
+          <p className="text-xs text-violet-800 font-medium">
+            💡 Monthly payment is subtracted from cash flow each month the loan is active. The balance curve shows remaining principal.
+          </p>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <button
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isAdding ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700 shadow-sm'}`}
+            disabled={isAdding}
+            onClick={handleAdd}
+          >
+            {isAdding ? 'Adding...' : 'Add Loan'}
+          </button>
+        </div>
+      </FormCard>
+
+      <div className="space-y-3">
+        <h4 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+          <span className="text-lg">📋</span>
+          Current Loans ({loans.length})
+        </h4>
+        <ItemList
+          items={loans}
+          icon="🏦"
+          iconBg="bg-violet-100"
+          iconColor="text-violet-600"
+          renderLabel={(l) => l.label}
+          renderDetail={(l) => `$${l.principal.toLocaleString()} @ ${(l.interestRate * 100).toFixed(1)}% APR • $${l.monthlyPayment}/mo`}
+          onRemove={(l) => removeLoan(l.id)}
+          emptyIcon="🏦"
+          emptyText="No loans added yet"
+          emptyHint="Add your first loan above to see debt payoff in the chart"
+        />
+      </div>
+    </div>
+  );
+}
+
 function RetirementTab() {
   const r = useStore((s) => s.retirement);
   const setR = useStore((s) => s.setRetirement);
@@ -479,7 +608,7 @@ function ItemList<T extends { id: string }>({
   emptyHint: string;
 }) {
   return (
-    <div className="space-y-2 max-h-64 overflow-y-auto">
+    <div className="space-y-2">
       {items.map((item) => (
         <div key={item.id} className="flex justify-between items-center p-4 border border-slate-200 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
           <div className="flex items-center gap-3">
