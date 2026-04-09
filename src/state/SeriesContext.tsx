@@ -34,6 +34,7 @@ export function SeriesProvider({ children }: { children: React.ReactNode }) {
 }
 
 /** Consume the shared series. Must be used inside <SeriesProvider>. */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSeries(): SeriesPoint[] {
   const ctx = React.useContext(SeriesContext);
   if (ctx === null) throw new Error('useSeries must be used inside <SeriesProvider>');

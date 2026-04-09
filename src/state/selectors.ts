@@ -214,7 +214,7 @@ function sumInitialPrincipal(investments: { principal: number; recurrence: Recur
   return sum;
 }
 
-function rateForAge(state: Store, ageYears: number): number {
+function rateForAge(state: ComputationInput, ageYears: number): number {
   // priority: yearlyTable if present, else fixed
   const table = state.investments.find((i) => i.model.type === 'yearlyTable' && i.model.yearlyRates);
   if (table && table.model.type === 'yearlyTable') {
@@ -225,7 +225,7 @@ function rateForAge(state: Store, ageYears: number): number {
   return fixed?.model.fixedRate ?? 0;
 }
 
-function calculateLoanBalance(state: Store, m: number): number {
+function calculateLoanBalance(state: ComputationInput, m: number): number {
   let totalBalance = 0;
 
   for (const loan of state.loans) {
@@ -265,7 +265,7 @@ function calculateLoanBalance(state: Store, m: number): number {
   return totalBalance;
 }
 
-function safetyForMonth(state: Store, m: number): number {
+function safetyForMonth(state: ComputationInput, m: number): number {
   let maxSafetyTarget = 0;
   
   for (const r of state.safetySavings) {

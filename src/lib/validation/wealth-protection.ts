@@ -1,4 +1,4 @@
-import type { Store, Investment, Expense, Income } from '../../state/store';
+import type { Store } from '../../state/store';
 
 export type WealthValidationResult = {
   isValid: boolean;
