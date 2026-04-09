@@ -16,8 +16,48 @@
 }
 
 html, body, #root { height: 100%; }
-body { @apply bg-background text-foreground antialiased; font-feature-settings: "tnum" 1, "lnum" 1; }
+body {
+  @apply bg-background text-foreground antialiased;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  /* iOS overscroll bounce looks nice */
+  overscroll-behavior-y: none;
+}
 code, pre { font-feature-settings: "tnum" 1, "lnum" 1; }
 
+/* iOS safe-area support — padding for notched iPhones */
+.safe-top    { padding-top:    env(safe-area-inset-top, 0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.safe-x      { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
 
+/* Smooth scrolling everywhere */
+* { scroll-behavior: smooth; }
 
+/* Tap highlight off on mobile */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* Ensure minimum 44 × 44 touch targets for all buttons and links */
+button, a, input[type="checkbox"], input[type="radio"], select {
+  min-height: 36px;
+}
+
+/* Confetti particle keyframes */
+@keyframes confetti-fall {
+  0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+@keyframes confetti-sway {
+  0%, 100% { margin-left: 0; }
+  50%       { margin-left: 50px; }
+}
+
+.confetti-particle {
+  position: fixed;
+  top: -10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confetti-fall var(--duration, 3s) ease-in var(--delay, 0s) forwards,
+             confetti-sway var(--sway, 1.5s) ease-in-out var(--delay, 0s) infinite alternate;
+  pointer-events: none;
+  z-index: 9999;
+}

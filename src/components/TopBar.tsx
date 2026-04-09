@@ -15,7 +15,7 @@ export function TopBar() {
   }
 
   return (
-    <header className="bg-white border-b border-slate-200 shadow-sm">
+    <header className="bg-white border-b border-slate-200 shadow-sm safe-top safe-x">
       <div className="mx-auto max-w-[1400px] px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-5">
         {/* Single row on mobile: logo + title + action buttons */}
         <div className="flex items-center justify-between gap-3 lg:hidden">
@@ -31,22 +31,25 @@ export function TopBar() {
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={() => setZoom(0, 100 * 12)}
-              className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs hover:bg-slate-50 transition-all font-medium text-slate-600"
+              className="px-3 py-2 border border-slate-300 rounded-lg text-xs hover:bg-slate-50 transition-all font-medium text-slate-600 min-h-[44px] min-w-[44px]"
               title="Show full 0–100 years"
+              aria-label="Reset zoom to full 100-year view"
             >
-              ↺ Zoom
+              ↺
             </button>
             <button
               onClick={() => setShowHelp(true)}
-              className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs hover:bg-slate-50 transition-all font-medium text-slate-600"
+              className="px-3 py-2 border border-slate-300 rounded-lg text-xs hover:bg-slate-50 transition-all font-medium text-slate-600 min-h-[44px] min-w-[44px]"
               title="Help"
+              aria-label="Open help"
             >
               ?
             </button>
             <button
               onClick={onShare}
-              className="px-2.5 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-xs hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold shadow-sm"
+              className="px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-xs hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold shadow-sm min-h-[44px]"
               title="Share your financial plan"
+              aria-label="Share your financial plan"
             >
               📤 Share
             </button>

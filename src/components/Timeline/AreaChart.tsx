@@ -42,8 +42,8 @@ export function AreaChart() {
   const [milestoneLabel, setMilestoneLabel] = React.useState('');
   const milestoneInputRef = React.useRef<HTMLInputElement | null>(null);
 
-  const height = isMobile ? 200 : 260;
-  const padding = { left: isMobile ? 30 : 40, right: 20, top: 10, bottom: 30 };
+  const height = isMobile ? 250 : 300;
+  const padding = { left: isMobile ? 38 : 48, right: 20, top: 12, bottom: 32 };
   const innerW = width - padding.left - padding.right;
   const innerH = height - padding.top - padding.bottom;
 
@@ -237,29 +237,32 @@ export function AreaChart() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-6 py-4 border-b border-slate-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-lg">📈</span>
+      <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-200">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center shadow-sm shrink-0">
+              <span className="text-white font-bold text-sm sm:text-lg">📈</span>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-slate-800">Financial Projection Timeline</h2>
-              <div className="flex items-center gap-3 mt-1">
-                <div className={`text-xs px-3 py-1 rounded-md font-semibold ${
+            <div className="min-w-0">
+              <h2 className="text-sm sm:text-xl font-bold text-slate-800 truncate">
+                <span className="hidden sm:inline">Financial Projection Timeline</span>
+                <span className="sm:hidden">Timeline</span>
+              </h2>
+              <div className="flex items-center gap-2 mt-0.5">
+                <div className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-md font-semibold ${
                   state.inflation.display.seriesMode === 'nominal'
                     ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                     : 'bg-blue-100 text-blue-800 border border-blue-200'
                 }`}>
-                  {state.inflation.display.seriesMode === 'nominal' ? 'Nominal Values' : 'Real Values'}
-                  ({((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inflation)
+                  {state.inflation.display.seriesMode === 'nominal' ? 'Nominal' : 'Real'}
+                  {' '}({((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inf)
                 </div>
               </div>
             </div>
           </div>
 
           {/* Legend — compact on mobile, full on desktop */}
-          <div className="hidden sm:flex flex-wrap items-center gap-2 text-xs">
+          <div className="hidden sm:flex flex-wrap items-center gap-2 text-xs shrink-0">
             {[
               { color: 'bg-emerald-500', label: 'Income' },
               { color: 'bg-red-500', label: 'Expenses' },
@@ -274,20 +277,21 @@ export function AreaChart() {
             ))}
           </div>
           {/* Mobile-only compact legend */}
-          <div className="flex sm:hidden items-center gap-2">
+          <div className="flex sm:hidden items-center gap-1.5 shrink-0">
             {[
               { color: 'bg-emerald-500', title: 'Income' },
               { color: 'bg-red-500', title: 'Expenses' },
               { color: 'bg-blue-500', title: 'Investments' },
+              { color: 'bg-amber-500', title: 'Loans' },
               { color: 'bg-violet-500', title: 'Net Worth' },
             ].map(({ color, title }) => (
-              <span key={title} title={title} className={`inline-block w-3 h-3 rounded ${color}`}></span>
+              <span key={title} title={title} className={`inline-block w-3 h-3 rounded-full ${color}`} aria-label={title}></span>
             ))}
           </div>
         </div>
       </div>
-      <div className="px-4 py-3 text-[13px]">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="px-2 sm:px-4 py-2 sm:py-3 text-[12px] sm:text-[13px]">
+        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
           <Kpi
             label="Income"
             value={format(sum(visible.map((p) => p.income)))}
@@ -440,10 +444,10 @@ export function AreaChart() {
 
 function Kpi(props: { label: string; value: string; color?: string; title?: string; status?: string }) {
   return (
-    <div className="bg-white rounded-lg border border-slate-200 p-4 shadow-sm hover:shadow-md transition-all duration-200" title={props.title}>
-      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{props.label}</div>
-      <div className={`text-xl font-bold ${props.color ?? 'text-slate-800'} mb-1`}>{props.value}</div>
-      {props.status && <div className="text-xs text-slate-500 font-medium">{props.status}</div>}
+    <div className="bg-white rounded-lg border border-slate-200 p-2 sm:p-4 shadow-sm hover:shadow-md transition-all duration-200" title={props.title}>
+      <div className="text-[9px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 sm:mb-2 truncate">{props.label}</div>
+      <div className={`text-sm sm:text-xl font-bold ${props.color ?? 'text-slate-800'} mb-0.5 sm:mb-1`}>{props.value}</div>
+      {props.status && <div className="text-[9px] sm:text-xs text-slate-500 font-medium truncate hidden sm:block">{props.status}</div>}
     </div>
   );
 }
