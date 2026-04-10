@@ -75,7 +75,7 @@ export function SettingsPanel() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Monthly Expenses ($)</label>
+                  <label className="text-sm font-medium text-slate-700">Monthly Expenses (€)</label>
                   <input 
                     type="number" 
                     className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
@@ -130,7 +130,7 @@ export function SettingsPanel() {
                       <div>
                         <span className="font-medium text-slate-800">{r.label}</span>
                         <div className="text-sm text-slate-600">
-                          {r.monthsCoverage} months × ${r.monthlyExpenses.toLocaleString()}/month = ${(r.monthsCoverage * r.monthlyExpenses).toLocaleString()} target
+                          {r.monthsCoverage} months × €{r.monthlyExpenses.toLocaleString()}/month = €{(r.monthsCoverage * r.monthlyExpenses).toLocaleString()} target
                         </div>
                         <div className="text-xs text-slate-500">Starts at age {r.start.ageYears}</div>
                       </div>

@@ -45,7 +45,7 @@ export function DataEntryPanel() {
                 <option value="investor">📈 Investor</option>
                 <option value="businessman">💼 Businessman</option>
                 <option value="loaner">🎓 Loaner</option>
-                <option value="average">😰 Average American</option>
+                <option value="average">😰 Average European</option>
               </select>
               <button
                 onClick={handleClearAll}
@@ -177,7 +177,7 @@ function IncomeTab() {
             <input className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="e.g., Salary" value={label} onChange={(e) => setLabel(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Monthly Amount ($)</label>
+            <label className="text-sm font-medium text-slate-700">Monthly Amount (€)</label>
             <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="3500" min="0" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
@@ -211,7 +211,7 @@ function IncomeTab() {
           iconBg="bg-green-100"
           iconColor="text-green-600"
           renderLabel={(i) => i.label}
-          renderDetail={(i) => `$${i.amount.toLocaleString()}/month`}
+          renderDetail={(i) => `€${i.amount.toLocaleString()}/month`}
           onRemove={(i) => removeIncome(i.id)}
           emptyIcon="📊"
           emptyText="No income sources added yet"
@@ -259,7 +259,7 @@ function ExpenseTab() {
             <input className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" placeholder="e.g., Rent" value={label} onChange={(e) => setLabel(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Monthly Amount ($)</label>
+            <label className="text-sm font-medium text-slate-700">Monthly Amount (€)</label>
             <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" placeholder="1200" min="0" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
@@ -293,7 +293,7 @@ function ExpenseTab() {
           iconBg="bg-red-100"
           iconColor="text-red-600"
           renderLabel={(e) => e.label}
-          renderDetail={(e) => `$${e.amount.toLocaleString()}/month`}
+          renderDetail={(e) => `€${e.amount.toLocaleString()}/month`}
           onRemove={(e) => removeExpense(e.id)}
           emptyIcon="💸"
           emptyText="No expenses added yet"
@@ -337,14 +337,14 @@ function InvestmentTab() {
 
   return (
     <div className="space-y-6">
-      <FormCard icon="📈" title="Add Investment" subtitle="Add monthly investment contributions (401k, IRA, index funds, etc.)" color="emerald">
+      <FormCard icon="📈" title="Add Investment" subtitle="Add monthly investment contributions (pension fund, ETF, index funds, etc.)" color="emerald">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Label</label>
-            <input className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" placeholder="e.g., 401k" value={label} onChange={(e) => setLabel(e.target.value)} />
+            <input className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" placeholder="e.g., ETF" value={label} onChange={(e) => setLabel(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Monthly Contribution ($)</label>
+            <label className="text-sm font-medium text-slate-700">Monthly Contribution (€)</label>
             <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" placeholder="500" min="0" value={recurringAmount} onChange={(e) => setRecurringAmount(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
@@ -382,7 +382,7 @@ function InvestmentTab() {
           iconBg="bg-emerald-100"
           iconColor="text-emerald-600"
           renderLabel={(i) => i.label}
-          renderDetail={(i) => `$${(i.recurringAmount ?? 0).toLocaleString()}/mo @ ${((i.model.fixedRate ?? 0) * 100).toFixed(1)}% APR`}
+          renderDetail={(i) => `€${(i.recurringAmount ?? 0).toLocaleString()}/mo @ ${((i.model.fixedRate ?? 0) * 100).toFixed(1)}% APR`}
           onRemove={(i) => removeInvestment(i.id)}
           emptyIcon="📈"
           emptyText="No investments added yet"
@@ -454,11 +454,11 @@ function LoanTab() {
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Principal ($)</label>
+            <label className="text-sm font-medium text-slate-700">Principal (€)</label>
             <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="10000" min="0" value={principal} onChange={(e) => setPrincipal(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Monthly Payment ($)</label>
+            <label className="text-sm font-medium text-slate-700">Monthly Payment (€)</label>
             <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="200" min="0" value={monthlyPayment} onChange={(e) => setMonthlyPayment(Number(e.target.value))} />
           </div>
           <div className="space-y-2">
@@ -501,7 +501,7 @@ function LoanTab() {
           iconBg="bg-violet-100"
           iconColor="text-violet-600"
           renderLabel={(l) => l.label}
-          renderDetail={(l) => `$${l.principal.toLocaleString()} @ ${(l.interestRate * 100).toFixed(1)}% APR • $${l.monthlyPayment}/mo`}
+          renderDetail={(l) => `€${l.principal.toLocaleString()} @ ${(l.interestRate * 100).toFixed(1)}% APR • €${l.monthlyPayment}/mo`}
           onRemove={(l) => removeLoan(l.id)}
           emptyIcon="🏦"
           emptyText="No loans added yet"

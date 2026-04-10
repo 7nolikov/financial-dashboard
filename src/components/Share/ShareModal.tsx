@@ -73,8 +73,8 @@ export function ShareModal() {
   function buildViralText(): string {
     const retirementAge = state.retirement?.age ?? 65;
     const fireStr = fireNumber >= 1_000_000
-      ? `$${(fireNumber / 1_000_000).toFixed(1)}M`
-      : `$${(fireNumber / 1_000).toFixed(0)}K`;
+      ? `€${(fireNumber / 1_000_000).toFixed(1)}M`
+      : `€${(fireNumber / 1_000).toFixed(0)}K`;
 
     if (fireNumber <= 0) {
       return `Just mapped my entire financial life — income, investments, debt and retirement in one interactive chart.\n\nFree, zero signup, your data never leaves your browser. Try it yourself:`;
