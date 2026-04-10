@@ -5,11 +5,8 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: 'node',
-    include: ['tests/**/*.test.ts'],
+    environment: 'jsdom',
+    include: ['tests/**/*.test.{ts,tsx}'],
     reporters: ['default'],
   },
 });
-
-
-

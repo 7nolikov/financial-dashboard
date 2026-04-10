@@ -38,7 +38,10 @@ export function AreaChart() {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = React.useState<number>(1000);
   const [isMobile, setIsMobile] = React.useState<boolean>(false);
-  const [pendingMilestone, setPendingMilestone] = React.useState<{ month: number; x: number } | null>(null);
+  const [pendingMilestone, setPendingMilestone] = React.useState<{
+    month: number;
+    x: number;
+  } | null>(null);
   const [milestoneLabel, setMilestoneLabel] = React.useState('');
   const milestoneInputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -84,15 +87,24 @@ export function AreaChart() {
       const delta = Math.sign(e.deltaY);
       const rect = el.getBoundingClientRect();
       const mouseX = e.clientX - rect.left - p.left;
-      const xScale = scaleLinear<number>({ domain: [zoom.minMonth, zoom.maxMonth], range: [0, iW] });
+      const xScale = scaleLinear<number>({
+        domain: [zoom.minMonth, zoom.maxMonth],
+        range: [0, iW],
+      });
       const centerMonth = Math.round(xScale.invert(Math.max(0, Math.min(iW, mouseX))));
       const zoomFactor = delta > 0 ? 1.2 : 0.8;
       const total = 100 * 12;
       let newRange = Math.max(12, Math.min(total, Math.round(range * zoomFactor)));
       let min = centerMonth - Math.round(newRange / 2);
       let max = centerMonth + Math.round(newRange / 2);
-      if (min < 0) { max -= min; min = 0; }
-      if (max > total) { min -= (max - total); max = total; }
+      if (min < 0) {
+        max -= min;
+        min = 0;
+      }
+      if (max > total) {
+        min -= max - total;
+        max = total;
+      }
       setZoom(Math.max(0, min), Math.min(total, max));
     };
     el.addEventListener('wheel', wheelHandler, { passive: false });
@@ -115,10 +127,14 @@ export function AreaChart() {
         };
       } else if (e.touches.length === 2) {
         e.preventDefault();
-        const t0 = e.touches[0]!; const t1 = e.touches[1]!;
+        const t0 = e.touches[0]!;
+        const t1 = e.touches[1]!;
         const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
         const midX = (t0.clientX + t1.clientX) / 2 - rect.left - p.left;
-        const xScale = scaleLinear<number>({ domain: [zoom.minMonth, zoom.maxMonth], range: [0, iW] });
+        const xScale = scaleLinear<number>({
+          domain: [zoom.minMonth, zoom.maxMonth],
+          range: [0, iW],
+        });
         const centerMonth = Math.round(xScale.invert(Math.max(0, Math.min(iW, midX))));
         touchRef.current = {
           type: 'pinch',
@@ -146,11 +162,18 @@ export function AreaChart() {
         const monthDelta = Math.round(dx / pixelsPerMonth);
         let newMin = cur.startMinMonth - monthDelta;
         let newMax = cur.startMaxMonth - monthDelta;
-        if (newMin < 0) { newMax -= newMin; newMin = 0; }
-        if (newMax > total) { newMin -= (newMax - total); newMax = total; }
+        if (newMin < 0) {
+          newMax -= newMin;
+          newMin = 0;
+        }
+        if (newMax > total) {
+          newMin -= newMax - total;
+          newMax = total;
+        }
         setZoom(Math.max(0, newMin), Math.min(total, newMax));
       } else if (e.touches.length === 2 && cur.type === 'pinch') {
-        const t0 = e.touches[0]!; const t1 = e.touches[1]!;
+        const t0 = e.touches[0]!;
+        const t1 = e.touches[1]!;
         const currentDist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
         if (currentDist < 1 || cur.initialDistance < 1) return;
         const scale = currentDist / cur.initialDistance;
@@ -158,8 +181,14 @@ export function AreaChart() {
         let newRange = Math.max(12, Math.min(total, Math.round(initialRange / scale)));
         let newMin = cur.centerMonth - Math.round(newRange / 2);
         let newMax = cur.centerMonth + Math.round(newRange / 2);
-        if (newMin < 0) { newMax -= newMin; newMin = 0; }
-        if (newMax > total) { newMin -= (newMax - total); newMax = total; }
+        if (newMin < 0) {
+          newMax -= newMin;
+          newMin = 0;
+        }
+        if (newMax > total) {
+          newMin -= newMax - total;
+          newMax = total;
+        }
         setZoom(Math.max(0, newMin), Math.min(total, newMax));
       }
     };
@@ -172,7 +201,10 @@ export function AreaChart() {
           const rect = el.getBoundingClientRect();
           const { zoom, innerW: iW, padding: p } = stateRef.current;
           const tapX = t.clientX - rect.left - p.left;
-          const xScale = scaleLinear<number>({ domain: [zoom.minMonth, zoom.maxMonth], range: [0, iW] });
+          const xScale = scaleLinear<number>({
+            domain: [zoom.minMonth, zoom.maxMonth],
+            range: [0, iW],
+          });
           const month = Math.round(xScale.invert(Math.max(0, Math.min(iW, tapX))));
           const clickX = t.clientX - rect.left;
           setPendingMilestone({ month, x: clickX });
@@ -192,7 +224,10 @@ export function AreaChart() {
       el.removeEventListener('touchmove', touchMoveHandler);
       el.removeEventListener('touchend', touchEndHandler);
     };
-  }, []); // empty deps — state accessed via stateRef, setZoom is store-stable
+    // State is accessed via stateRef and setZoom is a stable Zustand action,
+    // so this effect intentionally runs only once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   React.useEffect(() => {
     if (pendingMilestone && milestoneInputRef.current) {
@@ -200,10 +235,15 @@ export function AreaChart() {
     }
   }, [pendingMilestone]);
 
-  const x = scaleLinear<number>({ domain: [state.chart.zoom.minMonth, state.chart.zoom.maxMonth], range: [0, innerW] });
+  const x = scaleLinear<number>({
+    domain: [state.chart.zoom.minMonth, state.chart.zoom.maxMonth],
+    range: [0, innerW],
+  });
   const yDomain = React.useMemo(() => {
     const vals: number[] = [];
-    for (const p of visible) { vals.push(p.income, p.expense, p.invest, p.netWorth, p.safety); }
+    for (const p of visible) {
+      vals.push(p.income, p.expense, p.invest, p.netWorth, p.safety);
+    }
     const min = Math.min(...vals, 0);
     const max = Math.max(...vals, 1);
     return [min, max] as [number, number];
@@ -249,13 +289,15 @@ export function AreaChart() {
                 <span className="sm:hidden">Timeline</span>
               </h2>
               <div className="flex items-center gap-2 mt-0.5">
-                <div className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-md font-semibold ${
-                  state.inflation.display.seriesMode === 'nominal'
-                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                    : 'bg-blue-100 text-blue-800 border border-blue-200'
-                }`}>
-                  {state.inflation.display.seriesMode === 'nominal' ? 'Nominal' : 'Real'}
-                  {' '}({((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inf)
+                <div
+                  className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-md font-semibold ${
+                    state.inflation.display.seriesMode === 'nominal'
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                      : 'bg-blue-100 text-blue-800 border border-blue-200'
+                  }`}
+                >
+                  {state.inflation.display.seriesMode === 'nominal' ? 'Nominal' : 'Real'} (
+                  {((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inf)
                 </div>
               </div>
             </div>
@@ -270,7 +312,10 @@ export function AreaChart() {
               { color: 'bg-amber-500', label: 'Loans' },
               { color: 'bg-violet-500', label: 'Net Worth' },
             ].map(({ color, label }) => (
-              <div key={label} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm">
+              <div
+                key={label}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm"
+              >
                 <span className={`inline-block w-3 h-3 rounded ${color}`}></span>
                 <span className="font-semibold text-slate-700">{label}</span>
               </div>
@@ -285,7 +330,12 @@ export function AreaChart() {
               { color: 'bg-amber-500', title: 'Loans' },
               { color: 'bg-violet-500', title: 'Net Worth' },
             ].map(({ color, title }) => (
-              <span key={title} title={title} className={`inline-block w-3 h-3 rounded-full ${color}`} aria-label={title}></span>
+              <span
+                key={title}
+                title={title}
+                className={`inline-block w-3 h-3 rounded-full ${color}`}
+                aria-label={title}
+              ></span>
             ))}
           </div>
         </div>
@@ -304,28 +354,54 @@ export function AreaChart() {
             value={format(sum(visible.map((p) => p.expense)))}
             color="text-red-600"
             title={`Sum of expenses in visible window (${state.inflation.display.seriesMode})`}
-            status={sum(visible.map((p) => p.expense)) > sum(visible.map((p) => p.income)) ? '⚠️ Overspending' : 'Controlled'}
+            status={
+              sum(visible.map((p) => p.expense)) > sum(visible.map((p) => p.income))
+                ? '⚠️ Overspending'
+                : 'Controlled'
+            }
           />
           <Kpi
             label="Investments"
             value={format(last?.invest)}
             color="text-blue-600"
             title="Total investment balance at the latest visible month"
-            status={last?.invest && last.invest > 100000 ? 'Strong growth' : last?.invest && last.invest > 50000 ? 'Building wealth' : 'Early stage'}
+            status={
+              last?.invest && last.invest > 100000
+                ? 'Strong growth'
+                : last?.invest && last.invest > 50000
+                  ? 'Building wealth'
+                  : 'Early stage'
+            }
           />
           <Kpi
             label="Loans"
             value={format(last?.loans)}
             color="text-yellow-600"
             title="Total loan balance at the latest visible month"
-            status={last?.loans && last.loans > 100000 ? 'High debt' : last?.loans && last.loans > 50000 ? 'Moderate debt' : last?.loans && last.loans > 0 ? 'Low debt' : 'Debt free'}
+            status={
+              last?.loans && last.loans > 100000
+                ? 'High debt'
+                : last?.loans && last.loans > 50000
+                  ? 'Moderate debt'
+                  : last?.loans && last.loans > 0
+                    ? 'Low debt'
+                    : 'Debt free'
+            }
           />
           <Kpi
             label="Net Worth"
             value={format(last?.netWorth)}
             color="text-violet-600"
             title="Net worth at the latest visible month"
-            status={last?.netWorth && last.netWorth < 0 ? '🚨 Negative' : last?.netWorth && last.netWorth > 500000 ? 'Wealthy' : last?.netWorth && last.netWorth > 100000 ? 'Comfortable' : 'Building'}
+            status={
+              last?.netWorth && last.netWorth < 0
+                ? '🚨 Negative'
+                : last?.netWorth && last.netWorth > 500000
+                  ? 'Wealthy'
+                  : last?.netWorth && last.netWorth > 100000
+                    ? 'Comfortable'
+                    : 'Building'
+            }
           />
           <Kpi
             label="Safety Level"
@@ -335,7 +411,10 @@ export function AreaChart() {
             status={getSafetyStatus(last?.netWorth, last?.safety)}
           />
         </div>
-        <div className="mt-6 rounded-xl border border-slate-200 bg-white relative shadow-sm" ref={containerRef}>
+        <div
+          className="mt-6 rounded-xl border border-slate-200 bg-white relative shadow-sm"
+          ref={containerRef}
+        >
           <svg
             role="img"
             aria-label="Financial projection timeline chart"
@@ -349,7 +428,9 @@ export function AreaChart() {
               const m = Math.round(x.invert(Math.max(0, Math.min(innerW, mx))));
               setHovered(m);
             }}
-            onMouseLeave={() => { setHovered(null); }}
+            onMouseLeave={() => {
+              setHovered(null);
+            }}
           >
             <g transform={`translate(${padding.left},${padding.top})`}>
               <rect x={0} y={0} width={innerW} height={innerH} fill="url(#bg)" />
@@ -363,9 +444,21 @@ export function AreaChart() {
               <AxisLeft y={y} innerH={innerH} />
               <SeriesAreas x={x} y={y} data={visible} innerH={innerH} />
               <ExtremumMarkers x={x} y={y} data={visible} />
-              <Milestones x={x} innerH={innerH} zoom={[state.chart.zoom.minMonth, state.chart.zoom.maxMonth]} milestones={state.milestones} />
+              <Milestones
+                x={x}
+                innerH={innerH}
+                zoom={[state.chart.zoom.minMonth, state.chart.zoom.maxMonth]}
+                milestones={state.milestones}
+              />
               {hovered != null && (
-                <line x1={x(hovered)} x2={x(hovered)} y1={0} y2={innerH} stroke="#94a3b8" strokeDasharray="4 4" />
+                <line
+                  x1={x(hovered)}
+                  x2={x(hovered)}
+                  y1={0}
+                  y2={innerH}
+                  stroke="#94a3b8"
+                  strokeDasharray="4 4"
+                />
               )}
             </g>
           </svg>
@@ -433,8 +526,12 @@ export function AreaChart() {
             >
               Reset Zoom
             </button>
-            <div className="text-xs text-slate-600 font-medium hidden sm:block">Scroll to zoom • Click to add milestone</div>
-            <div className="text-xs text-slate-600 font-medium sm:hidden">Pinch to zoom • Pan to scroll • Tap to add milestone</div>
+            <div className="text-xs text-slate-600 font-medium hidden sm:block">
+              Scroll to zoom • Click to add milestone
+            </div>
+            <div className="text-xs text-slate-600 font-medium sm:hidden">
+              Pinch to zoom • Pan to scroll • Tap to add milestone
+            </div>
           </div>
         </div>
       </div>
@@ -442,17 +539,38 @@ export function AreaChart() {
   );
 }
 
-function Kpi(props: { label: string; value: string; color?: string; title?: string; status?: string }) {
+function Kpi(props: {
+  label: string;
+  value: string;
+  color?: string;
+  title?: string;
+  status?: string;
+}) {
   return (
-    <div className="bg-white rounded-lg border border-slate-200 p-2 sm:p-4 shadow-sm hover:shadow-md transition-all duration-200" title={props.title}>
-      <div className="text-[9px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 sm:mb-2 truncate">{props.label}</div>
-      <div className={`text-sm sm:text-xl font-bold ${props.color ?? 'text-slate-800'} mb-0.5 sm:mb-1`}>{props.value}</div>
-      {props.status && <div className="text-[9px] sm:text-xs text-slate-500 font-medium truncate hidden sm:block">{props.status}</div>}
+    <div
+      className="bg-white rounded-lg border border-slate-200 p-2 sm:p-4 shadow-sm hover:shadow-md transition-all duration-200"
+      title={props.title}
+    >
+      <div className="text-[9px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 sm:mb-2 truncate">
+        {props.label}
+      </div>
+      <div
+        className={`text-sm sm:text-xl font-bold ${props.color ?? 'text-slate-800'} mb-0.5 sm:mb-1`}
+      >
+        {props.value}
+      </div>
+      {props.status && (
+        <div className="text-[9px] sm:text-xs text-slate-500 font-medium truncate hidden sm:block">
+          {props.status}
+        </div>
+      )}
     </div>
   );
 }
 
-function sum(arr: number[]): number { return arr.reduce((a, b) => a + b, 0); }
+function sum(arr: number[]): number {
+  return arr.reduce((a, b) => a + b, 0);
+}
 
 function getSafetyStatus(netWorth: number | undefined, safetyTarget: number | undefined): string {
   if (!netWorth || !safetyTarget) return 'No safety target';
@@ -509,7 +627,15 @@ function AxisLeft({ y, innerH }: { y: LinearScale; innerH: number }) {
       {ticks.map((value: number) => (
         <g key={value} transform={`translate(0, ${y(value)})`}>
           <line x1={0} x2={-6} stroke="#e2e8f0" strokeWidth={1} />
-          <text x={-10} y={4} textAnchor="end" fontSize={9} fill="#64748b" fontFamily="ui-monospace, monospace" fontWeight="500">
+          <text
+            x={-10}
+            y={4}
+            textAnchor="end"
+            fontSize={9}
+            fill="#64748b"
+            fontFamily="ui-monospace, monospace"
+            fontWeight="500"
+          >
             {formatCompact(value)}
           </text>
         </g>
@@ -521,7 +647,11 @@ function AxisLeft({ y, innerH }: { y: LinearScale; innerH: number }) {
 function ExtremumMarkers({ x, y, data }: { x: LinearScale; y: LinearScale; data: SeriesPoint[] }) {
   if (data.length < 3) return null;
 
-  const extremums: Array<{ index: number; value: number; type: 'peak' | 'trough' | 'savings-depleted' }> = [];
+  const extremums: Array<{
+    index: number;
+    value: number;
+    type: 'peak' | 'trough' | 'savings-depleted';
+  }> = [];
 
   for (let i = 1; i < data.length - 1; i++) {
     const prev = data[i - 1]!.netWorth;
@@ -537,9 +667,15 @@ function ExtremumMarkers({ x, y, data }: { x: LinearScale; y: LinearScale; data:
     }
   }
 
-  const peaks = extremums.filter(e => e.type === 'peak').sort((a, b) => b.value - a.value).slice(0, 3);
-  const troughs = extremums.filter(e => e.type === 'trough').sort((a, b) => a.value - b.value).slice(0, 3);
-  const savingsDepleted = extremums.filter(e => e.type === 'savings-depleted');
+  const peaks = extremums
+    .filter((e) => e.type === 'peak')
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 3);
+  const troughs = extremums
+    .filter((e) => e.type === 'trough')
+    .sort((a, b) => a.value - b.value)
+    .slice(0, 3);
+  const savingsDepleted = extremums.filter((e) => e.type === 'savings-depleted');
 
   return (
     <g>
@@ -550,10 +686,20 @@ function ExtremumMarkers({ x, y, data }: { x: LinearScale; y: LinearScale; data:
         let fillColor = '#ef4444';
         let label = formatCompact(ext.value);
         if (ext.type === 'peak') fillColor = '#10b981';
-        else if (ext.type === 'savings-depleted') { fillColor = '#dc2626'; label = '💸 Depleted'; }
+        else if (ext.type === 'savings-depleted') {
+          fillColor = '#dc2626';
+          label = '💸 Depleted';
+        }
         return (
           <g key={`extremum-${i}`}>
-            <circle cx={xPos} cy={yPos} r={ext.type === 'savings-depleted' ? 6 : 4} fill={fillColor} stroke="white" strokeWidth={2} />
+            <circle
+              cx={xPos}
+              cy={yPos}
+              r={ext.type === 'savings-depleted' ? 6 : 4}
+              fill={fillColor}
+              stroke="white"
+              strokeWidth={2}
+            />
             <text
               x={xPos}
               y={ext.type === 'peak' ? yPos - 12 : yPos + 16}
@@ -590,7 +736,10 @@ function computeZoneRanges(
     if (predicate(p)) {
       if (start === null) start = p.m;
     } else {
-      if (start !== null) { ranges.push({ start, end: p.m }); start = null; }
+      if (start !== null) {
+        ranges.push({ start, end: p.m });
+        start = null;
+      }
     }
   }
   if (start !== null && data.length > 0) {
@@ -599,25 +748,71 @@ function computeZoneRanges(
   return ranges;
 }
 
-function SeriesAreas({ x, y, data, innerH }: { x: LinearScale; y: LinearScale; data: SeriesPoint[]; innerH: number }) {
+function SeriesAreas({
+  x,
+  y,
+  data,
+  innerH,
+}: {
+  x: LinearScale;
+  y: LinearScale;
+  data: SeriesPoint[];
+  innerH: number;
+}) {
   const toX = (p: { m: number }) => x(p.m);
 
-  const dangerRanges = React.useMemo(
-    () => computeZoneRanges(data, (p) => p.netWorth < 0),
-    [data],
-  );
+  const dangerRanges = React.useMemo(() => computeZoneRanges(data, (p) => p.netWorth < 0), [data]);
   const warningRanges = React.useMemo(
-    () => computeZoneRanges(data, (p) => p.safety > 0 && p.netWorth > 0 && p.netWorth < p.safety && p.netWorth / p.safety >= 0.5),
+    () =>
+      computeZoneRanges(
+        data,
+        (p) =>
+          p.safety > 0 && p.netWorth > 0 && p.netWorth < p.safety && p.netWorth / p.safety >= 0.5,
+      ),
     [data],
   );
 
   return (
     <g>
-      <Area data={data} x={toX} y={y} get={(p: { income: number }) => p.income} color="#22c55e33" stroke="#16a34a" />
-      <Area data={data} x={toX} y={y} get={(p: { expense: number }) => p.expense} color="#ef444433" stroke="#dc2626" />
-      <Area data={data} x={toX} y={y} get={(p: { invest: number }) => p.invest} color="#3b82f633" stroke="#2563eb" />
-      <Line data={data} x={toX} y={y} get={(p: { netWorth: number }) => p.netWorth} stroke="#7c3aed" />
-      <Line data={data} x={toX} y={y} get={(p: { safety: number }) => p.safety} stroke="#f97316" dash="4 4" />
+      <Area
+        data={data}
+        x={toX}
+        y={y}
+        get={(p: { income: number }) => p.income}
+        color="#22c55e33"
+        stroke="#16a34a"
+      />
+      <Area
+        data={data}
+        x={toX}
+        y={y}
+        get={(p: { expense: number }) => p.expense}
+        color="#ef444433"
+        stroke="#dc2626"
+      />
+      <Area
+        data={data}
+        x={toX}
+        y={y}
+        get={(p: { invest: number }) => p.invest}
+        color="#3b82f633"
+        stroke="#2563eb"
+      />
+      <Line
+        data={data}
+        x={toX}
+        y={y}
+        get={(p: { netWorth: number }) => p.netWorth}
+        stroke="#7c3aed"
+      />
+      <Line
+        data={data}
+        x={toX}
+        y={y}
+        get={(p: { safety: number }) => p.safety}
+        stroke="#f97316"
+        dash="4 4"
+      />
 
       {/* Danger zones — one rect per contiguous range, not per data point */}
       {dangerRanges.map((r) => (
@@ -648,23 +843,80 @@ function SeriesAreas({ x, y, data, innerH }: { x: LinearScale; y: LinearScale; d
   );
 }
 
-function Area({ data, x, y, get, color, stroke }: { data: SeriesPoint[]; x: (p: SeriesPoint) => number; y: LinearScale; get: (p: SeriesPoint) => number; color: string; stroke: string }) {
+function Area({
+  data,
+  x,
+  y,
+  get,
+  color,
+  stroke,
+}: {
+  data: SeriesPoint[];
+  x: (p: SeriesPoint) => number;
+  y: LinearScale;
+  get: (p: SeriesPoint) => number;
+  color: string;
+  stroke: string;
+}) {
   const path = data.map((p) => ({ x: x(p), y: y(get(p)) }));
   return (
     <g>
-      <AreaClosed data={path} x={(d: { x: number; y: number }) => d.x} y={(d: { x: number; y: number }) => d.y} yScale={y} fill={color} stroke={stroke} curve={curveMonotoneX} />
+      <AreaClosed
+        data={path}
+        x={(d: { x: number; y: number }) => d.x}
+        y={(d: { x: number; y: number }) => d.y}
+        yScale={y}
+        fill={color}
+        stroke={stroke}
+        curve={curveMonotoneX}
+      />
     </g>
   );
 }
 
-function Line({ data, x, y, get, stroke, dash }: { data: SeriesPoint[]; x: (p: SeriesPoint) => number; y: LinearScale; get: (p: SeriesPoint) => number; stroke: string; dash?: string }) {
+function Line({
+  data,
+  x,
+  y,
+  get,
+  stroke,
+  dash,
+}: {
+  data: SeriesPoint[];
+  x: (p: SeriesPoint) => number;
+  y: LinearScale;
+  get: (p: SeriesPoint) => number;
+  stroke: string;
+  dash?: string;
+}) {
   const path = data.map((p) => ({ x: x(p), y: y(get(p)) }));
-  return <LinePath data={path} x={(d: { x: number; y: number }) => d.x} y={(d: { x: number; y: number }) => d.y} stroke={stroke} strokeDasharray={dash} curve={curveMonotoneX} />;
+  return (
+    <LinePath
+      data={path}
+      x={(d: { x: number; y: number }) => d.x}
+      y={(d: { x: number; y: number }) => d.y}
+      stroke={stroke}
+      strokeDasharray={dash}
+      curve={curveMonotoneX}
+    />
+  );
 }
 
-function Milestones({ x, innerH, zoom, milestones }: { x: LinearScale; innerH: number; zoom: [number, number]; milestones: Milestone[] }) {
+function Milestones({
+  x,
+  innerH,
+  zoom,
+  milestones,
+}: {
+  x: LinearScale;
+  innerH: number;
+  zoom: [number, number];
+  milestones: Milestone[];
+}) {
   const [min, max] = zoom;
-  const visibleMilestones = milestones.filter((m) => m.at.monthIndex >= min && m.at.monthIndex <= max);
+  const visibleMilestones = milestones.filter(
+    (m) => m.at.monthIndex >= min && m.at.monthIndex <= max,
+  );
 
   const labelHeight = 20;
   const labelSpacing = 5;
@@ -709,7 +961,15 @@ function Milestones({ x, innerH, zoom, milestones }: { x: LinearScale; innerH: n
     <g>
       {resolvedPositions.map((pos) => (
         <g key={pos.milestone.id}>
-          <line x1={pos.x} x2={pos.x} y1={0} y2={innerH} stroke="#94a3b8" strokeDasharray="2 2" strokeWidth={1} />
+          <line
+            x1={pos.x}
+            x2={pos.x}
+            y1={0}
+            y2={innerH}
+            stroke="#94a3b8"
+            strokeDasharray="2 2"
+            strokeWidth={1}
+          />
           <text
             x={pos.x}
             y={pos.y}
@@ -727,21 +987,61 @@ function Milestones({ x, innerH, zoom, milestones }: { x: LinearScale; innerH: n
   );
 }
 
-function HoverTooltip({ x, y, containerWidth, age, income, expense, loans, invest, netWorth, safety, cashFlow, milestone }: { x: number; y: number; containerWidth: number; age: string; income: number | undefined; expense: number | undefined; loans: number | undefined; invest: number | undefined; netWorth: number | undefined; safety: number | undefined; cashFlow: number | undefined; milestone: string | undefined }) {
+function HoverTooltip({
+  x,
+  y,
+  containerWidth,
+  age,
+  income,
+  expense,
+  loans,
+  invest,
+  netWorth,
+  safety,
+  cashFlow,
+  milestone,
+}: {
+  x: number;
+  y: number;
+  containerWidth: number;
+  age: string;
+  income: number | undefined;
+  expense: number | undefined;
+  loans: number | undefined;
+  invest: number | undefined;
+  netWorth: number | undefined;
+  safety: number | undefined;
+  cashFlow: number | undefined;
+  milestone: string | undefined;
+}) {
   const tooltipWidth = 210;
   const left = x + 8 + tooltipWidth > containerWidth ? x - tooltipWidth - 8 : x + 8;
   return (
-    <div style={{ position: 'absolute', left: Math.max(8, left), top: y, pointerEvents: 'none' }} className="px-3 py-2 rounded-lg border bg-white text-[11px] shadow-lg min-w-[200px]">
+    <div
+      style={{ position: 'absolute', left: Math.max(8, left), top: y, pointerEvents: 'none' }}
+      className="px-3 py-2 rounded-lg border bg-white text-[11px] shadow-lg min-w-[200px]"
+    >
       <div className="font-medium text-slate-800">{age}</div>
       {milestone ? <div className="text-[10px] text-slate-500 mb-1">📍 {milestone}</div> : null}
       <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-1">
-        <span className="text-green-600 font-medium">Income</span><span className="text-right">{format(income)}</span>
-        <span className="text-red-600 font-medium">Expenses</span><span className="text-right">{format(expense)}</span>
-        <span className="text-blue-600 font-medium">Cash Flow</span><span className={`text-right ${(cashFlow ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>{format(cashFlow)}</span>
-        <span className="text-yellow-600 font-medium">Loans</span><span className="text-right">{format(loans)}</span>
-        <span className="text-blue-600 font-medium">Investments</span><span className="text-right">{format(invest)}</span>
-        <span className="text-violet-600 font-medium">Net Worth</span><span className={`text-right ${(netWorth ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>{format(netWorth)}</span>
-        <span className="text-orange-600 font-medium">Safety</span><span className="text-right">{format(safety)}</span>
+        <span className="text-green-600 font-medium">Income</span>
+        <span className="text-right">{format(income)}</span>
+        <span className="text-red-600 font-medium">Expenses</span>
+        <span className="text-right">{format(expense)}</span>
+        <span className="text-blue-600 font-medium">Cash Flow</span>
+        <span className={`text-right ${(cashFlow ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          {format(cashFlow)}
+        </span>
+        <span className="text-yellow-600 font-medium">Loans</span>
+        <span className="text-right">{format(loans)}</span>
+        <span className="text-blue-600 font-medium">Investments</span>
+        <span className="text-right">{format(invest)}</span>
+        <span className="text-violet-600 font-medium">Net Worth</span>
+        <span className={`text-right ${(netWorth ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          {format(netWorth)}
+        </span>
+        <span className="text-orange-600 font-medium">Safety</span>
+        <span className="text-right">{format(safety)}</span>
       </div>
     </div>
   );

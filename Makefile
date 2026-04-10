@@ -1,5 +1,7 @@
-SHELL := powershell.exe
-.SHELLFLAGS := -NoProfile -Command
+.PHONY: dev build test test-watch e2e lint typecheck format generate-og install
+
+install:
+	pnpm install
 
 dev:
 	pnpm dev
@@ -10,8 +12,8 @@ build:
 test:
 	pnpm test
 
-test-ui:
-	pnpm test:ui
+test-watch:
+	pnpm test:watch
 
 e2e:
 	pnpm e2e
@@ -19,14 +21,11 @@ e2e:
 lint:
 	pnpm lint
 
+typecheck:
+	pnpm typecheck
+
 format:
 	pnpm format
 
-docs:
-	pnpm docs
-
-prepare:
-	pnpm prepare
-
-
-
+generate-og:
+	pnpm generate-og
