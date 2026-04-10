@@ -157,25 +157,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-3 rounded-xl bg-purple-50 border border-purple-100">
                   <div className="flex gap-2">
-                    <kbd className="px-3 py-1 bg-slate-200 rounded-lg text-xs font-mono">Ctrl</kbd>
-                    <span className="text-slate-500">+</span>
-                    <kbd className="px-3 py-1 bg-slate-200 rounded-lg text-xs font-mono">+</kbd>
-                  </div>
-                  <span className="text-sm text-slate-700">Zoom in on timeline</span>
-                </div>
-                <div className="flex justify-between items-center p-3 rounded-xl bg-purple-50 border border-purple-100">
-                  <div className="flex gap-2">
-                    <kbd className="px-3 py-1 bg-slate-200 rounded-lg text-xs font-mono">Ctrl</kbd>
-                    <span className="text-slate-500">+</span>
-                    <kbd className="px-3 py-1 bg-slate-200 rounded-lg text-xs font-mono">-</kbd>
-                  </div>
-                  <span className="text-sm text-slate-700">Zoom out on timeline</span>
-                </div>
-                <div className="flex justify-between items-center p-3 rounded-xl bg-purple-50 border border-purple-100">
-                  <div className="flex gap-2">
-                    <kbd className="px-3 py-1 bg-slate-200 rounded-lg text-xs font-mono">Ctrl</kbd>
-                    <span className="text-slate-500">+</span>
-                    <kbd className="px-3 py-1 bg-slate-200 rounded-lg text-xs font-mono">0</kbd>
+                    <kbd className="px-3 py-1 bg-slate-200 rounded-lg text-xs font-mono">R</kbd>
                   </div>
                   <span className="text-sm text-slate-700">Reset zoom to full view</span>
                 </div>
@@ -190,6 +172,18 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                     <kbd className="px-3 py-1 bg-slate-200 rounded-lg text-xs font-mono">Tab</kbd>
                   </div>
                   <span className="text-sm text-slate-700">Navigate between form fields</span>
+                </div>
+                <div className="flex justify-between items-center p-3 rounded-xl bg-purple-50 border border-purple-100">
+                  <div className="flex gap-2">
+                    <span className="text-xs text-slate-600 italic">Scroll / Pinch</span>
+                  </div>
+                  <span className="text-sm text-slate-700">Zoom in and out on the timeline</span>
+                </div>
+                <div className="flex justify-between items-center p-3 rounded-xl bg-purple-50 border border-purple-100">
+                  <div className="flex gap-2">
+                    <span className="text-xs text-slate-600 italic">Drag / Swipe</span>
+                  </div>
+                  <span className="text-sm text-slate-700">Pan the timeline left or right</span>
                 </div>
               </div>
             </div>
