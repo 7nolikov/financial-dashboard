@@ -92,23 +92,31 @@ export function validatePresetData(presetName: string, state: Store): WealthVali
   const errors: string[] = [];
   const suggestions: string[] = [];
 
-  // Check income vs expense ratios
+  // Check income vs expense ratios. Normalize to a per-month figure so that
+  // an annual bonus (everyMonths: 12) does not get counted as monthly income.
+  const toMonthly = (amount: number, everyMonths: number) =>
+    everyMonths > 0 ? amount / everyMonths : amount;
+
   const totalMonthlyIncome = state.incomes.reduce((sum, income) => {
     if (income.recurrence.kind === 'recurring') {
-      return sum + income.amount;
+      return sum + toMonthly(income.amount, income.recurrence.everyMonths);
     }
     return sum;
   }, 0);
 
   const totalMonthlyExpenses = state.expenses.reduce((sum, expense) => {
     if (expense.recurrence.kind === 'recurring') {
-      return sum + expense.amount;
+      return sum + toMonthly(expense.amount, expense.recurrence.everyMonths);
     }
     return sum;
   }, 0);
 
   const totalMonthlyContributions = state.investments.reduce((sum, investment) => {
-    return sum + (investment.recurringAmount || 0);
+    const amount = investment.recurringAmount || 0;
+    if (investment.recurrence.kind === 'recurring') {
+      return sum + toMonthly(amount, investment.recurrence.everyMonths);
+    }
+    return sum;
   }, 0);
 
   const totalMonthlyLoans = state.loans.reduce((sum, loan) => {
@@ -118,7 +126,7 @@ export function validatePresetData(presetName: string, state: Store): WealthVali
   // Check if expenses exceed income
   if (totalMonthlyExpenses > totalMonthlyIncome) {
     errors.push(
-      `Monthly expenses ($${totalMonthlyExpenses.toLocaleString()}) exceed income ($${totalMonthlyIncome.toLocaleString()})`
+      `Monthly expenses (€${Math.round(totalMonthlyExpenses).toLocaleString()}) exceed income (€${Math.round(totalMonthlyIncome).toLocaleString()})`
     );
   }
 
@@ -126,7 +134,7 @@ export function validatePresetData(presetName: string, state: Store): WealthVali
   const availableAfterExpenses = totalMonthlyIncome - totalMonthlyExpenses - totalMonthlyLoans;
   if (totalMonthlyContributions > availableAfterExpenses) {
     warnings.push(
-      `Investment contributions ($${totalMonthlyContributions.toLocaleString()}) exceed available income after expenses and loans ($${availableAfterExpenses.toLocaleString()})`
+      `Investment contributions (€${Math.round(totalMonthlyContributions).toLocaleString()}) exceed available income after expenses and loans (€${Math.round(availableAfterExpenses).toLocaleString()})`
     );
   }
 

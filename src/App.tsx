@@ -11,7 +11,8 @@ import { useStore } from './state/store';
 import { SeriesProvider, useSeries } from './state/SeriesContext';
 import { validateWealthProtection } from './lib/validation/wealth-protection';
 import { loadStateFromURL } from './lib/sharing';
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 /** Inner shell — has access to SeriesContext. */
 function AppShell() {
@@ -33,40 +34,122 @@ function AppShell() {
     return validateWealthProtection(scenarios, state);
   }, [series, state]);
 
+  // Level 3 disclosure state — the configuration panels start collapsed on
+  // mobile so users see the chart first, but are expanded on desktop where
+  // there's plenty of screen real estate.
+  const [configOpen, setConfigOpen] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 1024 : true,
+  );
+  const [configTab, setConfigTab] = useState<'data' | 'settings'>('data');
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <TopBar validation={wealthValidation} />
-      <main className="mx-auto max-w-[1600px] px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 safe-x">
-        {/* FIRE Insights first — core value prop always above the fold */}
-        <div className="mb-4 sm:mb-6">
-          <FireInsights />
-        </div>
+      <main className="mx-auto max-w-[1600px] px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 safe-x space-y-6 sm:space-y-8">
 
-        {/* Wealth alerts second — actionable issues visible after the headline */}
-        {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
-          <div className="mb-4 sm:mb-6">
-            <WealthProtectionPanel validation={wealthValidation} />
+        {/* =============================================================
+             LEVEL 1 — Overview: the "am I on track?" answer at a glance
+             Always visible, concise, no interaction required.
+             ============================================================= */}
+        <section aria-labelledby="overview-heading">
+          <h2 id="overview-heading" className="sr-only">Overview</h2>
+          <div className="space-y-3 sm:space-y-4">
+            <FireInsights />
+            {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
+              <WealthProtectionPanel validation={wealthValidation} />
+            )}
           </div>
-        )}
+        </section>
 
-        <div className="mb-4 sm:mb-6">
+        {/* =============================================================
+             LEVEL 2 — Visualization: interactive timeline for exploration
+             Always visible, main working area.
+             ============================================================= */}
+        <section aria-labelledby="timeline-heading">
+          <h2 id="timeline-heading" className="sr-only">Financial Timeline</h2>
           <div id="timeline-capture" className="shadow-lg sm:shadow-xl rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-slate-200">
             <AreaChart />
           </div>
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          <div className="min-h-0 order-1">
-            <div className="h-full shadow-lg rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-slate-200">
-              <DataEntryPanel />
+        {/* =============================================================
+             LEVEL 3 — Configuration: data entry and settings
+             Progressive disclosure — collapsed by default on mobile so the
+             chart stays the focus. On desktop it's expanded because space
+             allows it. Tabs separate the two sub-sections.
+             ============================================================= */}
+        <section aria-labelledby="config-heading" className="rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-lg">
+          <button
+            type="button"
+            onClick={() => setConfigOpen((v) => !v)}
+            className="w-full flex items-center justify-between gap-3 px-4 sm:px-6 py-4 bg-gradient-to-r from-slate-50 to-blue-50 hover:from-slate-100 hover:to-blue-100 transition-colors text-left"
+            aria-expanded={configOpen}
+            aria-controls="config-panel"
+          >
+            <div className="min-w-0">
+              <h2 id="config-heading" className="text-base sm:text-lg font-bold text-slate-800">
+                Configure Your Plan
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                Edit incomes, expenses, investments, loans, and other settings
+              </p>
             </div>
-          </div>
-          <div className="min-h-0 order-2">
-            <div className="h-full shadow-lg rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-slate-200">
-              <SettingsPanel />
+            <div className="shrink-0 flex items-center gap-2 text-slate-600">
+              <span className="text-xs font-medium hidden sm:inline">
+                {configOpen ? 'Hide' : 'Show'}
+              </span>
+              {configOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
             </div>
-          </div>
-        </div>
+          </button>
+
+          {configOpen && (
+            <div id="config-panel" className="border-t border-slate-200">
+              {/* Tab bar — lets users focus on data OR settings without
+                  overwhelming the screen with both at once. */}
+              <div role="tablist" aria-label="Configuration sections" className="flex border-b border-slate-200 bg-slate-50/60">
+                <button
+                  role="tab"
+                  aria-selected={configTab === 'data'}
+                  aria-controls="tab-panel-data"
+                  id="tab-data"
+                  onClick={() => setConfigTab('data')}
+                  className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 text-sm font-semibold transition-colors min-h-[44px] border-b-2 ${
+                    configTab === 'data'
+                      ? 'border-blue-600 text-blue-700 bg-white'
+                      : 'border-transparent text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                  }`}
+                >
+                  Data Entry
+                </button>
+                <button
+                  role="tab"
+                  aria-selected={configTab === 'settings'}
+                  aria-controls="tab-panel-settings"
+                  id="tab-settings"
+                  onClick={() => setConfigTab('settings')}
+                  className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 text-sm font-semibold transition-colors min-h-[44px] border-b-2 ${
+                    configTab === 'settings'
+                      ? 'border-blue-600 text-blue-700 bg-white'
+                      : 'border-transparent text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                  }`}
+                >
+                  Settings
+                </button>
+              </div>
+
+              {configTab === 'data' && (
+                <div role="tabpanel" id="tab-panel-data" aria-labelledby="tab-data">
+                  <DataEntryPanel />
+                </div>
+              )}
+              {configTab === 'settings' && (
+                <div role="tabpanel" id="tab-panel-settings" aria-labelledby="tab-settings">
+                  <SettingsPanel />
+                </div>
+              )}
+            </div>
+          )}
+        </section>
       </main>
 
       {/* Viral footer CTA */}

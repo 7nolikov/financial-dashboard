@@ -20,15 +20,15 @@ describe('Wealth Protection Logic', () => {
     it('should properly calculate net worth accounting for investment withdrawals', () => {
       const store = useStore.getState();
       store.loadPreset('worker');
-      
+
       const series = computeSeries(useStore.getState());
-      
-      // Net worth should be calculated correctly
+
+      // Net worth (cash) should change by net cash flow PLUS any investment
+      // withdrawal, because withdrawals add to cash to cover shortfalls.
       let previousNetWorth = 0;
       for (const point of series) {
         if (point.m > 0) {
-          // Net worth should change based on cash flow minus investment withdrawals
-          const expectedChange = point.cashFlow - point.investmentWithdrawal;
+          const expectedChange = point.cashFlow + point.investmentWithdrawal;
           const actualChange = point.netWorth - previousNetWorth;
           expect(Math.abs(actualChange - expectedChange)).toBeLessThan(0.01);
         }
