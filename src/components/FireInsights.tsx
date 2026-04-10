@@ -116,76 +116,73 @@ export function FireInsights() {
     <>
       {showConfetti && <Confetti />}
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        {/* Gradient header */}
+
+        {/* Compact gradient header — always a single horizontal row */}
         <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-violet-600 px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-            {/* Title row */}
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-                <span className="text-lg sm:text-xl">{isFireAchieved ? '🎉' : '🔥'}</span>
-              </div>
-              <div>
-                <h3 className="text-white font-bold text-base sm:text-lg leading-tight">FIRE Insights</h3>
-                <p className="text-blue-100 text-xs">Financial Independence, Retire Early</p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+              <span className="text-lg sm:text-xl">{isFireAchieved ? '🎉' : '🔥'}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-white font-bold text-base sm:text-lg leading-tight">FIRE Insights</h3>
+              <p className="text-blue-100 text-xs truncate">Financial Independence, Retire Early</p>
+            </div>
+            <button
+              onClick={shareFIREtweet}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-semibold transition-all border border-white/25 shrink-0"
+              title="Tweet your FIRE progress"
+            >
+              <span>𝕏</span>
+              <span className="hidden sm:inline">Share my FIRE number</span>
+              <span className="sm:hidden">Share</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Key metrics — separated from gradient, always visible */}
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100">
+          <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-around gap-3 sm:gap-6">
+
+            <div className="text-center">
+              <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">FIRE Number</div>
+              <div className="text-slate-900 text-xl sm:text-2xl font-black">{formatCurrency(fireNumber)}</div>
+              <div className="text-slate-400 text-[10px] sm:text-xs">25× annual expenses</div>
             </div>
 
-            {/* Key metrics — wrap gracefully on mobile */}
-            <div className="grid grid-cols-2 sm:flex-1 sm:flex sm:items-center sm:justify-center gap-3 sm:gap-6">
-              <div className="text-center bg-white/10 rounded-lg px-3 py-2 sm:bg-transparent sm:px-0 sm:py-0">
-                <div className="text-white/70 text-[10px] sm:text-xs font-medium uppercase tracking-wide">FIRE Number</div>
-                <div className="text-white text-xl sm:text-2xl font-black">{formatCurrency(fireNumber)}</div>
-                <div className="text-blue-100 text-[10px] sm:text-xs">25× annual expenses</div>
+            {fireAge != null && !isFireAchieved ? (
+              <div className="text-center">
+                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">FIRE Date</div>
+                <div className="text-slate-900 text-xl sm:text-2xl font-black">Age {fireAge}</div>
+                <div className="text-slate-400 text-[10px] sm:text-xs">
+                  {fireYear} · {yearsToFire != null && yearsToFire > 0 ? `${yearsToFire}y away` : 'soon!'}
+                </div>
               </div>
+            ) : isFireAchieved ? (
+              <div className="text-center">
+                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">Status</div>
+                <div className="text-emerald-600 text-xl sm:text-2xl font-black">FIRE'd! 🎉</div>
+                <div className="text-slate-400 text-[10px] sm:text-xs">Financially independent</div>
+              </div>
+            ) : (
+              <div className="text-center">
+                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">Status</div>
+                <div className="text-amber-500 text-xl sm:text-2xl font-black">Not reached</div>
+                <div className="text-slate-400 text-[10px] sm:text-xs">Boost investments</div>
+              </div>
+            )}
 
-              {fireAge != null && !isFireAchieved ? (
-                <div className="text-center bg-white/10 rounded-lg px-3 py-2 sm:bg-transparent sm:px-0 sm:py-0">
-                  <div className="text-white/70 text-[10px] sm:text-xs font-medium uppercase tracking-wide">FIRE Date</div>
-                  <div className="text-white text-xl sm:text-2xl font-black">Age {fireAge}</div>
-                  <div className="text-blue-100 text-[10px] sm:text-xs">
-                    {fireYear} · {yearsToFire != null && yearsToFire > 0 ? `${yearsToFire}y away` : 'soon!'}
-                  </div>
-                </div>
-              ) : isFireAchieved ? (
-                <div className="text-center bg-white/10 rounded-lg px-3 py-2 sm:bg-transparent sm:px-0 sm:py-0">
-                  <div className="text-white/70 text-[10px] sm:text-xs font-medium uppercase tracking-wide">Status</div>
-                  <div className="text-emerald-300 text-xl sm:text-2xl font-black">FIRE'd! 🎉</div>
-                  <div className="text-blue-100 text-[10px] sm:text-xs">Financially independent</div>
-                </div>
-              ) : (
-                <div className="text-center bg-white/10 rounded-lg px-3 py-2 sm:bg-transparent sm:px-0 sm:py-0">
-                  <div className="text-white/70 text-[10px] sm:text-xs font-medium uppercase tracking-wide">Status</div>
-                  <div className="text-amber-300 text-xl sm:text-2xl font-black">Not reached</div>
-                  <div className="text-blue-100 text-[10px] sm:text-xs">Boost investments</div>
-                </div>
-              )}
-
-              {isFireBeforeRetirement && fireAge != null && (
-                <div className="text-center bg-white/10 rounded-lg px-3 py-2 sm:bg-transparent sm:px-0 sm:py-0 col-span-2 sm:col-span-1">
-                  <div className="text-white/70 text-[10px] sm:text-xs font-medium uppercase tracking-wide">Early Retire</div>
-                  <div className="text-emerald-300 text-xl sm:text-2xl font-black">{retirementAge - fireAge}y early</div>
-                  <div className="text-blue-100 text-[10px] sm:text-xs">vs. age {retirementAge}</div>
-                </div>
-              )}
-            </div>
-
-            {/* Share CTA */}
-            <div className="flex justify-end sm:shrink-0">
-              <button
-                onClick={shareFIREtweet}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-semibold transition-all border border-white/25"
-                title="Tweet your FIRE progress"
-              >
-                <span>𝕏</span>
-                <span className="hidden sm:inline">Share my FIRE number</span>
-                <span className="sm:hidden">Share</span>
-              </button>
-            </div>
+            {isFireBeforeRetirement && fireAge != null && (
+              <div className="text-center col-span-2 sm:col-span-1">
+                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">Early Retire</div>
+                <div className="text-emerald-600 text-xl sm:text-2xl font-black">{retirementAge - fireAge}y early</div>
+                <div className="text-slate-400 text-[10px] sm:text-xs">vs. age {retirementAge}</div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 bg-slate-50 border-t border-slate-100">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 bg-slate-50">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Progress to FIRE</span>
             <span className="text-sm font-bold text-indigo-600">{progress.toFixed(1)}%</span>
@@ -203,6 +200,7 @@ export function FireInsights() {
             <span>Target: {formatCurrency(fireNumber)}</span>
           </div>
         </div>
+
       </div>
     </>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertTriangle, TrendingDown, Shield } from 'lucide-react';
+import { AlertTriangle, TrendingDown, Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import type { WealthValidationResult } from '../../lib/validation/wealth-protection';
 
 interface WealthProtectionPanelProps {
@@ -8,6 +8,9 @@ interface WealthProtectionPanelProps {
 }
 
 export function WealthProtectionPanel({ validation, className = '' }: WealthProtectionPanelProps) {
+  const [errorsExpanded, setErrorsExpanded] = React.useState(true);
+  const [warningsExpanded, setWarningsExpanded] = React.useState(true);
+
   if (validation.isValid && validation.warnings.length === 0) {
     return (
       <div className={`bg-green-50 border border-green-200 rounded-lg p-4 ${className}`}>
@@ -23,68 +26,72 @@ export function WealthProtectionPanel({ validation, className = '' }: WealthProt
   }
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      {/* Errors - Critical Issues */}
+    <div className={`space-y-3 ${className}`}>
+
+      {/* Critical errors — collapsible */}
       {validation.errors.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-red-800 mb-2">
-            <AlertTriangle className="h-5 w-5" />
-            <h3 className="font-semibold">Critical Financial Issues</h3>
-          </div>
-          <ul className="space-y-1">
-            {validation.errors.map((error, index) => (
-              <li key={index} className="text-red-700 text-sm flex items-start gap-2">
-                <span className="text-red-500 mt-0.5">•</span>
-                <span>{error}</span>
-              </li>
-            ))}
-          </ul>
+        <div className="bg-red-50 border border-red-200 rounded-lg overflow-hidden">
+          <button
+            onClick={() => setErrorsExpanded((v) => !v)}
+            className="w-full flex items-center justify-between gap-2 px-4 py-3 text-red-800 hover:bg-red-100/60 transition-colors"
+            aria-expanded={errorsExpanded}
+          >
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 shrink-0" />
+              <h3 className="font-semibold text-left">Critical Financial Issues</h3>
+              <span className="text-[11px] font-semibold bg-red-200 text-red-700 rounded-full px-2 py-0.5 leading-none">
+                {validation.errors.length}
+              </span>
+            </div>
+            {errorsExpanded
+              ? <ChevronUp className="h-4 w-4 shrink-0 opacity-50" />
+              : <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />}
+          </button>
+          {errorsExpanded && (
+            <ul className="px-4 pb-3 space-y-1.5">
+              {validation.errors.map((error, index) => (
+                <li key={index} className="text-red-700 text-sm flex items-start gap-2">
+                  <span className="text-red-500 mt-0.5 shrink-0">•</span>
+                  <span>{error}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
-      {/* Warnings - Important Issues */}
+      {/* Warnings — collapsible */}
       {validation.warnings.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div className="flex items-center gap-2 text-yellow-800 mb-2">
-            <TrendingDown className="h-5 w-5" />
-            <h3 className="font-semibold">Financial Warnings</h3>
-          </div>
-          <ul className="space-y-1">
-            {validation.warnings.map((warning, index) => (
-              <li key={index} className="text-yellow-700 text-sm flex items-start gap-2">
-                <span className="text-yellow-500 mt-0.5">•</span>
-                <span>{warning}</span>
-              </li>
-            ))}
-          </ul>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg overflow-hidden">
+          <button
+            onClick={() => setWarningsExpanded((v) => !v)}
+            className="w-full flex items-center justify-between gap-2 px-4 py-3 text-yellow-800 hover:bg-yellow-100/60 transition-colors"
+            aria-expanded={warningsExpanded}
+          >
+            <div className="flex items-center gap-2">
+              <TrendingDown className="h-5 w-5 shrink-0" />
+              <h3 className="font-semibold text-left">Financial Warnings</h3>
+              <span className="text-[11px] font-semibold bg-yellow-200 text-yellow-700 rounded-full px-2 py-0.5 leading-none">
+                {validation.warnings.length}
+              </span>
+            </div>
+            {warningsExpanded
+              ? <ChevronUp className="h-4 w-4 shrink-0 opacity-50" />
+              : <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />}
+          </button>
+          {warningsExpanded && (
+            <ul className="px-4 pb-3 space-y-1.5">
+              {validation.warnings.map((warning, index) => (
+                <li key={index} className="text-yellow-700 text-sm flex items-start gap-2">
+                  <span className="text-yellow-500 mt-0.5 shrink-0">•</span>
+                  <span>{warning}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
-    </div>
-  );
-}
 
-interface WealthWarningIndicatorProps {
-  hasWarnings: boolean;
-  hasErrors: boolean;
-  className?: string;
-}
-
-export function WealthWarningIndicator({ hasWarnings, hasErrors, className = '' }: WealthWarningIndicatorProps) {
-  if (!hasWarnings && !hasErrors) return null;
-
-  return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      {hasErrors ? (
-        <>
-          <AlertTriangle className="h-4 w-4 text-red-500" />
-          <span className="text-red-600 text-sm font-medium">Critical Issues</span>
-        </>
-      ) : (
-        <>
-          <TrendingDown className="h-4 w-4 text-yellow-500" />
-          <span className="text-yellow-600 text-sm font-medium">Financial Warnings</span>
-        </>
-      )}
     </div>
   );
 }
