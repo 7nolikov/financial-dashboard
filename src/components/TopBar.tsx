@@ -1,8 +1,13 @@
 import React from 'react';
 import { useStore } from '../state/store';
 import { HelpModal } from './Help/HelpModal';
+import type { WealthValidationResult } from '../lib/validation/wealth-protection';
 
-export function TopBar() {
+interface TopBarProps {
+  validation?: WealthValidationResult;
+}
+
+export function TopBar({ validation }: TopBarProps) {
   const setDOB = useStore((s) => s.setDOB);
   const dobISO = useStore((s) => s.dobISO);
   const inflation = useStore((s) => s.inflation);
@@ -14,18 +19,37 @@ export function TopBar() {
     useStore.getState().setOpenShare(true);
   }
 
+  const hasErrors = (validation?.errors.length ?? 0) > 0;
+  const hasWarnings = (validation?.warnings.length ?? 0) > 0;
+  const errorCount = validation?.errors.length ?? 0;
+  const warningCount = validation?.warnings.length ?? 0;
+
   return (
-    <header className="bg-white border-b border-slate-200 shadow-sm safe-top safe-x">
-      <div className="mx-auto max-w-[1400px] px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-5">
-        {/* Single row on mobile: logo + title + action buttons */}
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm safe-top safe-x">
+      <div className="mx-auto max-w-[1600px] px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-5">
+
+        {/* Mobile: logo + health badge + action buttons */}
         <div className="flex items-center justify-between gap-3 lg:hidden">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm shrink-0">
               <span className="text-white font-bold text-sm">💰</span>
             </div>
-            <div>
+            <div className="min-w-0">
               <h1 className="text-base font-bold text-slate-800 leading-tight">Financial Life Tracker</h1>
-              <p className="text-[10px] text-slate-500 leading-tight hidden sm:block">Plan your path to FIRE</p>
+              {/* Health status badge — shows issues inline when present */}
+              {hasErrors ? (
+                <span className="text-[10px] font-semibold text-red-600 flex items-center gap-0.5 leading-tight">
+                  <span>⚠</span>
+                  <span>{errorCount} critical issue{errorCount !== 1 ? 's' : ''}</span>
+                </span>
+              ) : hasWarnings ? (
+                <span className="text-[10px] font-semibold text-amber-600 flex items-center gap-0.5 leading-tight">
+                  <span>↘</span>
+                  <span>{warningCount} warning{warningCount !== 1 ? 's' : ''}</span>
+                </span>
+              ) : (
+                <p className="text-[10px] text-slate-500 leading-tight hidden sm:block">Plan your path to FIRE</p>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
@@ -56,7 +80,7 @@ export function TopBar() {
           </div>
         </div>
 
-        {/* Collapsible controls row on mobile */}
+        {/* Mobile: controls row */}
         <div className="mt-2 lg:mt-0 grid grid-cols-3 gap-2 lg:hidden items-end">
           <div>
             <label className="text-[10px] font-medium text-slate-500 uppercase tracking-wide block mb-1">Birth Date</label>
@@ -94,16 +118,30 @@ export function TopBar() {
           </div>
         </div>
 
-        {/* Full desktop layout — hidden on mobile */}
+        {/* Desktop layout */}
         <div className="hidden lg:flex lg:items-center gap-6">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-xl">💰</span>
             </div>
             <div>
-              <h1 className="text-2xl xl:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                Financial Life Tracker
-              </h1>
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-2xl xl:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                  Financial Life Tracker
+                </h1>
+                {/* Desktop health badge */}
+                {hasErrors ? (
+                  <span className="flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
+                    <span>⚠</span>
+                    <span>{errorCount} issue{errorCount !== 1 ? 's' : ''}</span>
+                  </span>
+                ) : hasWarnings ? (
+                  <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">
+                    <span>↘</span>
+                    <span>{warningCount} warning{warningCount !== 1 ? 's' : ''}</span>
+                  </span>
+                ) : null}
+              </div>
               <p className="text-xs text-slate-500 mt-0.5">Plan your path to financial independence</p>
             </div>
           </div>
@@ -174,6 +212,7 @@ export function TopBar() {
             </div>
           </div>
         </div>
+
       </div>
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
     </header>

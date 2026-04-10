@@ -35,17 +35,19 @@ function AppShell() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <TopBar />
+      <TopBar validation={wealthValidation} />
       <main className="mx-auto max-w-[1600px] px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 safe-x">
+        {/* FIRE Insights first — core value prop always above the fold */}
+        <div className="mb-4 sm:mb-6">
+          <FireInsights />
+        </div>
+
+        {/* Wealth alerts second — actionable issues visible after the headline */}
         {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
           <div className="mb-4 sm:mb-6">
             <WealthProtectionPanel validation={wealthValidation} />
           </div>
         )}
-
-        <div className="mb-4 sm:mb-6">
-          <FireInsights />
-        </div>
 
         <div className="mb-4 sm:mb-6">
           <div id="timeline-capture" className="shadow-lg sm:shadow-xl rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-slate-200">
