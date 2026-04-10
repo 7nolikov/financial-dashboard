@@ -129,7 +129,7 @@ export function FireInsights() {
             </div>
             <button
               onClick={shareFIREtweet}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-semibold transition-all border border-white/25 shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/25 hover:bg-white/40 text-white rounded-lg text-xs font-semibold transition-all border border-white/60 shadow-sm shrink-0"
               title="Tweet your FIRE progress"
             >
               <span>𝕏</span>

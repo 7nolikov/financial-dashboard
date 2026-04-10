@@ -28,34 +28,34 @@ export function TopBar({ validation }: TopBarProps) {
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm safe-top safe-x">
       <div className="mx-auto max-w-[1600px] px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-5">
 
-        {/* Mobile: logo + health badge + action buttons */}
-        <div className="flex items-center justify-between gap-3 lg:hidden">
-          <div className="flex items-center gap-2.5 min-w-0">
+        {/* Mobile: logo + title + action buttons */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm shrink-0">
               <span className="text-white font-bold text-sm">💰</span>
             </div>
-            <div className="min-w-0">
-              <h1 className="text-base font-bold text-slate-800 leading-tight">Financial Life Tracker</h1>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base font-bold text-slate-800 leading-tight truncate">Financial Life Tracker</h1>
               {/* Health status badge — shows issues inline when present */}
               {hasErrors ? (
-                <span className="text-[10px] font-semibold text-red-600 flex items-center gap-0.5 leading-tight">
-                  <span>⚠</span>
-                  <span>{errorCount} critical issue{errorCount !== 1 ? 's' : ''}</span>
+                <span className="text-[10px] font-semibold text-red-600 flex items-center gap-0.5 leading-tight truncate">
+                  <span aria-hidden="true">⚠</span>
+                  <span className="truncate">{errorCount} critical issue{errorCount !== 1 ? 's' : ''}</span>
                 </span>
               ) : hasWarnings ? (
-                <span className="text-[10px] font-semibold text-amber-600 flex items-center gap-0.5 leading-tight">
-                  <span>↘</span>
-                  <span>{warningCount} warning{warningCount !== 1 ? 's' : ''}</span>
+                <span className="text-[10px] font-semibold text-amber-600 flex items-center gap-0.5 leading-tight truncate">
+                  <span aria-hidden="true">↘</span>
+                  <span className="truncate">{warningCount} warning{warningCount !== 1 ? 's' : ''}</span>
                 </span>
               ) : (
-                <p className="text-[10px] text-slate-500 leading-tight hidden sm:block">Plan your path to FIRE</p>
+                <p className="text-[10px] text-slate-500 leading-tight truncate">Plan your path to FIRE</p>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={() => setZoom(0, 100 * 12)}
-              className="px-3 py-2 border border-slate-300 rounded-lg text-xs hover:bg-slate-50 transition-all font-medium text-slate-600 min-h-[44px] min-w-[44px]"
+              className="w-11 h-11 flex items-center justify-center border border-slate-300 rounded-lg text-base hover:bg-slate-50 transition-all font-medium text-slate-600 shrink-0"
               title="Show full 0–100 years"
               aria-label="Reset zoom to full 100-year view"
             >
@@ -63,7 +63,7 @@ export function TopBar({ validation }: TopBarProps) {
             </button>
             <button
               onClick={() => setShowHelp(true)}
-              className="px-3 py-2 border border-slate-300 rounded-lg text-xs hover:bg-slate-50 transition-all font-medium text-slate-600 min-h-[44px] min-w-[44px]"
+              className="w-11 h-11 flex items-center justify-center border border-slate-300 rounded-lg text-base hover:bg-slate-50 transition-all font-medium text-slate-600 shrink-0"
               title="Help"
               aria-label="Open help"
             >
@@ -71,24 +71,27 @@ export function TopBar({ validation }: TopBarProps) {
             </button>
             <button
               onClick={onShare}
-              className="px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-xs hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold shadow-sm min-h-[44px]"
+              className="h-11 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-xs hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold shadow-sm flex items-center gap-1 shrink-0"
               title="Share your financial plan"
               aria-label="Share your financial plan"
             >
-              📤 Share
+              <span aria-hidden="true">📤</span>
+              <span>Share</span>
             </button>
           </div>
         </div>
 
-        {/* Mobile: controls row */}
-        <div className="mt-2 lg:mt-0 grid grid-cols-3 gap-2 lg:hidden items-end">
-          <div>
+        {/* Mobile: controls row — Birth Date takes more room (2 cols) to fit the
+            locale date format; Mode and Inflation take one column each. Using
+            items-start + fixed h-11 gives perfect label + field alignment. */}
+        <div className="mt-3 grid grid-cols-4 gap-2 lg:hidden items-start">
+          <div className="col-span-2">
             <label className="text-[10px] font-medium text-slate-500 uppercase tracking-wide block mb-1">Birth Date</label>
             <input
               type="date"
               value={dobISO}
               onChange={(e) => setDOB(e.target.value)}
-              className="w-full border border-slate-300 px-2 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-h-[44px]"
+              className="w-full h-11 border border-slate-300 px-2 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               min="1900-01-01"
               max={new Date().toISOString().slice(0, 10)}
             />
@@ -98,7 +101,7 @@ export function TopBar({ validation }: TopBarProps) {
             <select
               value={inflation.display.seriesMode}
               onChange={(e) => setInflation({ display: { seriesMode: e.target.value as 'nominal' | 'real' } })}
-              className="w-full border border-slate-300 px-2 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full h-11 border border-slate-300 px-2 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
               <option value="nominal">Nominal</option>
               <option value="real">Real</option>
@@ -113,7 +116,7 @@ export function TopBar({ validation }: TopBarProps) {
               max="20"
               value={((inflation.singleRate ?? 0) * 100).toFixed(1)}
               onChange={(e) => setInflation({ singleRate: Math.max(0, Math.min(20, Number(e.target.value))) / 100 })}
-              className="w-full border border-slate-300 px-2 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-h-[44px]"
+              className="w-full h-11 border border-slate-300 px-2 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
         </div>
