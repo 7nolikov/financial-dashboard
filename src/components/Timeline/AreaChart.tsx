@@ -291,7 +291,7 @@ export function AreaChart() {
         </div>
       </div>
       <div className="px-2 sm:px-4 py-2 sm:py-3 text-[12px] sm:text-[13px]">
-        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
           <Kpi
             label="Income"
             value={format(sum(visible.map((p) => p.income)))}
@@ -373,8 +373,8 @@ export function AreaChart() {
           {/* Inline milestone input */}
           {pendingMilestone && (
             <div
-              className="absolute top-2 z-20 bg-white border border-blue-300 rounded-xl shadow-xl p-3 flex flex-col gap-2 min-w-[220px]"
-              style={{ left: Math.max(0, Math.min(pendingMilestone.x, width - 240)) }}
+              className="absolute top-2 z-20 bg-white border border-blue-300 rounded-xl shadow-xl p-3 flex flex-col gap-2 w-[220px]"
+              style={{ left: Math.max(8, Math.min(pendingMilestone.x, width - 228)) }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-xs font-semibold text-slate-700">

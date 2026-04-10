@@ -115,12 +115,12 @@ export function FireInsights() {
   return (
     <>
       {showConfetti && <Confetti />}
-      <div className="mx-3 sm:mx-4 my-3 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         {/* Gradient header */}
         <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-violet-600 px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             {/* Title row */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 shrink-0">
               <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
                 <span className="text-lg sm:text-xl">{isFireAchieved ? '🎉' : '🔥'}</span>
               </div>
@@ -131,7 +131,7 @@ export function FireInsights() {
             </div>
 
             {/* Key metrics — wrap gracefully on mobile */}
-            <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 sm:flex-1 sm:flex sm:items-center sm:justify-center gap-3 sm:gap-6">
               <div className="text-center bg-white/10 rounded-lg px-3 py-2 sm:bg-transparent sm:px-0 sm:py-0">
                 <div className="text-white/70 text-[10px] sm:text-xs font-medium uppercase tracking-wide">FIRE Number</div>
                 <div className="text-white text-xl sm:text-2xl font-black">{formatCurrency(fireNumber)}</div>
@@ -168,19 +168,19 @@ export function FireInsights() {
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Share CTA inside gradient */}
-          <div className="flex justify-end mt-2 sm:mt-0 sm:absolute sm:top-4 sm:right-6" style={{ position: 'relative' }}>
-            <button
-              onClick={shareFIREtweet}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-semibold transition-all border border-white/25"
-              title="Tweet your FIRE progress"
-            >
-              <span>𝕏</span>
-              <span className="hidden xs:inline">Share my FIRE number</span>
-              <span className="xs:hidden">Share</span>
-            </button>
+            {/* Share CTA */}
+            <div className="flex justify-end sm:shrink-0">
+              <button
+                onClick={shareFIREtweet}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-semibold transition-all border border-white/25"
+                title="Tweet your FIRE progress"
+              >
+                <span>𝕏</span>
+                <span className="hidden sm:inline">Share my FIRE number</span>
+                <span className="sm:hidden">Share</span>
+              </button>
+            </div>
           </div>
         </div>
 

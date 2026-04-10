@@ -25,7 +25,7 @@ export function TopBar() {
             </div>
             <div>
               <h1 className="text-base font-bold text-slate-800 leading-tight">Financial Life Tracker</h1>
-              <p className="text-[10px] text-slate-500 leading-tight hidden xs:block">Plan your path to FIRE</p>
+              <p className="text-[10px] text-slate-500 leading-tight hidden sm:block">Plan your path to FIRE</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
@@ -70,7 +70,7 @@ export function TopBar() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-medium text-slate-500 uppercase tracking-wide block mb-1">Values</label>
+            <label className="text-[10px] font-medium text-slate-500 uppercase tracking-wide block mb-1">Mode</label>
             <select
               value={inflation.display.seriesMode}
               onChange={(e) => setInflation({ display: { seriesMode: e.target.value as 'nominal' | 'real' } })}
