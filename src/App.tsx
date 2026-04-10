@@ -43,7 +43,9 @@ function AppShell() {
           </div>
         )}
 
-        <FireInsights />
+        <div className="mb-4 sm:mb-6">
+          <FireInsights />
+        </div>
 
         <div className="mb-4 sm:mb-6">
           <div id="timeline-capture" className="shadow-lg sm:shadow-xl rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-slate-200">
@@ -51,7 +53,7 @@ function AppShell() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <div className="min-h-0 order-1">
             <div className="h-full shadow-lg rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-slate-200">
               <DataEntryPanel />
