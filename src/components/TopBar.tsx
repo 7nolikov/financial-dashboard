@@ -57,14 +57,14 @@ export function TopBar() {
         </div>
 
         {/* Collapsible controls row on mobile */}
-        <div className="mt-2 lg:mt-0 grid grid-cols-3 gap-2 lg:hidden">
+        <div className="mt-2 lg:mt-0 grid grid-cols-3 gap-2 lg:hidden items-end">
           <div>
             <label className="text-[10px] font-medium text-slate-500 uppercase tracking-wide block mb-1">Birth Date</label>
             <input
               type="date"
               value={dobISO}
               onChange={(e) => setDOB(e.target.value)}
-              className="w-full border border-slate-300 px-2 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full border border-slate-300 px-2 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-h-[44px]"
               min="1900-01-01"
               max={new Date().toISOString().slice(0, 10)}
             />
@@ -89,7 +89,7 @@ export function TopBar() {
               max="20"
               value={((inflation.singleRate ?? 0) * 100).toFixed(1)}
               onChange={(e) => setInflation({ singleRate: Math.max(0, Math.min(20, Number(e.target.value))) / 100 })}
-              className="w-full border border-slate-300 px-2 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full border border-slate-300 px-2 py-1.5 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-h-[44px]"
             />
           </div>
         </div>
