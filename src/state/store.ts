@@ -81,7 +81,7 @@ export type Store = CoreState & {
 const CURRENT_VERSION = 1;
 const STORAGE_KEY = 'flt-state';
 
-// Demo presets for different character types with realistic financial data
+// Demo presets for different character types with realistic European financial data
 const presets = {
   worker: (): CoreState => ({
     version: CURRENT_VERSION,
@@ -90,77 +90,77 @@ const presets = {
       {
         id: 'inc-job',
         label: 'Salary',
-        amount: 4200, // ~$50k annually, realistic for 22-year-old entry level
-        recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
+        amount: 2800, // ~€33.6k annually, realistic for 22-year-old graduate in Western Europe
+        recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 28, monthIndex: 28 * 12 }, everyMonths: 1 },
         category: 'employment',
       },
       {
         id: 'inc-raise-1',
         label: 'Salary (Promotion)',
-        amount: 5500, // ~$66k annually, realistic for late 20s
+        amount: 3800, // ~€45.6k annually, realistic for late 20s
         recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 35, monthIndex: 35 * 12 }, everyMonths: 1 },
         category: 'employment',
       },
       {
         id: 'inc-raise-2',
         label: 'Salary (Senior)',
-        amount: 7000, // ~$84k annually, realistic for mid-30s
+        amount: 5200, // ~€62.4k annually, realistic for mid-30s specialist
         recurrence: { kind: 'recurring', start: { ageYears: 35, monthIndex: 35 * 12 }, end: { ageYears: 50, monthIndex: 50 * 12 }, everyMonths: 1 },
         category: 'employment',
       },
       {
         id: 'inc-raise-3',
         label: 'Salary (Manager)',
-        amount: 8500, // ~$102k annually, realistic for late career
+        amount: 6500, // ~€78k annually, realistic for late career management
         recurrence: { kind: 'recurring', start: { ageYears: 50, monthIndex: 50 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
         category: 'employment',
       },
     ],
     expenses: [
-      { id: 'exp-rent', label: 'Rent/Housing', amount: 1400, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-food', label: 'Food & Groceries', amount: 600, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-transport', label: 'Transportation', amount: 400, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-insurance', label: 'Insurance', amount: 200, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-utilities', label: 'Utilities', amount: 150, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-misc', label: 'Miscellaneous', amount: 300, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-rent', label: 'Rent/Housing', amount: 1100, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-food', label: 'Food & Groceries', amount: 450, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-transport', label: 'Transportation', amount: 200, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-insurance', label: 'Health Insurance', amount: 120, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-utilities', label: 'Utilities', amount: 180, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-misc', label: 'Miscellaneous', amount: 250, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
     ],
     loans: [
       {
         id: 'loan-student',
         label: 'Student Loan',
-        principal: 28000,
-        monthlyPayment: 280,
-        recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 32, monthIndex: 32 * 12 }, everyMonths: 1 },
-        interestRate: 0.055,
+        principal: 10000, // European subsidised education — much smaller than US
+        monthlyPayment: 120,
+        recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 },
+        interestRate: 0.02, // Low EU government student loan rate
         category: 'education',
       },
     ],
     investments: [
       {
-        id: 'inv-401k',
-        label: '401k (6% match)',
+        id: 'inv-pension',
+        label: 'Occupational Pension (employer match)',
         principal: 0,
-        recurringAmount: 420, // 10% of $4200 salary
+        recurringAmount: 280, // ~10% of €2,800 salary — employer-matched European pension
         recurrence: { kind: 'recurring', start: { ageYears: 25, monthIndex: 25 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
-        model: { type: 'fixed', fixedRate: 0.07 },
+        model: { type: 'fixed', fixedRate: 0.06 },
       },
       {
-        id: 'inv-roth',
-        label: 'Roth IRA',
+        id: 'inv-etf',
+        label: 'MSCI World ETF',
         principal: 0,
-        recurringAmount: 500, // Max $6000/year
+        recurringAmount: 350, // Monthly ETF investment via broker (e.g. Degiro, IBKR)
         recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
-        model: { type: 'fixed', fixedRate: 0.08 },
+        model: { type: 'fixed', fixedRate: 0.075 },
       },
     ],
     safetySavings: [
-      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 6, monthlyExpenses: 3050 },
+      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 6, monthlyExpenses: 2300 },
     ],
     retirement: { age: 65, withdrawalRate: 0.04 }, // 4% annual withdrawal rate
     milestones: [
       { id: 'ms-grad', at: { ageYears: 22, monthIndex: 22 * 12 }, label: 'First Job' },
       { id: 'ms-promotion', at: { ageYears: 28, monthIndex: 28 * 12 }, label: 'First Promotion' },
-      { id: 'ms-house', at: { ageYears: 32, monthIndex: 32 * 12 }, label: 'Buy House' },
+      { id: 'ms-house', at: { ageYears: 32, monthIndex: 32 * 12 }, label: 'Buy Apartment' },
       { id: 'ms-kids', at: { ageYears: 30, monthIndex: 30 * 12 }, label: 'Start Family' },
       { id: 'ms-senior', at: { ageYears: 35, monthIndex: 35 * 12 }, label: 'Senior Role' },
       { id: 'ms-manager', at: { ageYears: 50, monthIndex: 50 * 12 }, label: 'Management Role' },
@@ -169,7 +169,7 @@ const presets = {
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
-      singleRate: 0.03, // More realistic 3% inflation
+      singleRate: 0.025, // ECB target ~2%; 2.5% accounts for realistic medium-term average
       yearlyRates: undefined,
       display: { seriesMode: 'nominal' },
     },
@@ -183,69 +183,69 @@ const presets = {
       {
         id: 'inc-job',
         label: 'Tech Salary',
-        amount: 10000, // ~$120k annually, realistic for tech professional
+        amount: 8500, // ~€102k annually, realistic for senior tech in Amsterdam/Berlin/Paris
         recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 1 },
         category: 'employment',
       },
       {
         id: 'inc-bonus',
         label: 'Annual Bonus',
-        amount: 2000, // ~$24k annually
+        amount: 1800, // ~€21.6k annually
         recurrence: { kind: 'recurring', start: { ageYears: 26, monthIndex: 26 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 12 },
         category: 'employment',
       },
       {
         id: 'inc-dividends',
         label: 'Dividend Income',
-        amount: 800, // Grows with investments
+        amount: 650, // Growing dividend portfolio
         recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 },
         category: 'investment',
       },
     ],
     expenses: [
-      { id: 'exp-mortgage', label: 'Mortgage', amount: 3000, recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 58, monthIndex: 58 * 12 }, everyMonths: 1 } },
-      { id: 'exp-living', label: 'Living Costs', amount: 2500, recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, everyMonths: 1 } },
-      { id: 'exp-taxes', label: 'Taxes', amount: 2000, recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, everyMonths: 1 } },
+      { id: 'exp-mortgage', label: 'Mortgage', amount: 1800, recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 58, monthIndex: 58 * 12 }, everyMonths: 1 } },
+      { id: 'exp-living', label: 'Living Costs', amount: 2200, recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, everyMonths: 1 } },
+      { id: 'exp-taxes', label: 'Income Tax', amount: 1800, recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, everyMonths: 1 } },
     ],
     loans: [
       {
         id: 'loan-mortgage',
         label: 'Mortgage',
-        principal: 450000,
-        monthlyPayment: 3000,
+        principal: 350000, // Realistic European city apartment/house price
+        monthlyPayment: 1800,
         recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 58, monthIndex: 58 * 12 }, everyMonths: 1 },
-        interestRate: 0.04,
+        interestRate: 0.035, // European mortgage rate (fixed 10-year)
         category: 'mortgage',
       },
     ],
     investments: [
       {
         id: 'inv-index',
-        label: 'Index Fund',
-        principal: 15000,
-        recurringAmount: 2000, // 20% of salary - more realistic
+        label: 'MSCI World ETF',
+        principal: 12000,
+        recurringAmount: 1800, // ~21% of salary — disciplined European investor
         recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 1 },
-        model: { type: 'fixed', fixedRate: 0.08 },
+        model: { type: 'fixed', fixedRate: 0.075 },
       },
       {
         id: 'inv-stocks',
-        label: 'Stock Portfolio',
-        principal: 8000,
-        recurringAmount: 1000, // Reduced to maintain positive cash flow
+        label: 'European Stock Portfolio',
+        principal: 6000,
+        recurringAmount: 900,
         recurrence: { kind: 'recurring', start: { ageYears: 26, monthIndex: 26 * 12 }, end: { ageYears: 50, monthIndex: 50 * 12 }, everyMonths: 1 },
-        model: { type: 'fixed', fixedRate: 0.10 },
+        model: { type: 'fixed', fixedRate: 0.09 },
       },
       {
-        id: 'inv-401k',
-        label: '401k Max',
+        id: 'inv-pension',
+        label: 'Occupational Pension (max)',
         principal: 0,
-        recurringAmount: 1917, // Max $23k/year
+        recurringAmount: 1500, // Max occupational pension contribution
         recurrence: { kind: 'recurring', start: { ageYears: 24, monthIndex: 24 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 1 },
-        model: { type: 'fixed', fixedRate: 0.07 },
+        model: { type: 'fixed', fixedRate: 0.06 },
       },
     ],
     safetySavings: [
-      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 12, monthlyExpenses: 7500 },
+      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 25, monthIndex: 25 * 12 }, monthsCoverage: 12, monthlyExpenses: 6000 },
     ],
     retirement: { age: 55, withdrawalRate: 0.04 }, // Early retirement at 55 with 4% withdrawal
     milestones: [
@@ -257,7 +257,7 @@ const presets = {
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
-      singleRate: 0.03,
+      singleRate: 0.025,
       yearlyRates: undefined,
       display: { seriesMode: 'nominal' },
     },
@@ -271,54 +271,54 @@ const presets = {
       {
         id: 'inc-business',
         label: 'Business Revenue',
-        amount: 12000, // ~$144k annually, more realistic for small business
+        amount: 10000, // ~€120k annually, realistic for European SME owner
         recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 },
         category: 'business',
       },
       {
         id: 'inc-passive',
-        label: 'Passive Income',
-        amount: 1500, // Rental income, royalties, etc.
+        label: 'Rental Income',
+        amount: 1200, // Rental property income, common European wealth vehicle
         recurrence: { kind: 'recurring', start: { ageYears: 40, monthIndex: 40 * 12 }, everyMonths: 1 },
         category: 'passive',
       },
     ],
     expenses: [
-      { id: 'exp-business', label: 'Business Expenses', amount: 4000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 } },
-      { id: 'exp-lifestyle', label: 'Personal Lifestyle', amount: 3500, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
-      { id: 'exp-taxes', label: 'Business Taxes', amount: 2500, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
+      { id: 'exp-business', label: 'Business Expenses', amount: 3500, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 } },
+      { id: 'exp-lifestyle', label: 'Personal Lifestyle', amount: 2800, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
+      { id: 'exp-taxes', label: 'Business Taxes & VAT', amount: 2000, recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
     ],
     loans: [
       {
         id: 'loan-business',
         label: 'Business Loan',
-        principal: 80000,
-        monthlyPayment: 1800,
+        principal: 60000, // European SME loan — ECB-backed lending
+        monthlyPayment: 1400,
         recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 45, monthIndex: 45 * 12 }, everyMonths: 1 },
-        interestRate: 0.065,
+        interestRate: 0.045, // European SME lending rate
         category: 'business',
       },
     ],
     investments: [
       {
         id: 'inv-real-estate',
-        label: 'Real Estate',
-        principal: 50000,
-        recurringAmount: 1500, // Reduced to maintain positive cash flow
+        label: 'Real Estate Portfolio',
+        principal: 40000,
+        recurringAmount: 1200,
         recurrence: { kind: 'recurring', start: { ageYears: 32, monthIndex: 32 * 12 }, end: { ageYears: 60, monthIndex: 60 * 12 }, everyMonths: 1 },
-        model: { type: 'fixed', fixedRate: 0.07 },
+        model: { type: 'fixed', fixedRate: 0.065 },
       },
       {
-        id: 'inv-venture',
-        label: 'Venture Capital',
-        principal: 20000,
-        recurringAmount: 1000, // Reduced to maintain positive cash flow
+        id: 'inv-growth',
+        label: 'Growth ETF (MSCI World)',
+        principal: 15000,
+        recurringAmount: 800,
         recurrence: { kind: 'recurring', start: { ageYears: 35, monthIndex: 35 * 12 }, end: { ageYears: 55, monthIndex: 55 * 12 }, everyMonths: 1 },
-        model: { type: 'fixed', fixedRate: 0.12 },
+        model: { type: 'fixed', fixedRate: 0.10 },
       },
     ],
     safetySavings: [
-      { id: 'ss-1', label: 'Business Reserve', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 12, monthlyExpenses: 10000 },
+      { id: 'ss-1', label: 'Business Reserve', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 12, monthlyExpenses: 8300 },
     ],
     retirement: { age: 60, withdrawalRate: 0.04 }, // 4% annual withdrawal rate
     milestones: [
@@ -330,7 +330,7 @@ const presets = {
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
-      singleRate: 0.03,
+      singleRate: 0.025,
       yearlyRates: undefined,
       display: { seriesMode: 'nominal' },
     },
@@ -344,78 +344,78 @@ const presets = {
       {
         id: 'inc-job',
         label: 'Entry Salary',
-        amount: 3500, // ~$42k annually, realistic for entry level
+        amount: 2500, // ~€30k annually, realistic for entry level in Europe
         recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
         category: 'employment',
       },
       {
         id: 'inc-raise',
         label: 'Salary Increase',
-        amount: 4500, // ~$54k annually, after some experience
+        amount: 3400, // ~€40.8k annually, after gaining experience
         recurrence: { kind: 'recurring', start: { ageYears: 28, monthIndex: 28 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
         category: 'employment',
       },
     ],
     expenses: [
-      { id: 'exp-rent', label: 'Rent', amount: 1200, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-loans', label: 'Student Loan Payment', amount: 450, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 35, monthIndex: 35 * 12 }, everyMonths: 1 } },
-      { id: 'exp-living', label: 'Living Costs', amount: 800, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-credit', label: 'Credit Card Payment', amount: 250, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
+      { id: 'exp-rent', label: 'Rent (shared flat)', amount: 950, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-loans', label: 'Student Loan Payment', amount: 150, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
+      { id: 'exp-living', label: 'Living Costs', amount: 650, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-credit', label: 'Credit Card Payment', amount: 200, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 } },
     ],
     loans: [
       {
         id: 'loan-student',
         label: 'Student Loan',
-        principal: 35000,
-        monthlyPayment: 450,
-        recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 35, monthIndex: 35 * 12 }, everyMonths: 1 },
-        interestRate: 0.065,
+        principal: 12000, // European student loan — subsidised, much smaller than US
+        monthlyPayment: 150,
+        recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 },
+        interestRate: 0.03, // Low EU government student loan rate
         category: 'education',
       },
       {
         id: 'loan-credit',
         label: 'Credit Card Debt',
-        principal: 8000,
-        monthlyPayment: 250,
+        principal: 5000,
+        monthlyPayment: 200,
         recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 30, monthIndex: 30 * 12 }, everyMonths: 1 },
-        interestRate: 0.22,
+        interestRate: 0.18, // European credit card APR
         category: 'credit',
       },
     ],
     investments: [
       {
-        id: 'inv-401k',
-        label: '401k (Minimal)',
+        id: 'inv-pension',
+        label: 'Pension Fund (minimal)',
         principal: 0,
-        recurringAmount: 200, // Only 5% of salary
+        recurringAmount: 125, // Only 5% of salary — barely contributing
         recurrence: { kind: 'recurring', start: { ageYears: 25, monthIndex: 25 * 12 }, end: { ageYears: 65, monthIndex: 65 * 12 }, everyMonths: 1 },
-        model: { type: 'fixed', fixedRate: 0.06 },
+        model: { type: 'fixed', fixedRate: 0.05 },
       },
     ],
     safetySavings: [
-      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 3, monthlyExpenses: 2700 },
+      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 3, monthlyExpenses: 1800 },
     ],
     retirement: { age: 67, withdrawalRate: 0.04 },
     milestones: [
       { id: 'ms-grad', at: { ageYears: 22, monthIndex: 22 * 12 }, label: 'Graduation' },
       { id: 'ms-job', at: { ageYears: 25, monthIndex: 25 * 12 }, label: 'First Job' },
-      { id: 'ms-debt-free', at: { ageYears: 35, monthIndex: 35 * 12 }, label: 'Debt Free' },
-      { id: 'ms-house', at: { ageYears: 40, monthIndex: 40 * 12 }, label: 'Buy House' },
+      { id: 'ms-debt-free', at: { ageYears: 30, monthIndex: 30 * 12 }, label: 'Debt Free' },
+      { id: 'ms-house', at: { ageYears: 40, monthIndex: 40 * 12 }, label: 'Buy Apartment' },
       { id: 'ms-retire', at: { ageYears: 67, monthIndex: 67 * 12 }, label: 'Retirement' },
     ],
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
-      singleRate: 0.03,
+      singleRate: 0.025,
       yearlyRates: undefined,
       display: { seriesMode: 'nominal' },
     },
     chart: { zoom: { minMonth: 0, maxMonth: 100 * 12 } },
   }),
 
-  // "Average American" — wake-up call preset based on real median stats.
-  // Median household income, average savings rate (~5%), near-zero retirement savings at 41.
-  // The chart will show a brutal retirement shortfall — that's the point.
+  // "Average European" — wake-up call preset based on real EU median stats.
+  // Median household income, low savings rate (~5%), minimal pension savings at 41.
+  // The chart will show a stark retirement gap — that's the point.
   average: (): CoreState => ({
     version: CURRENT_VERSION,
     dobISO: '1985-01-01', // age ~41
@@ -423,50 +423,50 @@ const presets = {
       {
         id: 'inc-job',
         label: 'Median Household Income',
-        amount: 6300, // ~$75.6k/yr — 2024 US median household income
+        amount: 3500, // ~€42k/yr — Western/Central Europe median gross household income
         recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, end: { ageYears: 67, monthIndex: 67 * 12 }, everyMonths: 1 },
         category: 'employment',
       },
       {
         id: 'inc-ss',
-        label: 'Social Security (est.)',
-        amount: 1900, // avg SS benefit ~$1,900/mo
+        label: 'State Pension (est.)',
+        amount: 1400, // avg European state pension benefit ~€1,400/mo
         recurrence: { kind: 'recurring', start: { ageYears: 67, monthIndex: 67 * 12 }, everyMonths: 1 },
         category: 'government',
       },
     ],
     expenses: [
-      { id: 'exp-housing', label: 'Rent / Mortgage', amount: 1800, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-food', label: 'Food & Groceries', amount: 700, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-transport', label: 'Transportation', amount: 850, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-healthcare', label: 'Healthcare', amount: 450, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-utilities', label: 'Utilities & Phone', amount: 300, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-entertainment', label: 'Entertainment & Dining', amount: 400, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
-      { id: 'exp-misc', label: 'Miscellaneous', amount: 350, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-housing', label: 'Rent / Mortgage', amount: 1100, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-food', label: 'Food & Groceries', amount: 550, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-transport', label: 'Transportation', amount: 350, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-healthcare', label: 'Healthcare Co-pays', amount: 150, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-utilities', label: 'Utilities & Phone', amount: 250, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-entertainment', label: 'Entertainment & Dining', amount: 300, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
+      { id: 'exp-misc', label: 'Miscellaneous', amount: 280, recurrence: { kind: 'recurring', start: { ageYears: 22, monthIndex: 22 * 12 }, everyMonths: 1 } },
     ],
     loans: [
       {
         id: 'loan-car',
         label: 'Car Loan',
-        principal: 25000,
-        monthlyPayment: 480,
+        principal: 18000, // Typical European car finance
+        monthlyPayment: 350,
         recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 35, monthIndex: 35 * 12 }, everyMonths: 1 },
-        interestRate: 0.075,
+        interestRate: 0.055, // European auto loan rate
         category: 'auto',
       },
     ],
     investments: [
       {
-        id: 'inv-401k',
-        label: '401k (5% savings rate)',
-        principal: 35000, // avg 401k balance around 41 for non-savers
-        recurringAmount: 315, // 5% of $6,300 — the "average American" barely saves
+        id: 'inv-pension',
+        label: 'Pension Fund (5% savings rate)',
+        principal: 22000, // Typical European pension pot around age 41 for low savers
+        recurringAmount: 175, // 5% of €3,500 — the "average European" barely saves beyond state pension
         recurrence: { kind: 'recurring', start: { ageYears: 30, monthIndex: 30 * 12 }, end: { ageYears: 67, monthIndex: 67 * 12 }, everyMonths: 1 },
-        model: { type: 'fixed', fixedRate: 0.07 },
+        model: { type: 'fixed', fixedRate: 0.06 },
       },
     ],
     safetySavings: [
-      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 1, monthlyExpenses: 4850 },
+      { id: 'ss-1', label: 'Emergency Fund', start: { ageYears: 30, monthIndex: 30 * 12 }, monthsCoverage: 1, monthlyExpenses: 2980 },
     ],
     retirement: { age: 67, withdrawalRate: 0.04 },
     milestones: [
@@ -476,7 +476,7 @@ const presets = {
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
-      singleRate: 0.03,
+      singleRate: 0.025, // ECB target ~2%; 2.5% accounts for realistic medium-term average
       yearlyRates: undefined,
       display: { seriesMode: 'nominal' },
     },
