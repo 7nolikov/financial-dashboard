@@ -78,6 +78,26 @@ select {
   }
 }
 
+/* iOS Safari renders <input type="date"> with its own internal styling for
+   the value text (via ::-webkit-date-and-time-value), which does not inherit
+   the outer font size, color, or alignment. Without this, the date field
+   looks smaller/lighter than sibling <select> and <input type="number">
+   fields that share the same Tailwind classes. Normalize it so the Birth
+   Date field matches the Mode and Inflation fields. */
+input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+}
+
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+  font-size: inherit;
+  color: inherit;
+  line-height: normal;
+  min-height: 1.5em;
+}
+
 /* Confetti particle keyframes */
 @keyframes confetti-fall {
   0% {
