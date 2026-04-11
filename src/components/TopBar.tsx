@@ -63,14 +63,10 @@ export function TopBar({ validation }: TopBarProps) {
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              onClick={() => setZoom(0, 100 * 12)}
-              className="w-10 h-10 flex items-center justify-center border border-slate-300 bg-white rounded-lg text-base hover:bg-slate-50 active:bg-slate-100 transition-colors font-medium text-slate-600 shrink-0"
-              title="Show full 0–100 years"
-              aria-label="Reset zoom to full 100-year view"
-            >
-              ↺
-            </button>
+            {/* Note: Reset Zoom is intentionally only available on the chart
+                footer (AreaChart) on mobile — a duplicate header icon with
+                just "↺" was ambiguous and a no-op at default zoom, so users
+                perceived it as broken. */}
             <button
               onClick={() => setShowHelp(true)}
               className="w-10 h-10 flex items-center justify-center border border-slate-300 bg-white rounded-lg text-base hover:bg-slate-50 active:bg-slate-100 transition-colors font-semibold text-slate-600 shrink-0"
