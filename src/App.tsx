@@ -45,14 +45,15 @@ function AppShell() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <TopBar validation={wealthValidation} />
-      <main className="mx-auto max-w-[1600px] px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 safe-x space-y-6 sm:space-y-8">
-
+      <main className="mx-auto max-w-[1600px] px-4 sm:px-5 lg:px-6 xl:px-8 py-4 sm:py-6 safe-x space-y-4 sm:space-y-6 lg:space-y-8">
         {/* =============================================================
              LEVEL 1 — Overview: the "am I on track?" answer at a glance
              Always visible, concise, no interaction required.
              ============================================================= */}
         <section aria-labelledby="overview-heading">
-          <h2 id="overview-heading" className="sr-only">Overview</h2>
+          <h2 id="overview-heading" className="sr-only">
+            Overview
+          </h2>
           <div className="space-y-3 sm:space-y-4">
             <FireInsights />
             {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
@@ -66,8 +67,13 @@ function AppShell() {
              Always visible, main working area.
              ============================================================= */}
         <section aria-labelledby="timeline-heading">
-          <h2 id="timeline-heading" className="sr-only">Financial Timeline</h2>
-          <div id="timeline-capture" className="shadow-lg sm:shadow-xl rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-slate-200">
+          <h2 id="timeline-heading" className="sr-only">
+            Financial Timeline
+          </h2>
+          <div
+            id="timeline-capture"
+            className="shadow-md sm:shadow-xl rounded-2xl overflow-hidden bg-white border border-slate-200"
+          >
             <AreaChart />
           </div>
         </section>
@@ -78,24 +84,30 @@ function AppShell() {
              chart stays the focus. On desktop it's expanded because space
              allows it. Tabs separate the two sub-sections.
              ============================================================= */}
-        <section aria-labelledby="config-heading" className="rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-lg">
+        <section
+          aria-labelledby="config-heading"
+          className="rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-md sm:shadow-lg"
+        >
           <button
             type="button"
             onClick={() => setConfigOpen((v) => !v)}
-            className="w-full flex items-center justify-between gap-3 px-4 sm:px-6 py-4 bg-gradient-to-r from-slate-50 to-blue-50 hover:from-slate-100 hover:to-blue-100 transition-colors text-left"
+            className="w-full flex items-center justify-between gap-3 px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-slate-50 to-blue-50 hover:from-slate-100 hover:to-blue-100 transition-colors text-left"
             aria-expanded={configOpen}
             aria-controls="config-panel"
           >
             <div className="min-w-0">
-              <h2 id="config-heading" className="text-base sm:text-lg font-bold text-slate-800">
+              <h2
+                id="config-heading"
+                className="text-base sm:text-lg font-bold text-slate-900 leading-tight"
+              >
                 Configure Your Plan
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
                 Edit incomes, expenses, investments, loans, and other settings
               </p>
             </div>
             <div className="shrink-0 flex items-center gap-2 text-slate-600">
-              <span className="text-xs font-medium hidden sm:inline">
+              <span className="text-xs font-semibold hidden sm:inline">
                 {configOpen ? 'Hide' : 'Show'}
               </span>
               {configOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
@@ -106,7 +118,11 @@ function AppShell() {
             <div id="config-panel" className="border-t border-slate-200">
               {/* Tab bar — lets users focus on data OR settings without
                   overwhelming the screen with both at once. */}
-              <div role="tablist" aria-label="Configuration sections" className="flex border-b border-slate-200 bg-slate-50/60">
+              <div
+                role="tablist"
+                aria-label="Configuration sections"
+                className="flex border-b border-slate-200 bg-slate-50/60"
+              >
                 <button
                   role="tab"
                   aria-selected={configTab === 'data'}
@@ -153,16 +169,20 @@ function AppShell() {
       </main>
 
       {/* Viral footer CTA */}
-      <footer className="border-t border-slate-200 bg-white safe-bottom safe-x">
-        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <footer className="mt-6 sm:mt-8 border-t border-slate-200 bg-white safe-bottom safe-x">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
-            <p className="text-sm font-semibold text-slate-700">Know someone who should run their numbers?</p>
-            <p className="text-xs text-slate-500">100% free · zero signup · data never leaves the browser</p>
+            <p className="text-sm font-semibold text-slate-700">
+              Know someone who should run their numbers?
+            </p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              100% free · zero signup · data never leaves the browser
+            </p>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => useStore.getState().setOpenShare(true)}
-              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-sm font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm min-h-[44px]"
+              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-sm font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm min-h-[44px]"
             >
               📤 Challenge a Friend
             </button>

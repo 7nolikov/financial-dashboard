@@ -277,18 +277,20 @@ export function AreaChart() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-200">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center shadow-sm shrink-0">
-              <span className="text-white font-bold text-sm sm:text-lg">📈</span>
+      <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center shadow-md shrink-0">
+              <span className="text-white font-bold text-base sm:text-lg" aria-hidden="true">
+                📈
+              </span>
             </div>
-            <div className="min-w-0">
-              <h2 className="text-sm sm:text-xl font-bold text-slate-800 truncate">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-[15px] sm:text-xl font-bold text-slate-900 truncate leading-tight">
                 <span className="hidden sm:inline">Financial Projection Timeline</span>
                 <span className="sm:hidden">Timeline</span>
               </h2>
-              <div className="flex items-center gap-2 mt-0.5">
+              <div className="flex items-center gap-2 mt-1">
                 <div
                   className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-md font-semibold ${
                     state.inflation.display.seriesMode === 'nominal'
@@ -296,8 +298,8 @@ export function AreaChart() {
                       : 'bg-blue-100 text-blue-800 border border-blue-200'
                   }`}
                 >
-                  {state.inflation.display.seriesMode === 'nominal' ? 'Nominal' : 'Real'} (
-                  {((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inf)
+                  {state.inflation.display.seriesMode === 'nominal' ? 'Nominal' : 'Real'} ·{' '}
+                  {((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inf
                 </div>
               </div>
             </div>
@@ -321,8 +323,13 @@ export function AreaChart() {
               </div>
             ))}
           </div>
-          {/* Mobile-only compact legend */}
-          <div className="flex sm:hidden items-center gap-1.5 shrink-0">
+          {/* Mobile-only compact legend — tight cluster of dots with an
+              accessible label attached to each. */}
+          <div
+            className="flex sm:hidden items-center gap-1.5 shrink-0"
+            role="list"
+            aria-label="Chart series legend"
+          >
             {[
               { color: 'bg-emerald-500', title: 'Income' },
               { color: 'bg-red-500', title: 'Expenses' },
@@ -332,16 +339,17 @@ export function AreaChart() {
             ].map(({ color, title }) => (
               <span
                 key={title}
+                role="listitem"
                 title={title}
-                className={`inline-block w-3 h-3 rounded-full ${color}`}
+                className={`inline-block w-2.5 h-2.5 rounded-full ring-1 ring-white shadow-sm ${color}`}
                 aria-label={title}
               ></span>
             ))}
           </div>
         </div>
       </div>
-      <div className="px-2 sm:px-4 py-2 sm:py-3 text-[12px] sm:text-[13px]">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
+      <div className="px-3 sm:px-4 py-3 sm:py-4 text-[12px] sm:text-[13px]">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
           <Kpi
             label="Income"
             value={format(sum(visible.map((p) => p.income)))}
@@ -412,7 +420,7 @@ export function AreaChart() {
           />
         </div>
         <div
-          className="mt-6 rounded-xl border border-slate-200 bg-white relative shadow-sm"
+          className="mt-4 sm:mt-5 rounded-xl border border-slate-200 bg-white relative shadow-sm"
           ref={containerRef}
         >
           <svg
@@ -548,14 +556,14 @@ function Kpi(props: {
 }) {
   return (
     <div
-      className="bg-white rounded-lg border border-slate-200 p-2 sm:p-4 shadow-sm hover:shadow-md transition-all duration-200"
+      className="bg-white rounded-xl border border-slate-200 px-3 py-3 sm:p-4 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
       title={props.title}
     >
-      <div className="text-[9px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 sm:mb-2 truncate">
+      <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 sm:mb-2 truncate">
         {props.label}
       </div>
       <div
-        className={`text-sm sm:text-xl font-bold ${props.color ?? 'text-slate-800'} mb-0.5 sm:mb-1`}
+        className={`text-base sm:text-xl font-bold tabular-nums ${props.color ?? 'text-slate-800'} mb-0.5 sm:mb-1 truncate`}
       >
         {props.value}
       </div>
