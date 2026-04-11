@@ -45,8 +45,16 @@ export function AreaChart() {
   const [milestoneLabel, setMilestoneLabel] = React.useState('');
   const milestoneInputRef = React.useRef<HTMLInputElement | null>(null);
 
-  const height = isMobile ? 250 : 300;
-  const padding = { left: isMobile ? 38 : 48, right: 20, top: 12, bottom: 32 };
+  const height = isMobile ? 260 : 300;
+  // Mobile needs taller bottom padding to fit the larger axis tick labels and
+  // the secondary "Age: …" labels without clipping the SVG viewBox; mobile
+  // also needs slightly more left padding for the y-axis number labels.
+  const padding = {
+    left: isMobile ? 46 : 48,
+    right: 20,
+    top: 12,
+    bottom: isMobile ? 56 : 32,
+  };
   const innerW = width - padding.left - padding.right;
   const innerH = height - padding.top - padding.bottom;
 
@@ -448,8 +456,8 @@ export function AreaChart() {
                   <stop offset="100%" stopColor="#f8fafc" />
                 </linearGradient>
               </defs>
-              <AxisBottom x={x} innerW={innerW} innerH={innerH} />
-              <AxisLeft y={y} innerH={innerH} />
+              <AxisBottom x={x} innerW={innerW} innerH={innerH} isMobile={isMobile} />
+              <AxisLeft y={y} innerH={innerH} isMobile={isMobile} />
               <SeriesAreas x={x} y={y} data={visible} innerH={innerH} />
               <ExtremumMarkers x={x} y={y} data={visible} />
               <Milestones
@@ -527,18 +535,18 @@ export function AreaChart() {
               milestone={state.milestones.find((m) => m.at.monthIndex === hovered)?.label}
             />
           )}
-          <div className="flex items-center justify-between px-4 py-3 border-t bg-gradient-to-r from-slate-50 to-slate-100 text-xs">
+          <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-t bg-gradient-to-r from-slate-50 to-slate-100 text-xs">
             <button
               onClick={() => setZoom(0, totalMonths)}
-              className="px-4 py-2 border border-slate-300 rounded-md hover:bg-white hover:border-slate-400 transition-all text-xs font-semibold text-slate-700"
+              className="shrink-0 whitespace-nowrap px-3 py-2 border border-slate-300 rounded-md hover:bg-white hover:border-slate-400 transition-all text-xs font-semibold text-slate-700"
             >
               Reset Zoom
             </button>
             <div className="text-xs text-slate-600 font-medium hidden sm:block">
               Scroll to zoom • Click to add milestone
             </div>
-            <div className="text-xs text-slate-600 font-medium sm:hidden">
-              Pinch to zoom • Pan to scroll • Tap to add milestone
+            <div className="text-[11px] leading-tight text-slate-600 font-medium sm:hidden text-right min-w-0">
+              Pinch to zoom • Pan • Tap to add milestone
             </div>
           </div>
         </div>
@@ -588,13 +596,28 @@ function getSafetyStatus(netWorth: number | undefined, safetyTarget: number | un
   else return '🚨 Danger zone';
 }
 
-function AxisBottom({ x, innerW, innerH }: { x: LinearScale; innerW: number; innerH: number }) {
-  const ticks = 11;
+function AxisBottom({
+  x,
+  innerW,
+  innerH,
+  isMobile,
+}: {
+  x: LinearScale;
+  innerW: number;
+  innerH: number;
+  isMobile: boolean;
+}) {
+  // Show fewer ticks on mobile so labels never collide.
+  const ticks = isMobile ? 6 : 11;
   const [d0 = 0, d1 = 0] = x.domain();
   const step = (d1 - d0) / (ticks - 1);
   const values = new Array(ticks).fill(0).map((_, i) => Math.round(d0 + i * step));
   const minAge = values.length > 0 ? Math.floor((values[0] ?? 0) / 12) : 0;
   const maxAge = values.length > 0 ? Math.floor((values[values.length - 1] ?? 0) / 12) : 100;
+  const tickFont = isMobile ? 12 : 10;
+  const tickY = isMobile ? 20 : 18;
+  const ageFont = isMobile ? 12 : 11;
+  const ageY = isMobile ? 40 : 35;
 
   return (
     <g transform={`translate(0, ${innerH})`}>
@@ -602,32 +625,35 @@ function AxisBottom({ x, innerW, innerH }: { x: LinearScale; innerW: number; inn
       {values.map((m: number) => (
         <g key={m} transform={`translate(${x(m)}, 0)`}>
           <line y1={0} y2={-innerH} stroke="#f1f5f9" strokeWidth={1} />
-          <text y={18} textAnchor="middle" fontSize={10} fill="#64748b" fontWeight="500">
+          <text y={tickY} textAnchor="middle" fontSize={tickFont} fill="#64748b" fontWeight="500">
             {Math.floor(m / 12)}y
           </text>
         </g>
       ))}
-      <text x={0} y={35} fontSize={11} fill="#475569" fontWeight="600" textAnchor="start">
+      <text x={0} y={ageY} fontSize={ageFont} fill="#475569" fontWeight="600" textAnchor="start">
         Age: {minAge}y
       </text>
-      <text x={innerW} y={35} fontSize={11} fill="#475569" fontWeight="600" textAnchor="end">
+      <text x={innerW} y={ageY} fontSize={ageFont} fill="#475569" fontWeight="600" textAnchor="end">
         Age: {maxAge}y
       </text>
     </g>
   );
 }
 
-function AxisLeft({ y, innerH }: { y: LinearScale; innerH: number }) {
+function AxisLeft({ y, innerH, isMobile }: { y: LinearScale; innerH: number; isMobile: boolean }) {
   const [min = 0, max = 0] = y.domain();
   const range = max - min;
 
+  // Fewer ticks on mobile so larger labels do not collide vertically.
+  const tickCount = isMobile ? 4 : 6;
   const ticks: number[] = [];
   if (range > 0) {
-    const step = range / 6;
-    for (let i = 0; i <= 6; i++) {
+    const step = range / tickCount;
+    for (let i = 0; i <= tickCount; i++) {
       ticks.push(min + step * i);
     }
   }
+  const labelFont = isMobile ? 11 : 9;
 
   return (
     <g>
@@ -639,7 +665,7 @@ function AxisLeft({ y, innerH }: { y: LinearScale; innerH: number }) {
             x={-10}
             y={4}
             textAnchor="end"
-            fontSize={9}
+            fontSize={labelFont}
             fill="#64748b"
             fontFamily="ui-monospace, monospace"
             fontWeight="500"

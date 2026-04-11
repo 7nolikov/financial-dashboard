@@ -90,11 +90,13 @@ export function TopBar({ validation }: TopBarProps) {
           </div>
         </div>
 
-        {/* Mobile: controls row — Birth Date takes 2 cols to fit the locale date
-            format; Mode and Inflation take one column each. bg-white is explicit
-            so iOS Safari does not render date/select inputs as gray (disabled-
-            looking) when the page has a tinted background. */}
-        <div className="mt-3 grid grid-cols-4 gap-2 lg:hidden items-end">
+        {/* Mobile: controls row. Inputs use 16px font to prevent iOS Safari
+            from auto-zooming on focus (see index.css). The 5-column grid gives
+            Birth Date and Mode 2 cols each so 16px text fits without clipping;
+            Inflation only needs to hold a 3-character value. bg-white is
+            explicit so iOS Safari does not render date/select inputs as gray
+            (disabled-looking) when the page has a tinted background. */}
+        <div className="mt-3 grid grid-cols-5 gap-2 lg:hidden items-end">
           <div className="col-span-2">
             <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
               Birth Date
@@ -103,12 +105,12 @@ export function TopBar({ validation }: TopBarProps) {
               type="date"
               value={dobISO}
               onChange={(e) => setDOB(e.target.value)}
-              className="w-full h-11 bg-white border border-slate-300 px-2.5 rounded-lg text-[13px] text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full h-11 bg-white border border-slate-300 px-2 rounded-lg text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
               min="1900-01-01"
               max={new Date().toISOString().slice(0, 10)}
             />
           </div>
-          <div>
+          <div className="col-span-2">
             <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
               Mode
             </label>
@@ -117,7 +119,7 @@ export function TopBar({ validation }: TopBarProps) {
               onChange={(e) =>
                 setInflation({ display: { seriesMode: e.target.value as 'nominal' | 'real' } })
               }
-              className="w-full h-11 bg-white border border-slate-300 px-2 rounded-lg text-[13px] text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full h-11 bg-white border border-slate-300 px-2 rounded-lg text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
               <option value="nominal">Nominal</option>
               <option value="real">Real</option>
@@ -138,7 +140,7 @@ export function TopBar({ validation }: TopBarProps) {
                   singleRate: Math.max(0, Math.min(20, Number(e.target.value))) / 100,
                 })
               }
-              className="w-full h-11 bg-white border border-slate-300 px-2.5 rounded-lg text-[13px] text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full h-11 bg-white border border-slate-300 px-2 rounded-lg text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
         </div>
