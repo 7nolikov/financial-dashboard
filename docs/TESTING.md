@@ -8,6 +8,10 @@
 - TDD: Red → implement → Green → Refactor per user rules.
 
 Commands:
-- `make test` – run unit tests
-- `make e2e` – run Playwright
-- `make dev` – local dev server
+
+- `pnpm test` – run unit tests once
+- `pnpm test:watch` – run unit tests in watch mode
+- `pnpm e2e` – run Playwright
+- `pnpm lint` – lint with ESLint
+- `pnpm typecheck` – run TypeScript type-checker
+- `pnpm dev` – local dev server
