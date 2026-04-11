@@ -45,7 +45,7 @@ export function AreaChart() {
   const [milestoneLabel, setMilestoneLabel] = React.useState('');
   const milestoneInputRef = React.useRef<HTMLInputElement | null>(null);
 
-  const height = isMobile ? 260 : 300;
+  const height = isMobile ? 300 : 340;
   // Mobile needs taller bottom padding to fit the larger axis tick labels and
   // the secondary "Age: …" labels without clipping the SVG viewBox; mobile
   // also needs slightly more left padding for the y-axis number labels.

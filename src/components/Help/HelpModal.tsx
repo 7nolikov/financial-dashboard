@@ -54,7 +54,8 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 <div className="bg-white rounded-xl p-4 shadow-sm border border-emerald-100">
                   <div className="text-emerald-600 font-semibold mb-2">1. Choose Preset</div>
                   <p className="text-sm text-slate-600">
-                    Start with Worker, Investor, Businessman, or Loaner to see realistic scenarios.
+                    Start with Average European or Gig Worker 2026 for a reality check, or choose
+                    Worker, Investor, or Businessman.
                   </p>
                 </div>
                 <div className="bg-white rounded-xl p-4 shadow-sm border border-emerald-100">

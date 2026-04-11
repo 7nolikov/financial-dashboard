@@ -1,10 +1,14 @@
 import React from 'react';
 import { useStore, Income, Expense, Investment, Loan } from '../../state/store';
 
-function uid(prefix: string) { return `${prefix}-${Math.random().toString(36).slice(2, 8)}`; }
+function uid(prefix: string) {
+  return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
+}
 
 export function DataEntryPanel() {
-  const [tab, setTab] = React.useState<'income' | 'expense' | 'investment' | 'loan' | 'retirement'>('income');
+  const [tab, setTab] = React.useState<'income' | 'expense' | 'investment' | 'loan' | 'retirement'>(
+    'income',
+  );
   const loadPreset = useStore((s) => s.loadPreset);
   const clearAllData = useStore((s) => s.clearAllData);
   const [confirmClear, setConfirmClear] = React.useState(false);
@@ -27,7 +31,9 @@ export function DataEntryPanel() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-slate-800">Financial Data Entry</h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">Add and manage your financial information</p>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+              Add and manage your financial information
+            </p>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <label className="text-xs sm:text-sm font-medium text-slate-700">Demo Presets:</label>
@@ -35,7 +41,13 @@ export function DataEntryPanel() {
               <select
                 value={activePreset}
                 onChange={(e) => {
-                  const v = e.target.value as 'worker' | 'investor' | 'businessman' | 'loaner' | 'average';
+                  const v = e.target.value as
+                    | 'worker'
+                    | 'investor'
+                    | 'businessman'
+                    | 'loaner'
+                    | 'gig'
+                    | 'average';
                   setActivePreset(v);
                   loadPreset(v);
                 }}
@@ -45,6 +57,7 @@ export function DataEntryPanel() {
                 <option value="investor">📈 Investor</option>
                 <option value="businessman">💼 Businessman</option>
                 <option value="loaner">🎓 Loaner</option>
+                <option value="gig">🛵 Gig Worker 2026</option>
                 <option value="average">😰 Average European</option>
               </select>
               <button
@@ -54,7 +67,11 @@ export function DataEntryPanel() {
                     ? 'bg-red-600 text-white border-red-600 hover:bg-red-700'
                     : 'border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400'
                 }`}
-                title={confirmClear ? 'Click again to confirm — this cannot be undone' : 'Clear all data and start from scratch'}
+                title={
+                  confirmClear
+                    ? 'Click again to confirm — this cannot be undone'
+                    : 'Clear all data and start from scratch'
+                }
               >
                 {confirmClear ? '⚠️ Confirm Clear?' : 'Clear All'}
               </button>
@@ -66,23 +83,43 @@ export function DataEntryPanel() {
       {/* Tabs */}
       <div className="bg-white border-b border-slate-200">
         <div className="flex flex-wrap gap-1 p-2">
-          <TabButton active={tab === 'income'} onClick={() => setTab('income')} title="Add monthly pay or other income">
+          <TabButton
+            active={tab === 'income'}
+            onClick={() => setTab('income')}
+            title="Add monthly pay or other income"
+          >
             <span className="hidden sm:inline">💰 Income</span>
             <span className="sm:hidden">💰</span>
           </TabButton>
-          <TabButton active={tab === 'expense'} onClick={() => setTab('expense')} title="Add bills and other costs">
+          <TabButton
+            active={tab === 'expense'}
+            onClick={() => setTab('expense')}
+            title="Add bills and other costs"
+          >
             <span className="hidden sm:inline">💸 Expenses</span>
             <span className="sm:hidden">💸</span>
           </TabButton>
-          <TabButton active={tab === 'investment'} onClick={() => setTab('investment')} title="Add investment contributions and rates">
+          <TabButton
+            active={tab === 'investment'}
+            onClick={() => setTab('investment')}
+            title="Add investment contributions and rates"
+          >
             <span className="hidden sm:inline">📈 Investments</span>
             <span className="sm:hidden">📈</span>
           </TabButton>
-          <TabButton active={tab === 'loan'} onClick={() => setTab('loan')} title="Add loans and debt (mortgage, student, car, etc.)">
+          <TabButton
+            active={tab === 'loan'}
+            onClick={() => setTab('loan')}
+            title="Add loans and debt (mortgage, student, car, etc.)"
+          >
             <span className="hidden sm:inline">🏦 Loans</span>
             <span className="sm:hidden">🏦</span>
           </TabButton>
-          <TabButton active={tab === 'retirement'} onClick={() => setTab('retirement')} title="Set retirement age and withdrawal %">
+          <TabButton
+            active={tab === 'retirement'}
+            onClick={() => setTab('retirement')}
+            title="Set retirement age and withdrawal %"
+          >
             <span className="hidden sm:inline">🏖️ Retirement</span>
             <span className="sm:hidden">🏖️</span>
           </TabButton>
@@ -103,7 +140,9 @@ export function DataEntryPanel() {
   );
 }
 
-function TabButton(props: React.PropsWithChildren<{ active: boolean; onClick: () => void; title?: string }>) {
+function TabButton(
+  props: React.PropsWithChildren<{ active: boolean; onClick: () => void; title?: string }>,
+) {
   return (
     <button
       onClick={props.onClick}
@@ -120,14 +159,25 @@ function TabButton(props: React.PropsWithChildren<{ active: boolean; onClick: ()
   );
 }
 
-function FormCard({ icon, title, subtitle, color, children }: React.PropsWithChildren<{ icon: string; title: string; subtitle: string; color: string }>) {
+function FormCard({
+  icon,
+  title,
+  subtitle,
+  color,
+  children,
+}: React.PropsWithChildren<{ icon: string; title: string; subtitle: string; color: string }>) {
   const colorMap: Record<string, string> = {
     blue: 'bg-blue-50 border-blue-200 text-blue-800 text-blue-700',
     red: 'bg-red-50 border-red-200 text-red-800 text-red-700',
     emerald: 'bg-emerald-50 border-emerald-200 text-emerald-800 text-emerald-700',
     violet: 'bg-violet-50 border-violet-200 text-violet-800 text-violet-700',
   };
-  const [bg, border, titleColor, subtitleColor] = colorMap[color]?.split(' ') ?? ['bg-slate-50', 'border-slate-200', 'text-slate-800', 'text-slate-700'];
+  const [bg, border, titleColor, subtitleColor] = colorMap[color]?.split(' ') ?? [
+    'bg-slate-50',
+    'border-slate-200',
+    'text-slate-800',
+    'text-slate-700',
+  ];
   return (
     <div className={`${bg} rounded-xl p-4 border ${border}`}>
       <h3 className={`text-lg font-semibold ${titleColor} mb-1 flex items-center gap-2`}>
@@ -155,8 +205,18 @@ function IncomeTab() {
     setIsAdding(true);
     try {
       const inc: Income = {
-        id: uid('inc'), label, amount,
-        recurrence: { kind: 'recurring', start: { ageYears: startAge, monthIndex: startAge * 12 }, end: endAge === '' ? undefined : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 }, everyMonths: 1 },
+        id: uid('inc'),
+        label,
+        amount,
+        recurrence: {
+          kind: 'recurring',
+          start: { ageYears: startAge, monthIndex: startAge * 12 },
+          end:
+            endAge === ''
+              ? undefined
+              : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 },
+          everyMonths: 1,
+        },
       };
       addIncome(inc);
       setLabel('New Income');
@@ -170,23 +230,56 @@ function IncomeTab() {
 
   return (
     <div className="space-y-6">
-      <FormCard icon="💰" title="Add Income Source" subtitle="Add monthly income sources (salary, freelance, dividends, etc.)" color="blue">
+      <FormCard
+        icon="💰"
+        title="Add Income Source"
+        subtitle="Add monthly income sources (salary, freelance, dividends, etc.)"
+        color="blue"
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Label</label>
-            <input className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="e.g., Salary" value={label} onChange={(e) => setLabel(e.target.value)} />
+            <input
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              placeholder="e.g., Salary"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Monthly Amount (€)</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="3500" min="0" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              placeholder="3500"
+              min="0"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Start Age</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="22" min="0" max="100" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              placeholder="22"
+              min="0"
+              max="100"
+              value={startAge}
+              onChange={(e) => setStartAge(Number(e.target.value))}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">End Age (optional)</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="65" min="0" max="100" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              placeholder="65"
+              min="0"
+              max="100"
+              value={endAge}
+              onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))}
+            />
           </div>
         </div>
         <div className="mt-4 flex justify-end">
@@ -237,8 +330,18 @@ function ExpenseTab() {
     setIsAdding(true);
     try {
       const exp: Expense = {
-        id: uid('exp'), label, amount,
-        recurrence: { kind: 'recurring', start: { ageYears: startAge, monthIndex: startAge * 12 }, end: endAge === '' ? undefined : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 }, everyMonths: 1 },
+        id: uid('exp'),
+        label,
+        amount,
+        recurrence: {
+          kind: 'recurring',
+          start: { ageYears: startAge, monthIndex: startAge * 12 },
+          end:
+            endAge === ''
+              ? undefined
+              : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 },
+          everyMonths: 1,
+        },
       };
       addExpense(exp);
       setLabel('New Expense');
@@ -252,23 +355,56 @@ function ExpenseTab() {
 
   return (
     <div className="space-y-6">
-      <FormCard icon="💸" title="Add Expense" subtitle="Add monthly expenses (rent, utilities, groceries, etc.)" color="red">
+      <FormCard
+        icon="💸"
+        title="Add Expense"
+        subtitle="Add monthly expenses (rent, utilities, groceries, etc.)"
+        color="red"
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Label</label>
-            <input className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" placeholder="e.g., Rent" value={label} onChange={(e) => setLabel(e.target.value)} />
+            <input
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+              placeholder="e.g., Rent"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Monthly Amount (€)</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" placeholder="1200" min="0" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+              placeholder="1200"
+              min="0"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Start Age</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" placeholder="22" min="0" max="100" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+              placeholder="22"
+              min="0"
+              max="100"
+              value={startAge}
+              onChange={(e) => setStartAge(Number(e.target.value))}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">End Age (optional)</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" placeholder="65" min="0" max="100" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+              placeholder="65"
+              min="0"
+              max="100"
+              value={endAge}
+              onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))}
+            />
           </div>
         </div>
         <div className="mt-4 flex justify-end">
@@ -316,12 +452,24 @@ function InvestmentTab() {
   const [isAdding, setIsAdding] = React.useState(false);
 
   const handleAdd = async () => {
-    if (!label.trim() || recurringAmount <= 0 || fixedRate < 0 || startAge < 0 || startAge > 100) return;
+    if (!label.trim() || recurringAmount <= 0 || fixedRate < 0 || startAge < 0 || startAge > 100)
+      return;
     setIsAdding(true);
     try {
       const inv: Investment = {
-        id: uid('inv'), label, principal: 0, recurringAmount,
-        recurrence: { kind: 'recurring', start: { ageYears: startAge, monthIndex: startAge * 12 }, end: endAge === '' ? undefined : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 }, everyMonths: 1 },
+        id: uid('inv'),
+        label,
+        principal: 0,
+        recurringAmount,
+        recurrence: {
+          kind: 'recurring',
+          start: { ageYears: startAge, monthIndex: startAge * 12 },
+          end:
+            endAge === ''
+              ? undefined
+              : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 },
+          everyMonths: 1,
+        },
         model: { type: 'fixed', fixedRate: fixedRate / 100 },
       };
       addInvestment(inv);
@@ -337,27 +485,69 @@ function InvestmentTab() {
 
   return (
     <div className="space-y-6">
-      <FormCard icon="📈" title="Add Investment" subtitle="Add monthly investment contributions (pension fund, ETF, index funds, etc.)" color="emerald">
+      <FormCard
+        icon="📈"
+        title="Add Investment"
+        subtitle="Add monthly investment contributions (pension fund, ETF, index funds, etc.)"
+        color="emerald"
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Label</label>
-            <input className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" placeholder="e.g., ETF" value={label} onChange={(e) => setLabel(e.target.value)} />
+            <input
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              placeholder="e.g., ETF"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Monthly Contribution (€)</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" placeholder="500" min="0" value={recurringAmount} onChange={(e) => setRecurringAmount(Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              placeholder="500"
+              min="0"
+              value={recurringAmount}
+              onChange={(e) => setRecurringAmount(Number(e.target.value))}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Expected APR %</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" step="0.1" min="0" max="50" placeholder="6.5" value={fixedRate} onChange={(e) => setFixedRate(Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              step="0.1"
+              min="0"
+              max="50"
+              placeholder="6.5"
+              value={fixedRate}
+              onChange={(e) => setFixedRate(Number(e.target.value))}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Start Age</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" placeholder="22" min="0" max="100" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              placeholder="22"
+              min="0"
+              max="100"
+              value={startAge}
+              onChange={(e) => setStartAge(Number(e.target.value))}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">End Age</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" placeholder="65" min="0" max="100" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              placeholder="65"
+              min="0"
+              max="100"
+              value={endAge}
+              onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))}
+            />
           </div>
         </div>
         <div className="mt-4 flex justify-end">
@@ -382,7 +572,9 @@ function InvestmentTab() {
           iconBg="bg-emerald-100"
           iconColor="text-emerald-600"
           renderLabel={(i) => i.label}
-          renderDetail={(i) => `€${(i.recurringAmount ?? 0).toLocaleString()}/mo @ ${((i.model.fixedRate ?? 0) * 100).toFixed(1)}% APR`}
+          renderDetail={(i) =>
+            `€${(i.recurringAmount ?? 0).toLocaleString()}/mo @ ${((i.model.fixedRate ?? 0) * 100).toFixed(1)}% APR`
+          }
           onRemove={(i) => removeInvestment(i.id)}
           emptyIcon="📈"
           emptyText="No investments added yet"
@@ -407,17 +599,24 @@ function LoanTab() {
   const [isAdding, setIsAdding] = React.useState(false);
 
   const handleAdd = async () => {
-    if (!label.trim() || principal <= 0 || monthlyPayment <= 0 || startAge < 0 || startAge > 100) return;
+    if (!label.trim() || principal <= 0 || monthlyPayment <= 0 || startAge < 0 || startAge > 100)
+      return;
     setIsAdding(true);
     try {
       const loan: Loan = {
-        id: uid('loan'), label, principal, monthlyPayment,
+        id: uid('loan'),
+        label,
+        principal,
+        monthlyPayment,
         interestRate: interestRate / 100,
         category,
         recurrence: {
           kind: 'recurring',
           start: { ageYears: startAge, monthIndex: startAge * 12 },
-          end: endAge === '' ? undefined : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 },
+          end:
+            endAge === ''
+              ? undefined
+              : { ageYears: Number(endAge), monthIndex: Number(endAge) * 12 },
           everyMonths: 1,
         },
       };
@@ -436,15 +635,29 @@ function LoanTab() {
 
   return (
     <div className="space-y-6">
-      <FormCard icon="🏦" title="Add Loan / Debt" subtitle="Track mortgages, student loans, car loans, credit cards and more" color="violet">
+      <FormCard
+        icon="🏦"
+        title="Add Loan / Debt"
+        subtitle="Track mortgages, student loans, car loans, credit cards and more"
+        color="violet"
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Label</label>
-            <input className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="e.g., Mortgage" value={label} onChange={(e) => setLabel(e.target.value)} />
+            <input
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              placeholder="e.g., Mortgage"
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Category</label>
-            <select className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" value={category} onChange={(e) => setCategory(e.target.value)}>
+            <select
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
               <option value="mortgage">🏠 Mortgage</option>
               <option value="education">🎓 Student Loan</option>
               <option value="car">🚗 Car Loan</option>
@@ -455,28 +668,68 @@ function LoanTab() {
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Principal (€)</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="10000" min="0" value={principal} onChange={(e) => setPrincipal(Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              placeholder="10000"
+              min="0"
+              value={principal}
+              onChange={(e) => setPrincipal(Number(e.target.value))}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Monthly Payment (€)</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="200" min="0" value={monthlyPayment} onChange={(e) => setMonthlyPayment(Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              placeholder="200"
+              min="0"
+              value={monthlyPayment}
+              onChange={(e) => setMonthlyPayment(Number(e.target.value))}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Interest Rate (APR %)</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" step="0.1" min="0" max="50" placeholder="5.0" value={interestRate} onChange={(e) => setInterestRate(Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              step="0.1"
+              min="0"
+              max="50"
+              placeholder="5.0"
+              value={interestRate}
+              onChange={(e) => setInterestRate(Number(e.target.value))}
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Start Age</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="22" min="0" max="100" value={startAge} onChange={(e) => setStartAge(Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              placeholder="22"
+              min="0"
+              max="100"
+              value={startAge}
+              onChange={(e) => setStartAge(Number(e.target.value))}
+            />
           </div>
           <div className="space-y-2 sm:col-span-2 lg:col-span-1">
             <label className="text-sm font-medium text-slate-700">End Age (optional)</label>
-            <input type="number" className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all" placeholder="32" min="0" max="100" value={endAge} onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))} />
+            <input
+              type="number"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              placeholder="32"
+              min="0"
+              max="100"
+              value={endAge}
+              onChange={(e) => setEndAge(e.target.value === '' ? '' : Number(e.target.value))}
+            />
           </div>
         </div>
         <div className="mt-4 p-3 bg-violet-100 rounded-lg border border-violet-200">
           <p className="text-xs text-violet-800 font-medium">
-            💡 Monthly payment is subtracted from cash flow each month the loan is active. The balance curve shows remaining principal.
+            💡 Monthly payment is subtracted from cash flow each month the loan is active. The
+            balance curve shows remaining principal.
           </p>
         </div>
         <div className="mt-4 flex justify-end">
@@ -501,7 +754,9 @@ function LoanTab() {
           iconBg="bg-violet-100"
           iconColor="text-violet-600"
           renderLabel={(l) => l.label}
-          renderDetail={(l) => `€${l.principal.toLocaleString()} @ ${(l.interestRate * 100).toFixed(1)}% APR • €${l.monthlyPayment}/mo`}
+          renderDetail={(l) =>
+            `€${l.principal.toLocaleString()} @ ${(l.interestRate * 100).toFixed(1)}% APR • €${l.monthlyPayment}/mo`
+          }
           onRemove={(l) => removeLoan(l.id)}
           emptyIcon="🏦"
           emptyText="No loans added yet"
@@ -531,7 +786,12 @@ function RetirementTab() {
 
   return (
     <div className="space-y-6">
-      <FormCard icon="🏖️" title="Retirement Settings" subtitle="Configure your target retirement age and annual portfolio withdrawal rate" color="violet">
+      <FormCard
+        icon="🏖️"
+        title="Retirement Settings"
+        subtitle="Configure your target retirement age and annual portfolio withdrawal rate"
+        color="violet"
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Retirement Age</label>
@@ -563,7 +823,8 @@ function RetirementTab() {
         </div>
         <div className="mt-4 p-3 bg-violet-100 rounded-lg border border-violet-200">
           <p className="text-xs text-violet-800 font-medium">
-            💡 Common rates: <strong>3–4%</strong> (conservative, 30+ yr horizon) • <strong>4–5%</strong> (moderate) • <strong>5%+</strong> (aggressive)
+            💡 Common rates: <strong>3–4%</strong> (conservative, 30+ yr horizon) •{' '}
+            <strong>4–5%</strong> (moderate) • <strong>5%+</strong> (aggressive)
           </p>
         </div>
         <div className="mt-4 flex justify-end">
@@ -585,7 +846,9 @@ function RetirementTab() {
             <div className="text-xs text-slate-500">Retirement Age</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-violet-600">{((r?.withdrawalRate ?? 0.04) * 100).toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-violet-600">
+              {((r?.withdrawalRate ?? 0.04) * 100).toFixed(1)}%
+            </div>
             <div className="text-xs text-slate-500">Withdrawal Rate</div>
           </div>
         </div>
@@ -595,7 +858,16 @@ function RetirementTab() {
 }
 
 function ItemList<T extends { id: string }>({
-  items, icon, iconBg, iconColor, renderLabel, renderDetail, onRemove, emptyIcon, emptyText, emptyHint,
+  items,
+  icon,
+  iconBg,
+  iconColor,
+  renderLabel,
+  renderDetail,
+  onRemove,
+  emptyIcon,
+  emptyText,
+  emptyHint,
 }: {
   items: T[];
   icon: string;
@@ -611,7 +883,10 @@ function ItemList<T extends { id: string }>({
   return (
     <div className="space-y-2">
       {items.map((item) => (
-        <div key={item.id} className="flex justify-between items-center p-4 border border-slate-200 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
+        <div
+          key={item.id}
+          className="flex justify-between items-center p-4 border border-slate-200 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
+        >
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 ${iconBg} rounded-full flex items-center justify-center`}>
               <span className={`${iconColor} text-sm`}>{icon}</span>

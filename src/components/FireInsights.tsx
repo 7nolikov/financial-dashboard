@@ -10,7 +10,15 @@ function formatCurrency(n: number): string {
 }
 
 // Lightweight confetti — pure CSS + JS, no extra dependency
-const CONFETTI_COLORS = ['#6366f1', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
+const CONFETTI_COLORS = [
+  '#6366f1',
+  '#8b5cf6',
+  '#3b82f6',
+  '#10b981',
+  '#f59e0b',
+  '#ef4444',
+  '#ec4899',
+];
 
 function Confetti() {
   const particles = React.useMemo(() => {
@@ -32,16 +40,18 @@ function Confetti() {
         <div
           key={p.id}
           className="confetti-particle"
-          style={{
-            left: p.left,
-            width: p.size,
-            height: p.size,
-            backgroundColor: p.color,
-            borderRadius: p.shape,
-            '--duration': p.duration,
-            '--delay': p.delay,
-            '--sway': p.sway,
-          } as React.CSSProperties}
+          style={
+            {
+              left: p.left,
+              width: p.size,
+              height: p.size,
+              backgroundColor: p.color,
+              borderRadius: p.shape,
+              '--duration': p.duration,
+              '--delay': p.delay,
+              '--sway': p.sway,
+            } as React.CSSProperties
+          }
         />
       ))}
     </>
@@ -99,13 +109,14 @@ export function FireInsights() {
 
     let text: string;
     if (isFireAchieved) {
-      text = `I'm already financially independent. FIRE number: ${formatCurrency(fireNumber)}. 100% there.\n\nMapped my entire financial life with this free tool — zero signup, data never leaves my browser. Run your numbers:`;
+      text = `While most Europeans face a €470K retirement gap, I mapped my financial life and hit my FIRE number: ${formatCurrency(fireNumber)}.\n\nIn 2026, knowing your number isn't optional. Free tool, zero signup:`;
     } else if (fireAge != null && yearsToFire != null && yearsToFire > 0) {
       const gapToRetirement = retirementAge - (fireAge ?? retirementAge);
-      const earlyStr = gapToRetirement > 0 ? ` — ${gapToRetirement} years before standard retirement` : '';
-      text = `Just ran the numbers. My FIRE number is ${formatCurrency(fireNumber)} and I'm ${progress.toFixed(0)}% there.\n\nAt my current rate I'll hit financial independence at age ${fireAge}${earlyStr}.\n\nFree tool, zero signup, your data never leaves your browser. Try it:`;
+      const earlyStr =
+        gapToRetirement > 0 ? ` — ${gapToRetirement} years before the system says I can` : '';
+      text = `The average European has a €470K retirement gap. I just ran my numbers.\n\nFIRE number: ${formatCurrency(fireNumber)}. ${progress.toFixed(0)}% there. Independence at age ${fireAge}${earlyStr}.\n\nWhat's YOUR number? Free, private, zero signup:`;
     } else {
-      text = `Hard truth: at my current savings rate I won't reach financial independence by retirement.\n\nI need ${formatCurrency(fireNumber)} and I'm only ${progress.toFixed(0)}% there at age ${currentAge}.\n\nFree tool that maps your entire financial life — zero signup. Check yours:`;
+      text = `Hard truth for 2026: I need ${formatCurrency(fireNumber)} to retire and I'm only ${progress.toFixed(0)}% there at age ${currentAge}.\n\nWith pensions shrinking and costs up 18% since 2020, the gap is real.\n\nFree tool that maps your entire financial life. Face your numbers:`;
     }
 
     const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
@@ -116,7 +127,6 @@ export function FireInsights() {
     <>
       {showConfetti && <Confetti />}
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-
         {/* Compact gradient header — always a single horizontal row */}
         <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-violet-600 px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center gap-3">
@@ -124,7 +134,9 @@ export function FireInsights() {
               <span className="text-lg sm:text-xl">{isFireAchieved ? '🎉' : '🔥'}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-white font-bold text-base sm:text-lg leading-tight">FIRE Insights</h3>
+              <h3 className="text-white font-bold text-base sm:text-lg leading-tight">
+                FIRE Insights
+              </h3>
               <p className="text-blue-100 text-xs truncate">Financial Independence, Retire Early</p>
             </div>
             <button
@@ -142,30 +154,40 @@ export function FireInsights() {
         {/* Key metrics — separated from gradient, always visible */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100">
           <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-around gap-3 sm:gap-6">
-
             <div className="text-center">
-              <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">FIRE Number</div>
-              <div className="text-slate-900 text-xl sm:text-2xl font-black">{formatCurrency(fireNumber)}</div>
+              <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">
+                FIRE Number
+              </div>
+              <div className="text-slate-900 text-xl sm:text-2xl font-black">
+                {formatCurrency(fireNumber)}
+              </div>
               <div className="text-slate-400 text-[10px] sm:text-xs">25× annual expenses</div>
             </div>
 
             {fireAge != null && !isFireAchieved ? (
               <div className="text-center">
-                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">FIRE Date</div>
+                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">
+                  FIRE Date
+                </div>
                 <div className="text-slate-900 text-xl sm:text-2xl font-black">Age {fireAge}</div>
                 <div className="text-slate-400 text-[10px] sm:text-xs">
-                  {fireYear} · {yearsToFire != null && yearsToFire > 0 ? `${yearsToFire}y away` : 'soon!'}
+                  {fireYear} ·{' '}
+                  {yearsToFire != null && yearsToFire > 0 ? `${yearsToFire}y away` : 'soon!'}
                 </div>
               </div>
             ) : isFireAchieved ? (
               <div className="text-center">
-                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">Status</div>
+                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">
+                  Status
+                </div>
                 <div className="text-emerald-600 text-xl sm:text-2xl font-black">FIRE'd! 🎉</div>
                 <div className="text-slate-400 text-[10px] sm:text-xs">Financially independent</div>
               </div>
             ) : (
               <div className="text-center">
-                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">Status</div>
+                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">
+                  Status
+                </div>
                 <div className="text-amber-500 text-xl sm:text-2xl font-black">Not reached</div>
                 <div className="text-slate-400 text-[10px] sm:text-xs">Boost investments</div>
               </div>
@@ -173,8 +195,12 @@ export function FireInsights() {
 
             {isFireBeforeRetirement && fireAge != null && (
               <div className="text-center col-span-2 sm:col-span-1">
-                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">Early Retire</div>
-                <div className="text-emerald-600 text-xl sm:text-2xl font-black">{retirementAge - fireAge}y early</div>
+                <div className="text-slate-500 text-[10px] sm:text-xs font-medium uppercase tracking-wide">
+                  Early Retire
+                </div>
+                <div className="text-emerald-600 text-xl sm:text-2xl font-black">
+                  {retirementAge - fireAge}y early
+                </div>
                 <div className="text-slate-400 text-[10px] sm:text-xs">vs. age {retirementAge}</div>
               </div>
             )}
@@ -184,13 +210,23 @@ export function FireInsights() {
         {/* Progress bar */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 bg-slate-50">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Progress to FIRE</span>
+            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+              Progress to FIRE
+            </span>
             <span className="text-sm font-bold text-indigo-600">{progress.toFixed(1)}%</span>
           </div>
           <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-700 ${
-                progress >= 100 ? 'bg-emerald-500' : progress >= 75 ? 'bg-blue-500' : progress >= 50 ? 'bg-indigo-500' : progress >= 25 ? 'bg-violet-500' : 'bg-slate-400'
+                progress >= 100
+                  ? 'bg-emerald-500'
+                  : progress >= 75
+                    ? 'bg-blue-500'
+                    : progress >= 50
+                      ? 'bg-indigo-500'
+                      : progress >= 25
+                        ? 'bg-violet-500'
+                        : 'bg-slate-400'
               }`}
               style={{ width: `${Math.min(100, progress)}%` }}
             />
@@ -200,7 +236,6 @@ export function FireInsights() {
             <span>Target: {formatCurrency(fireNumber)}</span>
           </div>
         </div>
-
       </div>
     </>
   );

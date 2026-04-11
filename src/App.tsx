@@ -7,12 +7,14 @@ import { ShareModal } from './components/Share/ShareModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { WealthProtectionPanel } from './components/WealthProtection/WealthProtectionPanel';
 import { FireInsights } from './components/FireInsights';
+import { ScoreCard } from './components/ScoreCard';
 import { useStore } from './state/store';
 import { SeriesProvider, useSeries } from './state/SeriesContext';
 import { validateWealthProtection } from './lib/validation/wealth-protection';
 import { loadStateFromURL } from './lib/sharing';
 import { useMemo, useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { RealityCheck } from './components/RealityCheck';
 
 /** Inner shell — has access to SeriesContext. */
 function AppShell() {
@@ -44,6 +46,7 @@ function AppShell() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <RealityCheck />
       <TopBar validation={wealthValidation} />
       <main className="mx-auto max-w-[1600px] px-4 sm:px-5 lg:px-6 xl:px-8 py-4 sm:py-6 safe-x space-y-4 sm:space-y-6 lg:space-y-8">
         {/* =============================================================
@@ -55,7 +58,10 @@ function AppShell() {
             Overview
           </h2>
           <div className="space-y-3 sm:space-y-4">
-            <FireInsights />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+              <FireInsights />
+              <ScoreCard />
+            </div>
             {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
               <WealthProtectionPanel validation={wealthValidation} />
             )}
@@ -168,23 +174,24 @@ function AppShell() {
         </section>
       </main>
 
-      {/* Viral footer CTA */}
-      <footer className="mt-6 sm:mt-8 border-t border-slate-200 bg-white safe-bottom safe-x">
-        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* Viral footer CTA — urgency-driven */}
+      <footer className="mt-6 sm:mt-8 border-t border-slate-200 bg-gradient-to-r from-slate-900 to-indigo-900 text-white safe-bottom safe-x">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
-            <p className="text-sm font-semibold text-slate-700">
-              Know someone who should run their numbers?
+            <p className="text-sm font-bold text-white">
+              Most people won't retire when they think they will.
             </p>
-            <p className="text-xs text-slate-500 mt-0.5">
-              100% free · zero signup · data never leaves the browser
+            <p className="text-xs text-slate-300 mt-0.5">
+              Challenge someone to face their real numbers — 100% free, zero signup, totally
+              private.
             </p>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => useStore.getState().setOpenShare(true)}
-              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-sm font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm min-h-[44px]"
+              className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg text-sm font-bold hover:from-red-600 hover:to-orange-600 transition-all shadow-lg shadow-red-500/25 min-h-[44px]"
             >
-              📤 Challenge a Friend
+              🔥 Challenge a Friend
             </button>
           </div>
         </div>

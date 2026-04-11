@@ -26,13 +26,19 @@ export function ShareModal() {
   const fireProgress = fireNumber > 0 ? Math.min(100, (currentInvestments / fireNumber) * 100) : 0;
   let fireAge: number | null = null;
   for (const point of series) {
-    if (point.invest >= fireNumber && fireNumber > 0) { fireAge = Math.floor(point.m / 12); break; }
+    if (point.invest >= fireNumber && fireNumber > 0) {
+      fireAge = Math.floor(point.m / 12);
+      break;
+    }
   }
   const currentAge = Math.floor(currentAgeMonths / 12);
 
   async function download() {
     const el = document.getElementById('timeline-capture');
-    if (!el) { alert('Chart not found. Please try again.'); return; }
+    if (!el) {
+      alert('Chart not found. Please try again.');
+      return;
+    }
     setLoading(true);
     try {
       const dataUrl = await htmlToImage.toJpeg(el, {
@@ -72,26 +78,37 @@ export function ShareModal() {
 
   function buildViralText(): string {
     const retirementAge = state.retirement?.age ?? 65;
-    const fireStr = fireNumber >= 1_000_000
-      ? `€${(fireNumber / 1_000_000).toFixed(1)}M`
-      : `€${(fireNumber / 1_000).toFixed(0)}K`;
+    const fireStr =
+      fireNumber >= 1_000_000
+        ? `€${(fireNumber / 1_000_000).toFixed(1)}M`
+        : `€${(fireNumber / 1_000).toFixed(0)}K`;
 
     if (fireNumber <= 0) {
-      return `Just mapped my entire financial life — income, investments, debt and retirement in one interactive chart.\n\nFree, zero signup, your data never leaves your browser. Try it yourself:`;
+      return `In 2026, the average European has a €470K retirement gap. I just mapped my entire financial life to see where I stand.\n\nFree tool, zero signup, data never leaves your browser:`;
     }
     if (fireProgress >= 100) {
-      return `I mapped my financial life and I've hit my FIRE number (${fireStr}). Financially independent.\n\nFree tool, zero signup, all data stays private in your browser. Run your own numbers:`;
+      return `While most people won't retire when they think they will, I mapped my financial life and I've already hit my FIRE number (${fireStr}).\n\nIn a world of pension cuts and AI job risk, knowing your number matters. Free tool, zero signup:`;
     }
     if (fireProgress < 10) {
-      return `Hard truth: I need ${fireStr} to be financially independent and I'm only ${fireProgress.toFixed(0)}% there.\n\nJust mapped my retirement trajectory. The gap is very real.\n\nFree tool, no signup, your numbers stay private. Check yours:`;
+      return `Hard truth: I need ${fireStr} to retire and I'm only ${fireProgress.toFixed(0)}% there at age ${currentAge}.\n\nWith pensions shrinking and living costs up 18% since 2020, the gap is brutal. At least now I can see it.\n\nFree tool, no signup, totally private. Face your numbers:`;
     }
     if (fireAge != null) {
       const yearsToFire = fireAge - currentAge;
       const earlyBy = retirementAge - fireAge;
-      const earlyStr = earlyBy > 0 ? ` — ${earlyBy} years before standard retirement` : '';
-      return `Just ran the numbers. My FIRE number is ${fireStr} and I'm ${fireProgress.toFixed(0)}% there.\n\nAt my current rate I'll hit financial independence at age ${fireAge}${earlyStr}.\n\n${yearsToFire > 0 ? `${yearsToFire} years to go. ` : ''}Free tool, zero signup, data never leaves your browser. Run yours:`;
+      const earlyStr = earlyBy > 0 ? ` — ${earlyBy} years before the system says I can` : '';
+      return `The average European has a €470K retirement gap. I just ran my numbers.\n\nFIRE number: ${fireStr}. I'm ${fireProgress.toFixed(0)}% there. Independence at age ${fireAge}${earlyStr}.\n\n${yearsToFire > 0 ? `${yearsToFire} years to go. ` : ''}What's YOUR number? Free, private, zero signup:`;
     }
-    return `Ran my numbers. FIRE number: ${fireStr}. I'm ${fireProgress.toFixed(0)}% there at age ${currentAge}.\n\nNeed to increase savings rate to reach independence before retirement at ${retirementAge}.\n\nFree tool, zero signup, data stays private. Try it:`;
+    return `In 2026, most Europeans won't retire when they think they will. I just faced my numbers.\n\nFIRE number: ${fireStr}. Progress: ${fireProgress.toFixed(0)}% at age ${currentAge}. Not enough.\n\nFree tool that maps your entire financial life. No signup, totally private:`;
+  }
+
+  function redditShare() {
+    const url = buildShareURL(state);
+    const title =
+      fireProgress >= 100
+        ? `I mapped my financial life and I've hit FIRE — here's the free tool I used`
+        : `Just faced my real retirement numbers. The gap is ${fireProgress < 30 ? 'brutal' : 'real'}. Free tool, no signup.`;
+    const redditUrl = `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+    window.open(redditUrl, '_blank', 'noopener,noreferrer');
   }
 
   function tweetShare() {
@@ -118,7 +135,10 @@ export function ShareModal() {
   const shareUrl = buildShareURL(state);
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setOpen(false)}>
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      onClick={() => setOpen(false)}
+    >
       {/* Sheet on mobile (slides from bottom), centered modal on desktop */}
       <div
         className="bg-white w-full sm:rounded-xl sm:shadow-2xl sm:max-w-lg flex flex-col rounded-t-2xl shadow-2xl max-h-[92vh] sm:max-h-[85vh]"
@@ -132,7 +152,9 @@ export function ShareModal() {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 sm:py-4 border-b border-slate-200 shrink-0">
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-800">Share Your Financial Plan</h2>
+            <h2 className="text-base sm:text-lg font-bold text-slate-800">
+              Share Your Financial Plan
+            </h2>
             <p className="text-xs text-slate-500">Zero data leaves your browser</p>
           </div>
           <button
@@ -146,18 +168,21 @@ export function ShareModal() {
 
         {/* Scrollable options */}
         <div className="overflow-y-auto flex-1 px-4 sm:px-5 py-4 space-y-3">
-
           {/* Copy Link */}
           <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
             <div className="flex items-center gap-3">
               <span className="text-2xl shrink-0">🔗</span>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-blue-800 text-sm">Shareable Link</h3>
-                <p className="text-xs text-blue-600 mt-0.5 mb-2 line-clamp-2">Full scenario encoded in URL — anyone with the link sees your exact plan.</p>
+                <p className="text-xs text-blue-600 mt-0.5 mb-2 line-clamp-2">
+                  Full scenario encoded in URL — anyone with the link sees your exact plan.
+                </p>
                 <button
                   onClick={copyLink}
                   className={`w-full sm:w-auto px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                    copied ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'
+                    copied
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
                 >
                   {copied ? '✓ Copied!' : '📋 Copy Link'}
@@ -172,7 +197,9 @@ export function ShareModal() {
               <span className="text-2xl shrink-0">𝕏</span>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-slate-800 text-sm">Post on X (Twitter)</h3>
-                <p className="text-xs text-slate-600 mt-0.5 mb-2">Pre-filled with your real FIRE number — the numbers that get reactions.</p>
+                <p className="text-xs text-slate-600 mt-0.5 mb-2">
+                  Pre-filled with your real FIRE number — the numbers that get reactions.
+                </p>
                 <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={tweetShare}
@@ -190,7 +217,8 @@ export function ShareModal() {
                 {showTweetPreview && (
                   <div className="mt-3 p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">
                     {viralText}
-                    {'\n'}<span className="text-blue-500 break-all">{shareUrl.slice(0, 60)}…</span>
+                    {'\n'}
+                    <span className="text-blue-500 break-all">{shareUrl.slice(0, 60)}…</span>
                   </div>
                 )}
               </div>
@@ -203,12 +231,33 @@ export function ShareModal() {
               <span className="text-2xl shrink-0">💬</span>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-emerald-800 text-sm">Share on WhatsApp</h3>
-                <p className="text-xs text-emerald-700 mt-0.5 mb-2">Challenge a friend or family member to run their numbers too.</p>
+                <p className="text-xs text-emerald-700 mt-0.5 mb-2">
+                  Challenge a friend or family member to run their numbers too.
+                </p>
                 <button
                   onClick={whatsAppShare}
                   className="w-full sm:w-auto px-4 py-2.5 bg-[#25D366] text-white rounded-lg text-sm font-semibold hover:bg-[#1ebe58] transition-all"
                 >
                   Send on WhatsApp
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Reddit */}
+          <div className="p-4 bg-orange-50 rounded-xl border border-orange-200">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl shrink-0">🔶</span>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-orange-800 text-sm">Share on Reddit</h3>
+                <p className="text-xs text-orange-700 mt-0.5 mb-2">
+                  Perfect for r/personalfinance, r/fire, r/europeanfire communities.
+                </p>
+                <button
+                  onClick={redditShare}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-[#FF4500] text-white rounded-lg text-sm font-semibold hover:bg-[#e03d00] transition-all"
+                >
+                  Post on Reddit
                 </button>
               </div>
             </div>
@@ -220,7 +269,9 @@ export function ShareModal() {
               <span className="text-2xl shrink-0">💼</span>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-blue-900 text-sm">Share on LinkedIn</h3>
-                <p className="text-xs text-blue-700 mt-0.5 mb-2">Great for FIRE community discussions and professional networks.</p>
+                <p className="text-xs text-blue-700 mt-0.5 mb-2">
+                  Great for FIRE community discussions and professional networks.
+                </p>
                 <button
                   onClick={linkedInShare}
                   className="w-full sm:w-auto px-4 py-2.5 bg-[#0077B5] text-white rounded-lg text-sm font-semibold hover:bg-[#005885] transition-all"
@@ -237,7 +288,9 @@ export function ShareModal() {
               <span className="text-2xl shrink-0">🖼️</span>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-slate-800 text-sm">Download Image</h3>
-                <p className="text-xs text-slate-600 mt-0.5 mb-2">Export your financial timeline as a high-quality JPEG (2× resolution).</p>
+                <p className="text-xs text-slate-600 mt-0.5 mb-2">
+                  Export your financial timeline as a high-quality JPEG (2× resolution).
+                </p>
                 <button
                   onClick={download}
                   disabled={loading}
