@@ -6,8 +6,7 @@ import { SettingsPanel } from './components/Settings/SettingsPanel';
 import { ShareModal } from './components/Share/ShareModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { WealthProtectionPanel } from './components/WealthProtection/WealthProtectionPanel';
-import { FireInsights } from './components/FireInsights';
-import { ScoreCard } from './components/ScoreCard';
+import { OverviewCard } from './components/OverviewCard';
 import { useStore } from './state/store';
 import { SeriesProvider, useSeries } from './state/SeriesContext';
 import { validateWealthProtection } from './lib/validation/wealth-protection';
@@ -58,10 +57,7 @@ function AppShell() {
             Overview
           </h2>
           <div className="space-y-3 sm:space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-              <FireInsights />
-              <ScoreCard />
-            </div>
+            <OverviewCard />
             {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
               <WealthProtectionPanel validation={wealthValidation} />
             )}

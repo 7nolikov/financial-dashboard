@@ -16,13 +16,11 @@ function format(n: number | undefined) {
 
 function formatCompact(n: number | undefined) {
   if (n == null) return '-';
-  if (Math.abs(n) >= 1000000) {
-    return `${(n / 1000000).toFixed(1)}M`;
-  } else if (Math.abs(n) >= 1000) {
-    return `${(n / 1000).toFixed(0)}K`;
-  } else {
-    return n.toFixed(0);
-  }
+  const sign = n < 0 ? '-' : '';
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000) return `${sign}€${(abs / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `${sign}€${(abs / 1_000).toFixed(0)}K`;
+  return `${sign}€${abs.toFixed(0)}`;
 }
 
 export function AreaChart() {
@@ -31,7 +29,22 @@ export function AreaChart() {
   const addMilestone = useStore((s) => s.addMilestone);
   const series = useSeries(); // shared — no recomputation on zoom
   const visible = series.slice(state.chart.zoom.minMonth, state.chart.zoom.maxMonth);
-  const last = visible.at(-1);
+
+  // Compute FIRE month across the full series (not just visible window).
+  const fireDateMonth = React.useMemo(() => {
+    const dobYear = new Date(state.dobISO).getFullYear();
+    const currentYear = new Date().getFullYear();
+    const currentAgeMonths = Math.max(0, (currentYear - dobYear) * 12);
+    const currentPoint = series[Math.min(currentAgeMonths, series.length - 1)];
+    const annualExpenses = (currentPoint?.expense ?? 0) * 12;
+    const fireNumber = annualExpenses * 25;
+    if (fireNumber <= 0) return null;
+    for (const point of series) {
+      if (point.invest >= fireNumber) return point.m;
+    }
+    return null;
+  }, [series, state.dobISO]);
+  const retirementMonth = (state.retirement?.age ?? 65) * 12;
   const totalMonths = 100 * 12;
   const [hovered, setHovered] = React.useState<number | null>(null);
   const hoveredPoint = hovered != null ? visible.find((p) => p.m === hovered) : undefined;
@@ -250,7 +263,7 @@ export function AreaChart() {
   const yDomain = React.useMemo(() => {
     const vals: number[] = [];
     for (const p of visible) {
-      vals.push(p.income, p.expense, p.invest, p.netWorth, p.safety);
+      vals.push(p.income, p.expense, p.invest, p.loans, p.netWorth, p.safety);
     }
     const min = Math.min(...vals, 0);
     const max = Math.max(...vals, 1);
@@ -316,23 +329,35 @@ export function AreaChart() {
           {/* Legend — compact on mobile, full on desktop */}
           <div className="hidden sm:flex flex-wrap items-center gap-2 text-xs shrink-0">
             {[
-              { color: 'bg-emerald-500', label: 'Income' },
-              { color: 'bg-red-500', label: 'Expenses' },
-              { color: 'bg-blue-500', label: 'Investments' },
-              { color: 'bg-amber-500', label: 'Loans' },
-              { color: 'bg-violet-500', label: 'Net Worth' },
-            ].map(({ color, label }) => (
+              { color: 'bg-emerald-500', label: 'Income', style: 'filled' as const },
+              { color: 'bg-red-500', label: 'Expenses', style: 'filled' as const },
+              { color: 'bg-blue-500', label: 'Investments', style: 'filled' as const },
+              { color: 'bg-amber-600', label: 'Loans', style: 'dashed' as const },
+              { color: 'bg-violet-500', label: 'Net Worth', style: 'filled' as const },
+              { color: 'bg-orange-500', label: 'Safety', style: 'dashed' as const },
+            ].map(({ color, label, style }) => (
               <div
                 key={label}
                 className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm"
               >
-                <span className={`inline-block w-3 h-3 rounded ${color}`}></span>
+                {style === 'dashed' ? (
+                  <span className="inline-flex items-center w-3 h-3">
+                    <span
+                      className={`inline-block w-3 h-[3px] ${color} rounded-full`}
+                      style={{
+                        backgroundImage:
+                          'repeating-linear-gradient(90deg, currentColor 0, currentColor 2px, transparent 2px, transparent 4px)',
+                      }}
+                    />
+                  </span>
+                ) : (
+                  <span className={`inline-block w-3 h-3 rounded ${color}`} />
+                )}
                 <span className="font-semibold text-slate-700">{label}</span>
               </div>
             ))}
           </div>
-          {/* Mobile-only compact legend — tight cluster of dots with an
-              accessible label attached to each. */}
+          {/* Mobile-only compact legend */}
           <div
             className="flex sm:hidden items-center gap-1.5 shrink-0"
             role="list"
@@ -342,8 +367,9 @@ export function AreaChart() {
               { color: 'bg-emerald-500', title: 'Income' },
               { color: 'bg-red-500', title: 'Expenses' },
               { color: 'bg-blue-500', title: 'Investments' },
-              { color: 'bg-amber-500', title: 'Loans' },
+              { color: 'bg-amber-600', title: 'Loans' },
               { color: 'bg-violet-500', title: 'Net Worth' },
+              { color: 'bg-orange-500', title: 'Safety' },
             ].map(({ color, title }) => (
               <span
                 key={title}
@@ -356,79 +382,9 @@ export function AreaChart() {
           </div>
         </div>
       </div>
-      <div className="px-3 sm:px-4 py-3 sm:py-4 text-[12px] sm:text-[13px]">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
-          <Kpi
-            label="Income"
-            value={format(sum(visible.map((p) => p.income)))}
-            color="text-green-600"
-            title={`Sum of income in visible window (${state.inflation.display.seriesMode})`}
-            status={sum(visible.map((p) => p.income)) > 0 ? 'Good cash flow' : 'No income'}
-          />
-          <Kpi
-            label="Expenses"
-            value={format(sum(visible.map((p) => p.expense)))}
-            color="text-red-600"
-            title={`Sum of expenses in visible window (${state.inflation.display.seriesMode})`}
-            status={
-              sum(visible.map((p) => p.expense)) > sum(visible.map((p) => p.income))
-                ? '⚠️ Overspending'
-                : 'Controlled'
-            }
-          />
-          <Kpi
-            label="Investments"
-            value={format(last?.invest)}
-            color="text-blue-600"
-            title="Total investment balance at the latest visible month"
-            status={
-              last?.invest && last.invest > 100000
-                ? 'Strong growth'
-                : last?.invest && last.invest > 50000
-                  ? 'Building wealth'
-                  : 'Early stage'
-            }
-          />
-          <Kpi
-            label="Loans"
-            value={format(last?.loans)}
-            color="text-yellow-600"
-            title="Total loan balance at the latest visible month"
-            status={
-              last?.loans && last.loans > 100000
-                ? 'High debt'
-                : last?.loans && last.loans > 50000
-                  ? 'Moderate debt'
-                  : last?.loans && last.loans > 0
-                    ? 'Low debt'
-                    : 'Debt free'
-            }
-          />
-          <Kpi
-            label="Net Worth"
-            value={format(last?.netWorth)}
-            color="text-violet-600"
-            title="Net worth at the latest visible month"
-            status={
-              last?.netWorth && last.netWorth < 0
-                ? '🚨 Negative'
-                : last?.netWorth && last.netWorth > 500000
-                  ? 'Wealthy'
-                  : last?.netWorth && last.netWorth > 100000
-                    ? 'Comfortable'
-                    : 'Building'
-            }
-          />
-          <Kpi
-            label="Safety Level"
-            value={format(last?.safety)}
-            color="text-orange-600"
-            title="Safety savings target at the latest visible month"
-            status={getSafetyStatus(last?.netWorth, last?.safety)}
-          />
-        </div>
+      <div className="px-3 sm:px-4 py-3 sm:py-4">
         <div
-          className="mt-4 sm:mt-5 rounded-xl border border-slate-200 bg-white relative shadow-sm"
+          className="rounded-xl border border-slate-200 bg-white relative shadow-sm"
           ref={containerRef}
         >
           <svg
@@ -449,16 +405,23 @@ export function AreaChart() {
             }}
           >
             <g transform={`translate(${padding.left},${padding.top})`}>
-              <rect x={0} y={0} width={innerW} height={innerH} fill="url(#bg)" />
+              <rect x={0} y={0} width={innerW} height={innerH} fill="url(#chartBg)" />
               <defs>
-                <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="#ffffff" />
-                  <stop offset="100%" stopColor="#f8fafc" />
+                <linearGradient id="chartBg" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stopColor="#f8faff" />
+                  <stop offset="100%" stopColor="#f1f5f9" />
                 </linearGradient>
               </defs>
               <AxisBottom x={x} innerW={innerW} innerH={innerH} isMobile={isMobile} />
               <AxisLeft y={y} innerH={innerH} isMobile={isMobile} />
-              <SeriesAreas x={x} y={y} data={visible} innerH={innerH} />
+              <SeriesAreas
+                x={x}
+                y={y}
+                data={visible}
+                innerH={innerH}
+                fireDateMonth={fireDateMonth}
+                retirementMonth={retirementMonth}
+              />
               <ExtremumMarkers x={x} y={y} data={visible} />
               <Milestones
                 x={x}
@@ -555,47 +518,6 @@ export function AreaChart() {
   );
 }
 
-function Kpi(props: {
-  label: string;
-  value: string;
-  color?: string;
-  title?: string;
-  status?: string;
-}) {
-  return (
-    <div
-      className="bg-white rounded-xl border border-slate-200 px-3 py-3 sm:p-4 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
-      title={props.title}
-    >
-      <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 sm:mb-2 truncate">
-        {props.label}
-      </div>
-      <div
-        className={`text-base sm:text-xl font-bold tabular-nums ${props.color ?? 'text-slate-800'} mb-0.5 sm:mb-1 truncate`}
-      >
-        {props.value}
-      </div>
-      {props.status && (
-        <div className="text-[9px] sm:text-xs text-slate-500 font-medium truncate hidden sm:block">
-          {props.status}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function sum(arr: number[]): number {
-  return arr.reduce((a, b) => a + b, 0);
-}
-
-function getSafetyStatus(netWorth: number | undefined, safetyTarget: number | undefined): string {
-  if (!netWorth || !safetyTarget) return 'No safety target';
-  const safetyRatio = netWorth / safetyTarget;
-  if (safetyRatio >= 1.0) return '✅ Safe';
-  else if (safetyRatio >= 0.5) return '⚠️ Warning zone';
-  else return '🚨 Danger zone';
-}
-
 function AxisBottom({
   x,
   innerW,
@@ -624,8 +546,15 @@ function AxisBottom({
       <line x1={0} x2={innerW} y1={0} y2={0} stroke="#e2e8f0" strokeWidth={1} />
       {values.map((m: number) => (
         <g key={m} transform={`translate(${x(m)}, 0)`}>
-          <line y1={0} y2={-innerH} stroke="#f1f5f9" strokeWidth={1} />
-          <text y={tickY} textAnchor="middle" fontSize={tickFont} fill="#64748b" fontWeight="500">
+          <line y1={0} y2={-innerH} stroke="#e2e8f0" strokeWidth={1} />
+          <text
+            y={tickY}
+            textAnchor="middle"
+            fontSize={tickFont}
+            fill="#64748b"
+            fontWeight="500"
+            style={{ fontVariantNumeric: 'tabular-nums' }}
+          >
             {Math.floor(m / 12)}y
           </text>
         </g>
@@ -669,6 +598,7 @@ function AxisLeft({ y, innerH, isMobile }: { y: LinearScale; innerH: number; isM
             fill="#64748b"
             fontFamily="ui-monospace, monospace"
             fontWeight="500"
+            style={{ fontVariantNumeric: 'tabular-nums' }}
           >
             {formatCompact(value)}
           </text>
@@ -736,14 +666,14 @@ function ExtremumMarkers({ x, y, data }: { x: LinearScale; y: LinearScale; data:
             />
             <text
               x={xPos}
-              y={ext.type === 'peak' ? yPos - 12 : yPos + 16}
+              y={ext.type === 'peak' ? yPos - 13 : yPos + 18}
               textAnchor="middle"
-              fontSize={ext.type === 'savings-depleted' ? 9 : 8}
+              fontSize={ext.type === 'savings-depleted' ? 10 : 9}
               fill={fillColor}
               fontWeight="bold"
-              fontFamily="ui-monospace, monospace"
+              fontFamily="ui-sans-serif, system-ui, sans-serif"
               stroke="white"
-              strokeWidth={2}
+              strokeWidth={3}
               paintOrder="stroke fill"
             >
               {label}
@@ -787,11 +717,15 @@ function SeriesAreas({
   y,
   data,
   innerH,
+  fireDateMonth,
+  retirementMonth,
 }: {
   x: LinearScale;
   y: LinearScale;
   data: SeriesPoint[];
   innerH: number;
+  fireDateMonth: number | null;
+  retirementMonth: number;
 }) {
   const toX = (p: { m: number }) => x(p.m);
 
@@ -806,31 +740,69 @@ function SeriesAreas({
     [data],
   );
 
+  // Visibility checks for vertical markers
+  const [domMin = 0, domMax = 0] = x.domain();
+  const fireVisible = fireDateMonth != null && fireDateMonth >= domMin && fireDateMonth <= domMax;
+  const fireX = fireDateMonth != null ? x(fireDateMonth) : null;
+  const retireVisible = retirementMonth >= domMin && retirementMonth <= domMax;
+  const retireX = x(retirementMonth);
+  const retireAge = Math.floor(retirementMonth / 12);
+
   return (
     <g>
+      <defs>
+        <linearGradient id="income-fill" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#22c55e" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#22c55e" stopOpacity="0.05" />
+        </linearGradient>
+        <linearGradient id="expense-fill" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#ef4444" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#ef4444" stopOpacity="0.05" />
+        </linearGradient>
+        <linearGradient id="invest-fill" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.40" />
+          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.05" />
+        </linearGradient>
+      </defs>
+
+      {/* Areas — render order: largest first so smaller series stay visible on top */}
+      <Area
+        data={data}
+        x={toX}
+        y={y}
+        get={(p: { invest: number }) => p.invest}
+        color="url(#invest-fill)"
+        stroke="#2563eb"
+        strokeWidth={1.5}
+      />
       <Area
         data={data}
         x={toX}
         y={y}
         get={(p: { income: number }) => p.income}
-        color="#22c55e33"
+        color="url(#income-fill)"
         stroke="#16a34a"
+        strokeWidth={1.5}
       />
       <Area
         data={data}
         x={toX}
         y={y}
         get={(p: { expense: number }) => p.expense}
-        color="#ef444433"
+        color="url(#expense-fill)"
         stroke="#dc2626"
+        strokeWidth={1.5}
       />
-      <Area
+
+      {/* Lines */}
+      <Line
         data={data}
         x={toX}
         y={y}
-        get={(p: { invest: number }) => p.invest}
-        color="#3b82f633"
-        stroke="#2563eb"
+        get={(p: { loans: number }) => p.loans}
+        stroke="#d97706"
+        dash="4 3"
+        strokeWidth={1.5}
       />
       <Line
         data={data}
@@ -838,6 +810,7 @@ function SeriesAreas({
         y={y}
         get={(p: { netWorth: number }) => p.netWorth}
         stroke="#7c3aed"
+        strokeWidth={2.5}
       />
       <Line
         data={data}
@@ -845,10 +818,11 @@ function SeriesAreas({
         y={y}
         get={(p: { safety: number }) => p.safety}
         stroke="#f97316"
-        dash="4 4"
+        dash="2 2"
+        strokeWidth={1.5}
       />
 
-      {/* Danger zones — one rect per contiguous range, not per data point */}
+      {/* Danger zones — one rect per contiguous range */}
       {dangerRanges.map((r) => (
         <rect
           key={`danger-${r.start}`}
@@ -856,7 +830,7 @@ function SeriesAreas({
           y={0}
           width={Math.max(1, x(r.end) - x(r.start))}
           height={innerH}
-          fill="rgba(239,68,68,0.06)"
+          fill="rgba(239,68,68,0.10)"
           className="pointer-events-none"
         />
       ))}
@@ -869,10 +843,74 @@ function SeriesAreas({
           y={0}
           width={Math.max(1, x(r.end) - x(r.start))}
           height={innerH}
-          fill="rgba(245,158,11,0.06)"
+          fill="rgba(245,158,11,0.10)"
           className="pointer-events-none"
         />
       ))}
+
+      {/* Retirement age line */}
+      {retireVisible && (
+        <g className="pointer-events-none">
+          <line
+            x1={retireX}
+            x2={retireX}
+            y1={0}
+            y2={innerH}
+            stroke="#64748b"
+            strokeWidth={1.5}
+            strokeDasharray="8 4"
+            opacity={0.7}
+          />
+          <rect
+            x={retireX - 30}
+            y={innerH - 22}
+            width={60}
+            height={18}
+            rx={4}
+            fill="#475569"
+            opacity={0.85}
+          />
+          <text
+            x={retireX}
+            y={innerH - 10}
+            textAnchor="middle"
+            fontSize={10}
+            fill="white"
+            fontWeight="bold"
+            fontFamily="ui-sans-serif, system-ui, sans-serif"
+          >
+            Retire {retireAge}
+          </text>
+        </g>
+      )}
+
+      {/* FIRE date line */}
+      {fireVisible && fireX != null && (
+        <g className="pointer-events-none">
+          <line
+            x1={fireX}
+            x2={fireX}
+            y1={0}
+            y2={innerH}
+            stroke="#f59e0b"
+            strokeWidth={2}
+            strokeDasharray="6 3"
+            opacity={0.9}
+          />
+          <rect x={fireX - 28} y={4} width={56} height={20} rx={5} fill="#f59e0b" opacity={0.9} />
+          <text
+            x={fireX}
+            y={17}
+            textAnchor="middle"
+            fontSize={11}
+            fill="white"
+            fontWeight="bold"
+            fontFamily="ui-sans-serif, system-ui, sans-serif"
+          >
+            FIRE
+          </text>
+        </g>
+      )}
     </g>
   );
 }
@@ -884,6 +922,7 @@ function Area({
   get,
   color,
   stroke,
+  strokeWidth = 1.5,
 }: {
   data: SeriesPoint[];
   x: (p: SeriesPoint) => number;
@@ -891,6 +930,7 @@ function Area({
   get: (p: SeriesPoint) => number;
   color: string;
   stroke: string;
+  strokeWidth?: number;
 }) {
   const path = data.map((p) => ({ x: x(p), y: y(get(p)) }));
   return (
@@ -902,6 +942,7 @@ function Area({
         yScale={y}
         fill={color}
         stroke={stroke}
+        strokeWidth={strokeWidth}
         curve={curveMonotoneX}
       />
     </g>
@@ -915,6 +956,7 @@ function Line({
   get,
   stroke,
   dash,
+  strokeWidth = 1.5,
 }: {
   data: SeriesPoint[];
   x: (p: SeriesPoint) => number;
@@ -922,6 +964,7 @@ function Line({
   get: (p: SeriesPoint) => number;
   stroke: string;
   dash?: string;
+  strokeWidth?: number;
 }) {
   const path = data.map((p) => ({ x: x(p), y: y(get(p)) }));
   return (
@@ -930,6 +973,7 @@ function Line({
       x={(d: { x: number; y: number }) => d.x}
       y={(d: { x: number; y: number }) => d.y}
       stroke={stroke}
+      strokeWidth={strokeWidth}
       strokeDasharray={dash}
       curve={curveMonotoneX}
     />
@@ -958,8 +1002,8 @@ function Milestones({
 
   visibleMilestones.forEach((m) => {
     const xPos = x(m.at.monthIndex);
-    const text = `📍 ${m.label}`;
-    const estimatedWidth = text.length * 6;
+    const text = m.label;
+    const estimatedWidth = text.length * 7 + 16;
     labelPositions.push({ milestone: m, x: xPos, y: innerH - 8, width: estimatedWidth });
   });
 
@@ -993,30 +1037,50 @@ function Milestones({
 
   return (
     <g>
-      {resolvedPositions.map((pos) => (
-        <g key={pos.milestone.id}>
-          <line
-            x1={pos.x}
-            x2={pos.x}
-            y1={0}
-            y2={innerH}
-            stroke="#94a3b8"
-            strokeDasharray="2 2"
-            strokeWidth={1}
-          />
-          <text
-            x={pos.x}
-            y={pos.y}
-            textAnchor="middle"
-            fontSize="9"
-            fill="#64748b"
-            className="pointer-events-none"
-            style={{ fontFamily: 'ui-sans-serif, system-ui, sans-serif' }}
-          >
-            📍 {pos.milestone.label}
-          </text>
-        </g>
-      ))}
+      {resolvedPositions.map((pos) => {
+        const textWidth = pos.milestone.label.length * 6.5 + 12;
+        return (
+          <g key={pos.milestone.id} className="pointer-events-none">
+            <line
+              x1={pos.x}
+              x2={pos.x}
+              y1={0}
+              y2={innerH}
+              stroke="#94a3b8"
+              strokeDasharray="3 3"
+              strokeWidth={1}
+            />
+            <circle
+              cx={pos.x}
+              cy={pos.y + 4}
+              r={3}
+              fill="#6366f1"
+              stroke="white"
+              strokeWidth={1.5}
+            />
+            <rect
+              x={pos.x - textWidth / 2}
+              y={pos.y - 14}
+              width={textWidth}
+              height={16}
+              rx={4}
+              fill="#6366f1"
+              opacity={0.9}
+            />
+            <text
+              x={pos.x}
+              y={pos.y - 3}
+              textAnchor="middle"
+              fontSize="10"
+              fill="white"
+              fontWeight="600"
+              fontFamily="ui-sans-serif, system-ui, sans-serif"
+            >
+              {pos.milestone.label}
+            </text>
+          </g>
+        );
+      })}
     </g>
   );
 }
@@ -1066,7 +1130,7 @@ function HoverTooltip({
         <span className={`text-right ${(cashFlow ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
           {format(cashFlow)}
         </span>
-        <span className="text-yellow-600 font-medium">Loans</span>
+        <span className="text-amber-600 font-medium">Loans</span>
         <span className="text-right">{format(loans)}</span>
         <span className="text-blue-600 font-medium">Investments</span>
         <span className="text-right">{format(invest)}</span>

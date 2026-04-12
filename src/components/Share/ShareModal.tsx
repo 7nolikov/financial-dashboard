@@ -15,7 +15,7 @@ export function ShareModal() {
 
   if (!open) return null;
 
-  // Use same series-based FIRE calculation as FireInsights for consistency.
+  // FIRE calculation for viral share copy.
   const dobYear = new Date(state.dobISO).getFullYear();
   const currentYear = new Date().getFullYear();
   const currentAgeMonths = Math.max(0, (currentYear - dobYear) * 12);
