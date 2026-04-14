@@ -85,7 +85,6 @@ export type Store = CoreState & {
   addExpense: (e: Expense) => void;
   addInvestment: (inv: Investment) => void;
   addLoan: (loan: Loan) => void;
-  addMilestone: (m: Milestone) => void;
   removeIncome: (id: string) => void;
   removeExpense: (id: string) => void;
   removeInvestment: (id: string) => void;
@@ -277,15 +276,7 @@ const presets = {
       },
     ],
     retirement: { age: 65, withdrawalRate: 0.04 }, // 4% annual withdrawal rate
-    milestones: [
-      { id: 'ms-grad', at: { ageYears: 22, monthIndex: 22 * 12 }, label: 'First Job' },
-      { id: 'ms-promotion', at: { ageYears: 28, monthIndex: 28 * 12 }, label: 'First Promotion' },
-      { id: 'ms-house', at: { ageYears: 32, monthIndex: 32 * 12 }, label: 'Buy Apartment' },
-      { id: 'ms-kids', at: { ageYears: 30, monthIndex: 30 * 12 }, label: 'Start Family' },
-      { id: 'ms-senior', at: { ageYears: 35, monthIndex: 35 * 12 }, label: 'Senior Role' },
-      { id: 'ms-manager', at: { ageYears: 50, monthIndex: 50 * 12 }, label: 'Management Role' },
-      { id: 'ms-retire', at: { ageYears: 65, monthIndex: 65 * 12 }, label: 'Retirement' },
-    ],
+    milestones: [],
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
@@ -436,12 +427,7 @@ const presets = {
       },
     ],
     retirement: { age: 55, withdrawalRate: 0.04 }, // Early retirement at 55 with 4% withdrawal
-    milestones: [
-      { id: 'ms-grad', at: { ageYears: 24, monthIndex: 24 * 12 }, label: 'Tech Career Start' },
-      { id: 'ms-house', at: { ageYears: 28, monthIndex: 28 * 12 }, label: 'First Home' },
-      { id: 'ms-invest', at: { ageYears: 32, monthIndex: 32 * 12 }, label: 'Major Investment' },
-      { id: 'ms-retire', at: { ageYears: 55, monthIndex: 55 * 12 }, label: 'Early Retirement' },
-    ],
+    milestones: [],
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
@@ -567,16 +553,7 @@ const presets = {
       },
     ],
     retirement: { age: 60, withdrawalRate: 0.04 }, // 4% annual withdrawal rate
-    milestones: [
-      { id: 'ms-startup', at: { ageYears: 30, monthIndex: 30 * 12 }, label: 'Business Launch' },
-      {
-        id: 'ms-expansion',
-        at: { ageYears: 40, monthIndex: 40 * 12 },
-        label: 'Business Expansion',
-      },
-      { id: 'ms-success', at: { ageYears: 50, monthIndex: 50 * 12 }, label: 'Business Success' },
-      { id: 'ms-retire', at: { ageYears: 60, monthIndex: 60 * 12 }, label: 'Retirement' },
-    ],
+    milestones: [],
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
@@ -715,13 +692,7 @@ const presets = {
       },
     ],
     retirement: { age: 67, withdrawalRate: 0.04 },
-    milestones: [
-      { id: 'ms-grad', at: { ageYears: 22, monthIndex: 22 * 12 }, label: 'Graduation' },
-      { id: 'ms-job', at: { ageYears: 25, monthIndex: 25 * 12 }, label: 'First Job' },
-      { id: 'ms-debt-free', at: { ageYears: 30, monthIndex: 30 * 12 }, label: 'Debt Free' },
-      { id: 'ms-house', at: { ageYears: 40, monthIndex: 40 * 12 }, label: 'Buy Apartment' },
-      { id: 'ms-retire', at: { ageYears: 67, monthIndex: 67 * 12 }, label: 'Retirement' },
-    ],
+    milestones: [],
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
@@ -901,16 +872,7 @@ const presets = {
       },
     ],
     retirement: { age: 67, withdrawalRate: 0.04 },
-    milestones: [
-      { id: 'ms-gig', at: { ageYears: 20, monthIndex: 20 * 12 }, label: 'Started Gig Work' },
-      { id: 'ms-reality', at: { ageYears: 29, monthIndex: 29 * 12 }, label: 'Reality Check' },
-      {
-        id: 'ms-pivot',
-        at: { ageYears: 35, monthIndex: 35 * 12 },
-        label: 'Switched to Employment',
-      },
-      { id: 'ms-retire', at: { ageYears: 67, monthIndex: 67 * 12 }, label: 'Retirement (?)' },
-    ],
+    milestones: [],
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
@@ -1065,10 +1027,7 @@ const presets = {
       },
     ],
     retirement: { age: 67, withdrawalRate: 0.04 },
-    milestones: [
-      { id: 'ms-job', at: { ageYears: 22, monthIndex: 22 * 12 }, label: 'Started Working' },
-      { id: 'ms-retire', at: { ageYears: 67, monthIndex: 67 * 12 }, label: 'Retirement' },
-    ],
+    milestones: [],
     inflation: {
       mode: 'single',
       baseYear: new Date().getFullYear(),
@@ -1097,7 +1056,6 @@ export const useStore = create<Store>()(
       addExpense: (e) => set({ expenses: [...get().expenses, e] }),
       addInvestment: (inv) => set({ investments: [...get().investments, inv] }),
       addLoan: (loan) => set({ loans: [...get().loans, loan] }),
-      addMilestone: (m: Milestone) => set({ milestones: [...get().milestones, m] }),
       removeIncome: (id) => set({ incomes: get().incomes.filter((i) => i.id !== id) }),
       removeExpense: (id) => set({ expenses: get().expenses.filter((e) => e.id !== id) }),
       removeInvestment: (id) => set({ investments: get().investments.filter((i) => i.id !== id) }),

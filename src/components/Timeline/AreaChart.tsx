@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../../state/store';
-import type { Milestone } from '../../state/store';
+import type { Income, Expense, Investment, Loan } from '../../state/store';
 import { useSeries } from '../../state/SeriesContext';
 import type { SeriesPoint } from '../../state/selectors';
 import { scaleLinear } from '@visx/scale';
@@ -8,6 +8,88 @@ import { AreaClosed, LinePath } from '@visx/shape';
 import { curveMonotoneX } from '@visx/curve';
 
 type LinearScale = ReturnType<typeof scaleLinear<number>>;
+type DerivedMilestone = { id: string; monthIndex: number; label: string };
+
+function deriveMilestones(
+  incomes: Income[],
+  expenses: Expense[],
+  investments: Investment[],
+  loans: Loan[],
+): DerivedMilestone[] {
+  const ms: DerivedMilestone[] = [];
+
+  for (const inc of incomes) {
+    if (inc.recurrence.kind === 'recurring') {
+      ms.push({
+        id: `inc-${inc.id}`,
+        monthIndex: inc.recurrence.start.monthIndex,
+        label: inc.label,
+      });
+      if (inc.recurrence.end) {
+        ms.push({
+          id: `inc-end-${inc.id}`,
+          monthIndex: inc.recurrence.end.monthIndex,
+          label: `${inc.label} ends`,
+        });
+      }
+    }
+  }
+
+  for (const exp of expenses) {
+    if (exp.recurrence.kind === 'recurring' && exp.recurrence.start.monthIndex > 0) {
+      ms.push({
+        id: `exp-${exp.id}`,
+        monthIndex: exp.recurrence.start.monthIndex,
+        label: exp.label,
+      });
+    }
+  }
+
+  for (const inv of investments) {
+    const start =
+      inv.recurrence.kind === 'recurring'
+        ? inv.recurrence.start.monthIndex
+        : inv.recurrence.kind === 'one_time'
+          ? inv.recurrence.at.monthIndex
+          : null;
+    if (start != null) {
+      ms.push({ id: `inv-${inv.id}`, monthIndex: start, label: inv.label });
+    }
+  }
+
+  for (const loan of loans) {
+    if (loan.recurrence.kind === 'recurring') {
+      ms.push({
+        id: `loan-${loan.id}`,
+        monthIndex: loan.recurrence.start.monthIndex,
+        label: loan.label,
+      });
+      if (loan.recurrence.end) {
+        ms.push({
+          id: `loan-end-${loan.id}`,
+          monthIndex: loan.recurrence.end.monthIndex,
+          label: `${loan.label} paid off`,
+        });
+      }
+    }
+  }
+
+  ms.sort((a, b) => a.monthIndex - b.monthIndex);
+
+  // Deduplicate milestones at the same month — merge labels
+  const deduped: DerivedMilestone[] = [];
+  for (const m of ms) {
+    const prev = deduped[deduped.length - 1];
+    if (prev && Math.abs(prev.monthIndex - m.monthIndex) < 6) {
+      prev.label = `${prev.label}, ${m.label}`;
+      prev.id = `${prev.id}+${m.id}`;
+    } else {
+      deduped.push({ ...m });
+    }
+  }
+
+  return deduped;
+}
 
 function format(n: number | undefined) {
   if (n == null) return '-';
@@ -26,9 +108,13 @@ function formatCompact(n: number | undefined) {
 export function AreaChart() {
   const state = useStore();
   const setZoom = useStore((s) => s.setZoom);
-  const addMilestone = useStore((s) => s.addMilestone);
-  const series = useSeries(); // shared — no recomputation on zoom
+  const series = useSeries();
   const visible = series.slice(state.chart.zoom.minMonth, state.chart.zoom.maxMonth);
+
+  const milestones = React.useMemo(
+    () => deriveMilestones(state.incomes, state.expenses, state.investments, state.loans),
+    [state.incomes, state.expenses, state.investments, state.loans],
+  );
 
   // Compute FIRE month across the full series (not just visible window).
   const fireDateMonth = React.useMemo(() => {
@@ -51,12 +137,6 @@ export function AreaChart() {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = React.useState<number>(1000);
   const [isMobile, setIsMobile] = React.useState<boolean>(false);
-  const [pendingMilestone, setPendingMilestone] = React.useState<{
-    month: number;
-    x: number;
-  } | null>(null);
-  const [milestoneLabel, setMilestoneLabel] = React.useState('');
-  const milestoneInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const height = isMobile ? 300 : 340;
   // Mobile needs taller bottom padding to fit the larger axis tick labels and
@@ -213,25 +293,7 @@ export function AreaChart() {
         setZoom(Math.max(0, newMin), Math.min(total, newMax));
       }
     };
-    const touchEndHandler = (e: TouchEvent) => {
-      // Detect tap (short drag < 10px) to open milestone dialog on mobile.
-      if (e.changedTouches.length === 1 && touchRef.current?.type === 'pan') {
-        const t = e.changedTouches[0]!;
-        const dx = Math.abs(t.clientX - touchRef.current.startX);
-        if (dx < 10) {
-          const rect = el.getBoundingClientRect();
-          const { zoom, innerW: iW, padding: p } = stateRef.current;
-          const tapX = t.clientX - rect.left - p.left;
-          const xScale = scaleLinear<number>({
-            domain: [zoom.minMonth, zoom.maxMonth],
-            range: [0, iW],
-          });
-          const month = Math.round(xScale.invert(Math.max(0, Math.min(iW, tapX))));
-          const clickX = t.clientX - rect.left;
-          setPendingMilestone({ month, x: clickX });
-          setMilestoneLabel('');
-        }
-      }
+    const touchEndHandler = () => {
       touchRef.current = null;
     };
     el.addEventListener('touchstart', touchStartHandler, { passive: false });
@@ -250,12 +312,6 @@ export function AreaChart() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  React.useEffect(() => {
-    if (pendingMilestone && milestoneInputRef.current) {
-      milestoneInputRef.current.focus();
-    }
-  }, [pendingMilestone]);
-
   const x = scaleLinear<number>({
     domain: [state.chart.zoom.minMonth, state.chart.zoom.maxMonth],
     range: [0, innerW],
@@ -270,30 +326,6 @@ export function AreaChart() {
     return [min, max] as [number, number];
   }, [visible]);
   const y = scaleLinear<number>({ domain: yDomain, range: [innerH, 0] });
-
-  function onClick(e: React.MouseEvent) {
-    if (pendingMilestone) return;
-    const mouseX = (e.nativeEvent as MouseEvent).offsetX - padding.left;
-    const month = Math.round(x.invert(Math.max(0, Math.min(innerW, mouseX))));
-    const svgRect = containerRef.current?.getBoundingClientRect();
-    const clickX = e.clientX - (svgRect?.left ?? 0);
-    setPendingMilestone({ month, x: clickX });
-    setMilestoneLabel('');
-  }
-
-  function confirmMilestone() {
-    if (!pendingMilestone || !milestoneLabel.trim()) {
-      setPendingMilestone(null);
-      return;
-    }
-    addMilestone({
-      id: `ms-${Date.now()}`,
-      at: { ageYears: Math.floor(pendingMilestone.month / 12), monthIndex: pendingMilestone.month },
-      label: milestoneLabel.trim(),
-    });
-    setPendingMilestone(null);
-    setMilestoneLabel('');
-  }
 
   return (
     <div className="h-full flex flex-col">
@@ -394,7 +426,6 @@ export function AreaChart() {
             height={height}
             viewBox={`0 0 ${width} ${height}`}
             style={{ touchAction: 'none' }}
-            onClick={onClick}
             onMouseMove={(e) => {
               const mx = (e.nativeEvent as MouseEvent).offsetX - padding.left;
               const m = Math.round(x.invert(Math.max(0, Math.min(innerW, mx))));
@@ -427,7 +458,7 @@ export function AreaChart() {
                 x={x}
                 innerH={innerH}
                 zoom={[state.chart.zoom.minMonth, state.chart.zoom.maxMonth]}
-                milestones={state.milestones}
+                milestones={milestones}
               />
               {hovered != null && (
                 <line
@@ -442,46 +473,6 @@ export function AreaChart() {
             </g>
           </svg>
 
-          {/* Inline milestone input */}
-          {pendingMilestone && (
-            <div
-              className="absolute top-2 z-20 bg-white border border-blue-300 rounded-xl shadow-xl p-3 flex flex-col gap-2 w-[220px]"
-              style={{ left: Math.max(8, Math.min(pendingMilestone.x, width - 228)) }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="text-xs font-semibold text-slate-700">
-                📍 Add milestone at age {Math.floor(pendingMilestone.month / 12)}
-              </div>
-              <input
-                ref={milestoneInputRef}
-                className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none min-h-[44px]"
-                placeholder="e.g. Buy a house"
-                value={milestoneLabel}
-                onChange={(e) => setMilestoneLabel(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') confirmMilestone();
-                  if (e.key === 'Escape') setPendingMilestone(null);
-                }}
-                maxLength={40}
-              />
-              <div className="flex gap-2 justify-end">
-                <button
-                  className="px-3 py-2 text-xs border border-slate-300 rounded-lg hover:bg-slate-50 font-medium min-h-[44px]"
-                  onClick={() => setPendingMilestone(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-3 py-2 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 min-h-[44px]"
-                  disabled={!milestoneLabel.trim()}
-                  onClick={confirmMilestone}
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          )}
-
           {hovered != null && (
             <HoverTooltip
               x={padding.left + x(hovered)}
@@ -495,7 +486,7 @@ export function AreaChart() {
               netWorth={hoveredPoint?.netWorth}
               safety={hoveredPoint?.safety}
               cashFlow={hoveredPoint?.cashFlow}
-              milestone={state.milestones.find((m) => m.at.monthIndex === hovered)?.label}
+              milestone={milestones.find((m) => m.monthIndex === hovered)?.label}
             />
           )}
           <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-t bg-gradient-to-r from-slate-50 to-slate-100 text-xs">
@@ -506,10 +497,10 @@ export function AreaChart() {
               Reset Zoom
             </button>
             <div className="text-xs text-slate-600 font-medium hidden sm:block">
-              Scroll to zoom • Click to add milestone
+              Scroll to zoom • Hover to inspect
             </div>
             <div className="text-[11px] leading-tight text-slate-600 font-medium sm:hidden text-right min-w-0">
-              Pinch to zoom • Pan • Tap to add milestone
+              Pinch to zoom • Pan to explore
             </div>
           </div>
         </div>
@@ -989,58 +980,68 @@ function Milestones({
   x: LinearScale;
   innerH: number;
   zoom: [number, number];
-  milestones: Milestone[];
+  milestones: DerivedMilestone[];
 }) {
   const [min, max] = zoom;
-  const visibleMilestones = milestones.filter(
-    (m) => m.at.monthIndex >= min && m.at.monthIndex <= max,
-  );
+  const visible = milestones.filter((m) => m.monthIndex >= min && m.monthIndex <= max);
+
+  // Truncate long labels in SVG — keep first 20 chars
+  const maxLabelLen = 20;
 
   const labelHeight = 20;
   const labelSpacing = 5;
-  const labelPositions: Array<{ milestone: Milestone; x: number; y: number; width: number }> = [];
+  const labelPositions: Array<{
+    ms: DerivedMilestone;
+    x: number;
+    y: number;
+    width: number;
+    text: string;
+  }> = [];
 
-  visibleMilestones.forEach((m) => {
-    const xPos = x(m.at.monthIndex);
-    const text = m.label;
-    const estimatedWidth = text.length * 7 + 16;
-    labelPositions.push({ milestone: m, x: xPos, y: innerH - 8, width: estimatedWidth });
+  visible.forEach((m) => {
+    const xPos = x(m.monthIndex);
+    const text = m.label.length > maxLabelLen ? m.label.slice(0, maxLabelLen) + '…' : m.label;
+    const estimatedWidth = text.length * 6.5 + 16;
+    labelPositions.push({ ms: m, x: xPos, y: innerH - 8, width: estimatedWidth, text });
   });
 
-  const resolvedPositions: Array<{ milestone: Milestone; x: number; y: number }> = [];
-  const occupiedRanges: Array<{ x: number; width: number; bottomY: number }> = [];
+  const resolved: Array<{ ms: DerivedMilestone; x: number; y: number; text: string }> = [];
+  const occupied: Array<{ x: number; width: number; bottomY: number }> = [];
 
   labelPositions.forEach((label) => {
     let finalY = label.y;
+    // Push upward (negative direction) to stay inside chart
     let hasOverlap = true;
     let attempts = 0;
-    while (hasOverlap && attempts < 10) {
+    while (hasOverlap && attempts < 5) {
       hasOverlap = false;
-      for (const occupied of occupiedRanges) {
+      for (const occ of occupied) {
         const labelLeft = label.x - label.width / 2;
         const labelRight = label.x + label.width / 2;
-        const occupiedLeft = occupied.x - occupied.width / 2;
-        const occupiedRight = occupied.x + occupied.width / 2;
-        if (labelLeft < occupiedRight && labelRight > occupiedLeft) {
-          if (finalY < occupied.bottomY + labelSpacing) {
+        const occLeft = occ.x - occ.width / 2;
+        const occRight = occ.x + occ.width / 2;
+        if (labelLeft < occRight && labelRight > occLeft) {
+          if (Math.abs(finalY - occ.bottomY + labelHeight) < labelHeight + labelSpacing) {
             hasOverlap = true;
-            finalY = occupied.bottomY + labelSpacing;
+            finalY = finalY - labelHeight - labelSpacing;
             break;
           }
         }
       }
       attempts++;
     }
-    occupiedRanges.push({ x: label.x, width: label.width, bottomY: finalY + labelHeight });
-    resolvedPositions.push({ milestone: label.milestone, x: label.x, y: finalY });
+    // Clamp: don't go above chart top
+    finalY = Math.max(labelHeight + 4, finalY);
+    occupied.push({ x: label.x, width: label.width, bottomY: finalY + labelHeight });
+    resolved.push({ ms: label.ms, x: label.x, y: finalY, text: label.text });
   });
 
   return (
     <g>
-      {resolvedPositions.map((pos) => {
-        const textWidth = pos.milestone.label.length * 6.5 + 12;
+      {resolved.map((pos) => {
+        const textWidth = pos.text.length * 6.2 + 14;
         return (
-          <g key={pos.milestone.id} className="pointer-events-none">
+          <g key={pos.ms.id} className="pointer-events-none">
             <line
               x1={pos.x}
               x2={pos.x}
@@ -1065,7 +1066,7 @@ function Milestones({
               height={16}
               rx={4}
               fill="#6366f1"
-              opacity={0.9}
+              opacity={0.85}
             />
             <text
               x={pos.x}
@@ -1076,7 +1077,7 @@ function Milestones({
               fontWeight="600"
               fontFamily="ui-sans-serif, system-ui, sans-serif"
             >
-              {pos.milestone.label}
+              {pos.text}
             </text>
           </g>
         );

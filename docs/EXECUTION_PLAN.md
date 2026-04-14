@@ -243,6 +243,52 @@ Level 3 — Configuration (collapsible)
 
 ---
 
+## Phase 12: Auto-Derived Milestones + QuickStart (DONE)
+
+### Problem: Manual milestones were broken
+
+1. **No delete** — once added, permanent until preset reload or clear-all
+2. **Accidental triggers** — every click/tap on chart opened milestone dialog
+3. **Overlap pushed badges off-screen** — collision resolver pushed down with no bottom bound
+4. **Disconnected from data** — manual labels had no link to actual income/expense/loan entries
+5. **Preset milestones duplicated data** — "First Job" at age 22 was just restating the income start date
+
+### Solution: Auto-derive milestones from data entries
+
+Milestones are now computed from the actual financial data:
+
+- **Income starts/ends** → labeled with income name (e.g. "Senior Developer", "Employment ends")
+- **Expense starts** (if not from age 0) → labeled with expense name
+- **Investment starts** → labeled with investment name
+- **Loan starts/ends** → labeled with loan name (e.g. "Mortgage", "Mortgage paid off")
+- Close milestones (<6 months apart) are merged into a single badge
+
+Removed:
+
+- Click-to-add milestone UI (onClick handler, input dialog, touch tap handler)
+- `addMilestone` store action
+- Hardcoded milestone arrays from all 6 presets
+- `Milestone` type kept in CoreState for localStorage backwards compatibility only
+
+### QuickStart strip
+
+Added a QuickStart component that appears between OverviewCard and Chart when no data is entered (both incomes and expenses empty). Shows 6 preset buttons + "Start from scratch" link that opens config panel.
+
+| Task                                                        | Status | Impact                               |
+| ----------------------------------------------------------- | ------ | ------------------------------------ |
+| `deriveMilestones()` function computes milestones from data | Done   | CRITICAL — milestones now meaningful |
+| Removed click-to-add UI from AreaChart                      | Done   | HIGH — no more accidental dialogs    |
+| Removed `addMilestone` from store                           | Done   | Cleanup                              |
+| Emptied all preset milestone arrays                         | Done   | Cleanup — derived from data now      |
+| Removed test reference to `addMilestone`                    | Done   | Cleanup                              |
+| Label truncation (max 20 chars) prevents overflow           | Done   | MEDIUM — prevents SVG text blowout   |
+| Overlap resolver pushes upward with top clamp               | Done   | MEDIUM — badges stay inside chart    |
+| QuickStart strip with preset buttons                        | Done   | HIGH — onboarding for empty state    |
+
+**Files**: `src/components/Timeline/AreaChart.tsx`, `src/state/store.ts`, `src/components/QuickStart.tsx`, `src/App.tsx`, `tests/state/inflation-mode.test.ts`
+
+---
+
 ## Phase 9: Future Improvements (BACKLOG)
 
 | Task                                                  | Impact | Effort |
@@ -259,9 +305,9 @@ Level 3 — Configuration (collapsible)
 
 ---
 
-## Verification (Pass 4 — Phase 11)
+## Verification (Pass 5 — Phase 12)
 
 - TypeScript: **PASS** (0 errors)
 - ESLint: **PASS** (0 errors, 0 warnings)
 - Unit Tests: **48/48 PASS**
-- Production Build: **SUCCESS** (334KB JS, 98KB gzipped)
+- Production Build: **SUCCESS** (333KB JS, 98KB gzipped — smaller after removing dead milestone code)
