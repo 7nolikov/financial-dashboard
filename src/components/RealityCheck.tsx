@@ -58,7 +58,10 @@ export function RealityCheck() {
 
   function handleDismiss(preset?: 'average' | 'worker') {
     sessionStorage.setItem('flt-reality-dismissed', '1');
-    if (preset) loadPreset(preset);
+    if (preset) {
+      loadPreset(preset);
+      sessionStorage.setItem('flt-quickstart-dismissed', '1');
+    }
     setDismissed(true);
   }
 
