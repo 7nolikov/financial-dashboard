@@ -14,6 +14,7 @@ import { loadStateFromURL } from './lib/sharing';
 import { useMemo, useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { RealityCheck } from './components/RealityCheck';
+import { QuickStart } from './components/QuickStart';
 
 /** Inner shell — has access to SeriesContext. */
 function AppShell() {
@@ -58,6 +59,12 @@ function AppShell() {
           </h2>
           <div className="space-y-3 sm:space-y-4">
             <OverviewCard />
+            <QuickStart
+              onOpenConfig={() => {
+                setConfigOpen(true);
+                setConfigTab('data');
+              }}
+            />
             {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
               <WealthProtectionPanel validation={wealthValidation} />
             )}
