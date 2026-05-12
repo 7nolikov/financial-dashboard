@@ -1,75 +1,48 @@
 # Financial Life Tracker
 
-**The average European has a €470K retirement gap. Do you know yours?**
+A local-first calculator for mapping income, expenses, investments, debt, and retirement on a 100-year timeline. Runs entirely in the browser — no server, no account, all state in `localStorage`.
 
-Map your entire financial life — income, expenses, investments, debt, and retirement — in one interactive chart. See exactly when you'll reach financial independence, or what's missing.
+Live: https://7nolikov.dev/financial-dashboard/
 
-**[Try it now](https://7nolikov.github.io/financial-dashboard/)** — 100% free, zero signup, data never leaves your browser.
+## Background
 
----
+I work in backend / distributed systems (Go, Java). This was a learning project on the frontend side — an exercise in shipping a non-trivial React + TypeScript + Visx app end-to-end with AI assistance for the parts of the React/Tailwind/Visx idiom I didn't already know. The local-first constraint (no backend, ever) kept the scope honest and the architecture interesting.
 
-## Why This Exists
+Not a finished product. A working, deployed sandbox.
 
-In 2026:
+## What it does
 
-- **72%** of under-35s in Europe can't afford a home
-- **40%** of jobs are at risk from AI automation by 2030
-- Real purchasing power is **down 18%** since 2020
-- State pensions are shrinking while retirement ages climb past 67
+- 100-year monthly timeline with income, expenses, investments, debt
+- FIRE calculator (time-to-financial-independence projection)
+- Inflation modeling — nominal vs real
+- Six presets covering common financial profiles (worker, investor, businessman, loaner, gig worker, average European)
+- Export / share results
 
-Most people don't know their number. This tool shows you yours in 60 seconds.
+## Tech stack
 
-## What It Does
-
-- **100-year financial timeline** at month-level precision
-- **FIRE calculator** — when (or if) you'll reach financial independence
-- **Financial Scorecard** — a shareable grade (A+ to F) based on your trajectory
-- **6 realistic presets** — Worker, Investor, Businessman, Loaner, Gig Worker 2026, Average European
-- **Inflation modeling** — nominal vs. real (inflation-adjusted) projections
-- **Wealth protection warnings** — alerts when your plan has dangerous gaps
-- **Share & challenge** — share your results on X, Reddit, WhatsApp, LinkedIn
-
-## Privacy
-
-All data stays in your browser. No accounts. No servers. No tracking. The entire app runs locally using `localStorage`. You can verify this — it's open source.
-
-## Tech Stack
-
-| Layer     | Technology                          |
-| --------- | ----------------------------------- |
-| Framework | React 18 + TypeScript               |
-| Build     | Vite                                |
-| Styling   | Tailwind CSS                        |
-| Charts    | Visx (D3-based)                     |
-| State     | Zustand (persisted to localStorage) |
-| Testing   | Vitest + Playwright                 |
-| Deploy    | GitHub Pages via GitHub Actions     |
+| Layer     | Tech                                 |
+| --------- | ------------------------------------ |
+| Framework | React 18 + TypeScript                |
+| Build     | Vite                                 |
+| Styling   | Tailwind CSS                         |
+| Charts    | Visx (D3-based)                      |
+| State     | Zustand, persisted to `localStorage` |
+| Testing   | Vitest + Playwright                  |
+| Deploy    | GitHub Pages via Actions             |
 
 ## Development
 
 ```bash
-pnpm install        # Install dependencies
-pnpm dev            # Start dev server
-pnpm build          # Production build
-pnpm test           # Run unit tests
-pnpm lint           # Lint
-pnpm typecheck      # TypeScript check
+pnpm install
+pnpm dev
+pnpm build
+pnpm test
+pnpm lint
+pnpm typecheck
 ```
 
-See [`docs/`](docs/) for architecture, calculations, and state schema documentation.
-
-## Contributing
-
-1. Fork the repo
-2. Create a feature branch
-3. Use conventional commits
-4. Ensure `pnpm lint && pnpm typecheck && pnpm test` pass
-5. Open a PR
+See [`docs/`](docs/) for architecture, calculation, and state schema notes.
 
 ## License
 
-MIT
-
----
-
-**Disclaimer**: This tool is for planning purposes only and does not constitute financial advice. Consult a qualified financial advisor for important financial decisions.
+MIT. Planning tool, not financial advice.
