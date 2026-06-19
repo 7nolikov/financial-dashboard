@@ -85,6 +85,9 @@ export function RealityCheck() {
             <p className="text-base sm:text-lg lg:text-xl text-slate-300 mt-3 max-w-xl mx-auto leading-relaxed">
               {stat.label}
             </p>
+            {/* Attribution — alarming figures need a visible source. These are
+                indicative aggregates, flagged as such to stay honest. */}
+            <p className="text-[11px] text-slate-500 mt-2">Indicative figure · {stat.source}</p>
           </div>
 
           {/* Stat dots */}

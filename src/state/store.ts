@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { sanitizeSharedState } from '../lib/validation/shared-state';
 
 export type AgeMonth = { ageYears: number; monthIndex: number };
 
@@ -1043,8 +1044,12 @@ const dummyState = (): CoreState => presets.worker();
 
 function migrateState(persisted: unknown): CoreState {
   if (!persisted || typeof persisted !== 'object') return dummyState();
-  // Add future migrations here based on persisted.version
-  return { ...dummyState(), ...persisted, version: CURRENT_VERSION } as CoreState;
+  // Add future migrations here based on persisted.version.
+  // Sanitize before merging: localStorage can be corrupted or edited, and a
+  // malformed shape here would crash computeSeries() on every load. Validated
+  // fields override the defaults; invalid ones fall back to the defaults.
+  const safe = sanitizeSharedState(persisted) ?? {};
+  return { ...dummyState(), ...safe, version: CURRENT_VERSION };
 }
 
 export const useStore = create<Store>()(

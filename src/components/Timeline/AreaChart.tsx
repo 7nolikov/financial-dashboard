@@ -293,7 +293,20 @@ export function AreaChart() {
         setZoom(Math.max(0, newMin), Math.min(total, newMax));
       }
     };
-    const touchEndHandler = () => {
+    const touchEndHandler = (e: TouchEvent) => {
+      const cur = touchRef.current;
+      // A single-finger touch that barely moved is a tap, not a pan → use it to
+      // inspect that point. Touch devices have no hover, so without this the
+      // tooltip (and the actual numbers) are unreachable on mobile.
+      if (cur && cur.type === 'pan') {
+        const touch = e.changedTouches[0];
+        if (touch && Math.abs(touch.clientX - cur.startX) < 8) {
+          const { zoom, innerW: iW } = stateRef.current;
+          const range = zoom.maxMonth - zoom.minMonth;
+          const ratio = Math.max(0, Math.min(1, cur.tapX / iW));
+          setHovered(Math.round(zoom.minMonth + ratio * range));
+        }
+      }
       touchRef.current = null;
     };
     el.addEventListener('touchstart', touchStartHandler, { passive: false });
@@ -500,7 +513,7 @@ export function AreaChart() {
               Scroll to zoom • Hover to inspect
             </div>
             <div className="text-[11px] leading-tight text-slate-600 font-medium sm:hidden text-right min-w-0">
-              Pinch to zoom • Pan to explore
+              Tap to inspect • Pinch to zoom • Pan to explore
             </div>
           </div>
         </div>

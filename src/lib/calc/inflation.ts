@@ -7,8 +7,17 @@ export function inflationFactorSinceBase(args: {
   singleRate?: number;
   yearlyRates?: Record<number, number>;
 }): number {
-  const { mode, baseYear, calendarYear } = args;
-  
+  const { mode, calendarYear } = args;
+
+  // Defense in depth: the table loops below iterate once per year between
+  // baseYear and calendarYear. A malformed baseYear (e.g. from corrupted
+  // localStorage) could otherwise spin for billions of iterations and freeze
+  // the tab. Clamp the span to a range that comfortably covers the timeline.
+  if (!Number.isFinite(calendarYear)) return 1;
+  const baseYear = Number.isFinite(args.baseYear)
+    ? Math.max(calendarYear - 300, Math.min(calendarYear + 300, args.baseYear))
+    : calendarYear;
+
   // Handle case where calendar year is before base year (deflation)
   if (calendarYear < baseYear) {
     if (mode === 'single') {
@@ -34,7 +43,7 @@ export function inflationFactorSinceBase(args: {
     }
     return 1 / factor;
   }
-  
+
   // Normal case: calendar year >= base year (inflation)
   if (mode === 'single') {
     const r = args.singleRate ?? 0;
@@ -68,6 +77,3 @@ export function deflateToReal(nominalAmount: number, factor: number): number {
   if (factor === 0) return nominalAmount;
   return nominalAmount / factor;
 }
-
-
-

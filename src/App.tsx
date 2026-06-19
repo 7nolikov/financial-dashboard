@@ -15,6 +15,7 @@ import { useMemo, useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { RealityCheck } from './components/RealityCheck';
 import { QuickStart } from './components/QuickStart';
+import { Toaster, toast } from 'sonner';
 
 /** Inner shell — has access to SeriesContext. */
 function AppShell() {
@@ -208,18 +209,32 @@ function AppShell() {
 export default function App() {
   // Load state from URL hash on first mount (shared links)
   useEffect(() => {
+    // Only react when the URL actually carries a shared plan, so we can tell a
+    // valid link from a malformed/truncated one and give the user feedback
+    // instead of silently falling back to defaults.
+    if (!window.location.hash.startsWith('#state=')) return;
+
     const shared = loadStateFromURL();
-    if (shared) {
+    // sanitizeSharedState returns {} when nothing in the payload was valid; an
+    // empty merge would be a no-op, so treat that as a broken link too.
+    const hasData = shared && Object.keys(shared).length > 0;
+
+    if (hasData) {
       const current = useStore.getState();
       useStore.setState({ ...current, ...shared, chart: current.chart });
-      history.replaceState(null, '', window.location.pathname + window.location.search);
+      toast.success('Shared plan loaded');
+    } else {
+      toast.error('This shared link is invalid or incomplete — showing your existing plan.');
     }
+    // Clear the hash either way so a broken link isn't re-applied on reload.
+    history.replaceState(null, '', window.location.pathname + window.location.search);
   }, []);
 
   return (
     <ErrorBoundary>
       <SeriesProvider>
         <AppShell />
+        <Toaster position="top-center" richColors />
       </SeriesProvider>
     </ErrorBoundary>
   );

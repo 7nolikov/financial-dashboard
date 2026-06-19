@@ -1,4 +1,5 @@
 import type { CoreState } from '../state/store';
+import { sanitizeSharedState } from './validation/shared-state';
 
 /**
  * Encode the shareable portion of state as a base64 URL-safe string.
@@ -29,7 +30,10 @@ export function encodeStateToHash(state: CoreState): string {
 export function decodeHashToState(hash: string): Partial<CoreState> | null {
   try {
     const json = decodeURIComponent(escape(atob(hash)));
-    return JSON.parse(json) as Partial<CoreState>;
+    // The hash is fully attacker-controlled, so never trust the parsed shape.
+    // Validate and clamp every field before it can reach the store or the
+    // calculation engine. See sanitizeSharedState for the threat model.
+    return sanitizeSharedState(JSON.parse(json));
   } catch {
     return null;
   }
