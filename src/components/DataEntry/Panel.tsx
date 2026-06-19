@@ -9,10 +9,8 @@ export function DataEntryPanel() {
   const [tab, setTab] = React.useState<'income' | 'expense' | 'investment' | 'loan' | 'retirement'>(
     'income',
   );
-  const loadPreset = useStore((s) => s.loadPreset);
   const clearAllData = useStore((s) => s.clearAllData);
   const [confirmClear, setConfirmClear] = React.useState(false);
-  const [activePreset, setActivePreset] = React.useState('worker');
 
   function handleClearAll() {
     if (confirmClear) {
@@ -35,31 +33,11 @@ export function DataEntryPanel() {
               Add and manage your financial information
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <label className="text-xs sm:text-sm font-medium text-slate-700">Demo Presets:</label>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-slate-400 hidden sm:inline">
+              Switch profiles in the scenario bar above ↑
+            </span>
             <div className="flex gap-2">
-              <select
-                value={activePreset}
-                onChange={(e) => {
-                  const v = e.target.value as
-                    | 'worker'
-                    | 'investor'
-                    | 'businessman'
-                    | 'loaner'
-                    | 'gig'
-                    | 'average';
-                  setActivePreset(v);
-                  loadPreset(v);
-                }}
-                className="flex-1 sm:min-w-[160px] border border-slate-300 px-3 py-2 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              >
-                <option value="worker">👷 Worker</option>
-                <option value="investor">📈 Investor</option>
-                <option value="businessman">💼 Businessman</option>
-                <option value="loaner">🎓 Loaner</option>
-                <option value="gig">🛵 Gig Worker 2026</option>
-                <option value="average">😰 Average European</option>
-              </select>
               <button
                 onClick={handleClearAll}
                 className={`px-3 sm:px-4 py-2 border rounded-lg transition-all text-xs sm:text-sm font-medium whitespace-nowrap ${

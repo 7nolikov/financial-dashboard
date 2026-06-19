@@ -46,6 +46,7 @@ describe('Financial Calculations - Inflation Mode Tests', () => {
       display: { seriesMode: inflationMode },
     },
     chart: { zoom: { minMonth: 0, maxMonth: 100 * 12 } },
+    activePreset: 'custom',
     // Store methods (mocked)
     setDOB: () => {},
     addIncome: () => {},

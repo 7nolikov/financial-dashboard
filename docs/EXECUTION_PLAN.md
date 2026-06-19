@@ -6,14 +6,21 @@ holds those.
 
 ## Information architecture (current)
 
+A single guided 1 → 2 → 3 journey, entered through an always-visible scenario
+switcher. Section headers are visible and numbered so attention flows from
+high-level overview to detail.
+
 ```
-Level 1 — Overview (OverviewCard, never null)
+Start here — PresetBar (always visible)
+  6 preset chips (active highlighted) + "Start fresh"; shows "Custom plan"
+  once the user edits anything. Tracked via store.activePreset.
+Level 1 — Your snapshot (OverviewCard, never null)
   6 KPIs (Income | Expenses | Net Worth | Investments | Loans | Cash Flow)
   + FIRE grade, target, age, savings rate, progress bar (when expenses > 0)
-Level 2 — Timeline (AreaChart)
+Level 2 — Your timeline (AreaChart)
   Areas + lines, FIRE & retirement markers, danger/warning zones,
   derived milestones, hover/tap tooltip; pinch/scroll zoom, pan
-Level 3 — Configuration (collapsible)
+Level 3 — Fine-tune your plan (collapsible)
   Data Entry tabs | Settings tab
 ```
 
@@ -57,6 +64,23 @@ Not vulnerable (verified): no XSS (React escapes, no `dangerouslySetInnerHTML`);
 | CSP hardening.                                                                      | Security  | Build-time CSP meta (dev unaffected).                                                                                                       |
 | "Clear all data" destructiveness.                                                   | UX        | Already guarded by a two-step confirm — no change.                                                                                          |
 
+## Phase 15: Onboarding & customer-journey redesign (DONE)
+
+The layout had no clear path: the preset selector was buried in the Level-3 Data
+Entry panel, the QuickStart strip only appeared in the empty state, and the three
+section headers were `sr-only` (invisible), so there was no visible 1 → 2 → 3 flow.
+
+| Change                                             | Detail                                                                                                                                                                                                                                 |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Always-visible scenario switcher** (`PresetBar`) | New "Start here" block at the top of the journey: 6 preset chips with the active one highlighted, a "Start fresh" action, and a "Custom plan" badge once the user edits. Replaces the buried `<select>` and the empty-only QuickStart. |
+| **`store.activePreset`**                           | Tracks the loaded preset; flips to `'custom'` on any edit (UI-only, not persisted). Drives the switcher's highlight.                                                                                                                   |
+| **Visible numbered section headers**               | Level 1/2/3 now have on-screen numbered badges + titles + subtitles ("Your snapshot" → "Your timeline" → "Fine-tune your plan"), so attention flows top-to-bottom from overview to detail.                                             |
+| **Removed redundancy**                             | Deleted `QuickStart.tsx`; removed the preset `<select>` from `DataEntry/Panel.tsx` (now points to the scenario bar).                                                                                                                   |
+
+Verified with Playwright at 1280px and 390px: switching presets moves the highlight, and editing any value surfaces the "Custom plan" badge.
+
+**Files**: `src/components/PresetBar.tsx` (new), `src/App.tsx`, `src/state/store.ts`, `src/components/DataEntry/Panel.tsx`, `tests/state/inflation-mode.test.ts`; removed `src/components/QuickStart.tsx`.
+
 ## Launch checklist (manual)
 
 - [ ] Verify production deploy at https://7nolikov.dev/financial-dashboard/
@@ -82,8 +106,9 @@ Seed channels: r/personalfinance, r/fire, r/europeanfire, X, LinkedIn, Hacker Ne
 | Dark mode toggle UI (infra exists)          | LOW    | LOW    |
 | E2E tests in CI                             | LOW    | LOW    |
 
-## Verification (Pass 6 — June 2026)
+## Verification (Pass 7 — June 2026, incl. Phase 15)
 
 - TypeScript: **PASS** · ESLint: **PASS** (0/0)
-- Unit tests: **57/57 PASS** (9 new security/validation tests)
-- Production build: **SUCCESS** (~371 KB JS, ~109 KB gzipped), CSP injected
+- Unit tests: **57/57 PASS** (9 security/validation tests)
+- Production build: **SUCCESS** (~373 KB JS, ~109 KB gzipped), CSP injected
+- Layout verified visually (Playwright) at desktop 1280px and mobile 390px; preset switching + custom-state confirmed

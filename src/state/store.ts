@@ -80,7 +80,12 @@ export type CoreState = {
   chart: { zoom: { minMonth: number; maxMonth: number } };
 };
 
+export type PresetName = 'worker' | 'investor' | 'businessman' | 'loaner' | 'gig' | 'average';
+
 export type Store = CoreState & {
+  // Which preset is currently loaded, or 'custom' once the user edits anything.
+  // UI-only (not persisted) — drives the always-visible scenario switcher.
+  activePreset: PresetName | 'custom';
   setDOB: (iso: string) => void;
   addIncome: (i: Income) => void;
   addExpense: (e: Expense) => void;
@@ -96,9 +101,7 @@ export type Store = CoreState & {
   setRetirement: (r: Retirement) => void;
   openShare: boolean;
   setOpenShare: (v: boolean) => void;
-  loadPreset: (
-    presetName: 'worker' | 'investor' | 'businessman' | 'loaner' | 'gig' | 'average',
-  ) => void;
+  loadPreset: (presetName: PresetName) => void;
   reset: () => void;
   clearAllData: () => void;
 };
@@ -1056,24 +1059,36 @@ export const useStore = create<Store>()(
   persist(
     (set, get) => ({
       ...dummyState(),
-      setDOB: (iso) => set({ dobISO: iso }),
-      addIncome: (i) => set({ incomes: [...get().incomes, i] }),
-      addExpense: (e) => set({ expenses: [...get().expenses, e] }),
-      addInvestment: (inv) => set({ investments: [...get().investments, inv] }),
-      addLoan: (loan) => set({ loans: [...get().loans, loan] }),
-      removeIncome: (id) => set({ incomes: get().incomes.filter((i) => i.id !== id) }),
-      removeExpense: (id) => set({ expenses: get().expenses.filter((e) => e.id !== id) }),
-      removeInvestment: (id) => set({ investments: get().investments.filter((i) => i.id !== id) }),
-      removeLoan: (id) => set({ loans: get().loans.filter((l) => l.id !== id) }),
+      // dummyState() is the worker preset, so that's the initial active scenario.
+      activePreset: 'worker',
+      // Any manual edit means the state no longer matches a named preset.
+      setDOB: (iso) => set({ dobISO: iso, activePreset: 'custom' }),
+      addIncome: (i) => set({ incomes: [...get().incomes, i], activePreset: 'custom' }),
+      addExpense: (e) => set({ expenses: [...get().expenses, e], activePreset: 'custom' }),
+      addInvestment: (inv) =>
+        set({ investments: [...get().investments, inv], activePreset: 'custom' }),
+      addLoan: (loan) => set({ loans: [...get().loans, loan], activePreset: 'custom' }),
+      removeIncome: (id) =>
+        set({ incomes: get().incomes.filter((i) => i.id !== id), activePreset: 'custom' }),
+      removeExpense: (id) =>
+        set({ expenses: get().expenses.filter((e) => e.id !== id), activePreset: 'custom' }),
+      removeInvestment: (id) =>
+        set({ investments: get().investments.filter((i) => i.id !== id), activePreset: 'custom' }),
+      removeLoan: (id) =>
+        set({ loans: get().loans.filter((l) => l.id !== id), activePreset: 'custom' }),
       removeSafetySavings: (id) =>
-        set({ safetySavings: get().safetySavings.filter((s) => s.id !== id) }),
+        set({
+          safetySavings: get().safetySavings.filter((s) => s.id !== id),
+          activePreset: 'custom',
+        }),
       setZoom: (minMonth, maxMonth) => set({ chart: { zoom: { minMonth, maxMonth } } }),
-      setInflation: (infl) => set({ inflation: { ...get().inflation, ...infl } }),
-      setRetirement: (r) => set({ retirement: r }),
+      setInflation: (infl) =>
+        set({ inflation: { ...get().inflation, ...infl }, activePreset: 'custom' }),
+      setRetirement: (r) => set({ retirement: r, activePreset: 'custom' }),
       openShare: false,
       setOpenShare: (v) => set({ openShare: v }),
-      loadPreset: (presetName) => set(presets[presetName as keyof typeof presets]()),
-      reset: () => set(presets.worker()),
+      loadPreset: (presetName) => set({ ...presets[presetName](), activePreset: presetName }),
+      reset: () => set({ ...presets.worker(), activePreset: 'worker' }),
       clearAllData: () =>
         set({
           ...presets.worker(),
@@ -1083,6 +1098,7 @@ export const useStore = create<Store>()(
           loans: [],
           safetySavings: [],
           milestones: [],
+          activePreset: 'custom',
         }),
     }),
     {

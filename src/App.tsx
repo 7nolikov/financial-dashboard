@@ -14,8 +14,35 @@ import { loadStateFromURL } from './lib/sharing';
 import { useMemo, useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { RealityCheck } from './components/RealityCheck';
-import { QuickStart } from './components/QuickStart';
+import { PresetBar } from './components/PresetBar';
 import { Toaster, toast } from 'sonner';
+
+/** Visible, numbered section header — gives the page a clear 1 → 2 → 3 path. */
+function SectionHeader({
+  step,
+  id,
+  title,
+  subtitle,
+}: {
+  step: number;
+  id: string;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 mb-3 sm:mb-4">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-bold">
+        {step}
+      </span>
+      <div className="min-w-0">
+        <h2 id={id} className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+          {title}
+        </h2>
+        <p className="text-xs sm:text-sm text-slate-500">{subtitle}</p>
+      </div>
+    </div>
+  );
+}
 
 /** Inner shell — has access to SeriesContext. */
 function AppShell() {
@@ -49,23 +76,32 @@ function AppShell() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <RealityCheck />
       <TopBar validation={wealthValidation} />
-      <main className="mx-auto max-w-[1600px] px-4 sm:px-5 lg:px-6 xl:px-8 py-4 sm:py-6 safe-x space-y-4 sm:space-y-6 lg:space-y-8">
+      <main className="mx-auto max-w-[1600px] px-4 sm:px-5 lg:px-6 xl:px-8 py-4 sm:py-6 safe-x space-y-5 sm:space-y-7 lg:space-y-9">
         {/* =============================================================
-             LEVEL 1 — Overview: the "am I on track?" answer at a glance
-             Always visible, concise, no interaction required.
+             START HERE — always-visible scenario switcher. The entry point
+             of the journey: pick a profile, then read 1 → 2 → 3 below.
+             ============================================================= */}
+        <section aria-label="Choose a scenario">
+          <PresetBar
+            onStartFresh={() => {
+              setConfigOpen(true);
+              setConfigTab('data');
+            }}
+          />
+        </section>
+
+        {/* =============================================================
+             LEVEL 1 — Overview: the "am I on track?" answer at a glance.
              ============================================================= */}
         <section aria-labelledby="overview-heading">
-          <h2 id="overview-heading" className="sr-only">
-            Overview
-          </h2>
+          <SectionHeader
+            step={1}
+            id="overview-heading"
+            title="Your snapshot"
+            subtitle="Where you stand today — income, net worth, and your FIRE grade at a glance."
+          />
           <div className="space-y-3 sm:space-y-4">
             <OverviewCard />
-            <QuickStart
-              onOpenConfig={() => {
-                setConfigOpen(true);
-                setConfigTab('data');
-              }}
-            />
             {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
               <WealthProtectionPanel validation={wealthValidation} />
             )}
@@ -73,13 +109,15 @@ function AppShell() {
         </section>
 
         {/* =============================================================
-             LEVEL 2 — Visualization: interactive timeline for exploration
-             Always visible, main working area.
+             LEVEL 2 — Visualization: interactive timeline for exploration.
              ============================================================= */}
         <section aria-labelledby="timeline-heading">
-          <h2 id="timeline-heading" className="sr-only">
-            Financial Timeline
-          </h2>
+          <SectionHeader
+            step={2}
+            id="timeline-heading"
+            title="Your timeline"
+            subtitle="How your money evolves across a 100-year life. Tap or hover to inspect any point."
+          />
           <div
             id="timeline-capture"
             className="shadow-md sm:shadow-xl rounded-2xl overflow-hidden bg-white border border-slate-200"
@@ -105,16 +143,21 @@ function AppShell() {
             aria-expanded={configOpen}
             aria-controls="config-panel"
           >
-            <div className="min-w-0">
-              <h2
-                id="config-heading"
-                className="text-base sm:text-lg font-bold text-slate-900 leading-tight"
-              >
-                Configure Your Plan
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Edit incomes, expenses, investments, loans, and other settings
-              </p>
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-bold">
+                3
+              </span>
+              <div className="min-w-0">
+                <h2
+                  id="config-heading"
+                  className="text-base sm:text-lg font-bold text-slate-900 leading-tight"
+                >
+                  Fine-tune your plan
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  Edit incomes, expenses, investments, loans, and other settings
+                </p>
+              </div>
             </div>
             <div className="shrink-0 flex items-center gap-2 text-slate-600">
               <span className="text-xs font-semibold hidden sm:inline">
