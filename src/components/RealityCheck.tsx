@@ -69,7 +69,7 @@ export function RealityCheck() {
 
   return (
     <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8 sm:py-12 lg:py-14">
         {/* Rotating crisis stat */}
         <div className="text-center mb-8 sm:mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-500/20 border border-red-400/30 rounded-full text-red-300 text-xs font-semibold mb-4 sm:mb-6">

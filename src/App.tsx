@@ -76,7 +76,7 @@ function AppShell() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <RealityCheck />
       <TopBar validation={wealthValidation} />
-      <main className="mx-auto max-w-[1600px] px-4 sm:px-5 lg:px-6 xl:px-8 py-4 sm:py-6 safe-x space-y-5 sm:space-y-7 lg:space-y-9">
+      <main className="mx-auto max-w-5xl px-4 sm:px-6 py-5 sm:py-7 safe-x space-y-5 sm:space-y-6">
         {/* =============================================================
              START HERE — always-visible scenario switcher. The entry point
              of the journey: pick a profile, then read 1 → 2 → 3 below.
@@ -223,7 +223,7 @@ function AppShell() {
 
       {/* Viral footer CTA — urgency-driven */}
       <footer className="mt-6 sm:mt-8 border-t border-slate-200 bg-gradient-to-r from-slate-900 to-indigo-900 text-white safe-bottom safe-x">
-        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
             <p className="text-sm font-bold text-white">
               Most people won't retire when they think they will.

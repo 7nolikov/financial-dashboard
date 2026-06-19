@@ -26,7 +26,7 @@ export function TopBar({ validation }: TopBarProps) {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm safe-top safe-x">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-5 lg:px-6 xl:px-8 py-3 sm:py-5">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-3 sm:py-4">
         {/* Mobile: logo + title + action buttons. Buttons are icon-only to give
             the title enough room to never truncate on ~360px wide phones. */}
         <div className="flex items-center gap-2.5 lg:hidden">
@@ -142,14 +142,14 @@ export function TopBar({ validation }: TopBarProps) {
         </div>
 
         {/* Desktop layout */}
-        <div className="hidden lg:flex lg:items-center gap-6">
+        <div className="hidden lg:flex lg:items-center gap-5">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-xl">💰</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+              <span className="text-white font-bold text-lg">💰</span>
             </div>
             <div>
               <div className="flex items-center gap-2.5">
-                <h1 className="text-2xl xl:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                   Financial Life Tracker
                 </h1>
                 {/* Desktop health badge */}
@@ -175,7 +175,7 @@ export function TopBar({ validation }: TopBarProps) {
             </div>
           </div>
 
-          <div className="flex-1 grid grid-cols-4 gap-4">
+          <div className="flex-1 grid grid-cols-4 gap-3">
             <div className="space-y-1.5">
               <label
                 className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider"
