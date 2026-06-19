@@ -212,7 +212,7 @@ export function OverviewCard() {
   return (
     <>
       {showConfetti && <Confetti />}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         {/* ── Financial Snapshot: 6 KPIs — always visible ── */}
         <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-indigo-950 px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">

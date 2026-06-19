@@ -14,7 +14,7 @@ export function WealthProtectionPanel({ validation, className = '' }: WealthProt
   if (validation.isValid && validation.warnings.length === 0) {
     return (
       <div
-        className={`bg-emerald-50 border border-emerald-200 rounded-xl p-4 shadow-sm ${className}`}
+        className={`bg-emerald-50 border border-emerald-200 rounded-2xl p-4 shadow-sm ${className}`}
       >
         <div className="flex items-center gap-2.5 text-emerald-900">
           <Shield className="h-5 w-5 shrink-0" />
@@ -31,7 +31,7 @@ export function WealthProtectionPanel({ validation, className = '' }: WealthProt
     <div className={`space-y-3 ${className}`}>
       {/* Critical errors — collapsible */}
       {validation.errors.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-red-50 border border-red-200 rounded-2xl shadow-sm overflow-hidden">
           <button
             onClick={() => setErrorsExpanded((v) => !v)}
             className="w-full flex items-center justify-between gap-2 px-4 sm:px-5 py-3.5 text-red-900 hover:bg-red-100/70 transition-colors"
@@ -73,7 +73,7 @@ export function WealthProtectionPanel({ validation, className = '' }: WealthProt
       {/* Warnings — collapsible. Uses amber (not yellow) for clearer contrast
           against white text on the pale background. */}
       {validation.warnings.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl shadow-sm overflow-hidden">
           <button
             onClick={() => setWarningsExpanded((v) => !v)}
             className="w-full flex items-center justify-between gap-2 px-4 sm:px-5 py-3.5 text-amber-900 hover:bg-amber-100/70 transition-colors"

@@ -135,10 +135,16 @@ export function AreaChart() {
   const [hovered, setHovered] = React.useState<number | null>(null);
   const hoveredPoint = hovered != null ? visible.find((p) => p.m === hovered) : undefined;
   const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const plotRef = React.useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = React.useState<number>(1000);
+  const [plotHeight, setPlotHeight] = React.useState<number>(0);
   const [isMobile, setIsMobile] = React.useState<boolean>(false);
 
-  const height = isMobile ? 300 : 340;
+  // The plot area fills the card height (so the timeline column lines up with
+  // the snapshot rail beside it on desktop). The SVG matches the measured box
+  // exactly; CSS min-heights on the box (per breakpoint) keep it from being
+  // squashed, and we fall back to a fixed size before the first measure.
+  const height = plotHeight > 0 ? plotHeight : isMobile ? 300 : 340;
   // Mobile needs taller bottom padding to fit the larger axis tick labels and
   // the secondary "Age: …" labels without clipping the SVG viewBox; mobile
   // also needs slightly more left padding for the y-axis number labels.
@@ -172,8 +178,12 @@ export function AreaChart() {
     if (!el) return;
 
     // ResizeObserver handles all size changes — no window resize listener needed.
+    // Width and the available plot height are read from the inner plot box so
+    // the SVG tracks the space left after the header and footer.
     const updateDimensions = () => {
-      setWidth(el.clientWidth);
+      const plot = plotRef.current;
+      setWidth((plot ?? el).clientWidth);
+      if (plot) setPlotHeight(plot.clientHeight);
       setIsMobile(window.innerWidth < 640);
     };
     const ro = new ResizeObserver(updateDimensions);
@@ -427,82 +437,87 @@ export function AreaChart() {
           </div>
         </div>
       </div>
-      <div className="px-3 sm:px-4 py-3 sm:py-4">
+      <div className="flex flex-1 flex-col min-h-0 px-3 sm:px-4 py-3 sm:py-4">
         <div
-          className="rounded-xl border border-slate-200 bg-white relative shadow-sm"
+          className="flex flex-1 flex-col min-h-0 rounded-xl border border-slate-200 bg-white relative shadow-sm"
           ref={containerRef}
         >
-          <svg
-            role="img"
-            aria-label="Financial projection timeline chart"
-            width="100%"
-            height={height}
-            viewBox={`0 0 ${width} ${height}`}
-            style={{ touchAction: 'none' }}
-            onMouseMove={(e) => {
-              const mx = (e.nativeEvent as MouseEvent).offsetX - padding.left;
-              const m = Math.round(x.invert(Math.max(0, Math.min(innerW, mx))));
-              setHovered(m);
-            }}
-            onMouseLeave={() => {
-              setHovered(null);
-            }}
+          <div
+            ref={plotRef}
+            className="relative flex-1 min-h-[300px] sm:min-h-[320px] xl:min-h-[200px]"
           >
-            <g transform={`translate(${padding.left},${padding.top})`}>
-              <rect x={0} y={0} width={innerW} height={innerH} fill="url(#chartBg)" />
-              <defs>
-                <linearGradient id="chartBg" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="#f8faff" />
-                  <stop offset="100%" stopColor="#f1f5f9" />
-                </linearGradient>
-              </defs>
-              <AxisBottom x={x} innerW={innerW} innerH={innerH} isMobile={isMobile} />
-              <AxisLeft y={y} innerH={innerH} isMobile={isMobile} />
-              <SeriesAreas
-                x={x}
-                y={y}
-                data={visible}
-                innerH={innerH}
-                fireDateMonth={fireDateMonth}
-                retirementMonth={retirementMonth}
-              />
-              <ExtremumMarkers x={x} y={y} data={visible} />
-              <Milestones
-                x={x}
-                innerH={innerH}
-                zoom={[state.chart.zoom.minMonth, state.chart.zoom.maxMonth]}
-                milestones={milestones}
-              />
-              {hovered != null && (
-                <line
-                  x1={x(hovered)}
-                  x2={x(hovered)}
-                  y1={0}
-                  y2={innerH}
-                  stroke="#94a3b8"
-                  strokeDasharray="4 4"
+            <svg
+              role="img"
+              aria-label="Financial projection timeline chart"
+              width="100%"
+              height={height}
+              viewBox={`0 0 ${width} ${height}`}
+              style={{ touchAction: 'none' }}
+              onMouseMove={(e) => {
+                const mx = (e.nativeEvent as MouseEvent).offsetX - padding.left;
+                const m = Math.round(x.invert(Math.max(0, Math.min(innerW, mx))));
+                setHovered(m);
+              }}
+              onMouseLeave={() => {
+                setHovered(null);
+              }}
+            >
+              <g transform={`translate(${padding.left},${padding.top})`}>
+                <rect x={0} y={0} width={innerW} height={innerH} fill="url(#chartBg)" />
+                <defs>
+                  <linearGradient id="chartBg" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#f8faff" />
+                    <stop offset="100%" stopColor="#f1f5f9" />
+                  </linearGradient>
+                </defs>
+                <AxisBottom x={x} innerW={innerW} innerH={innerH} isMobile={isMobile} />
+                <AxisLeft y={y} innerH={innerH} isMobile={isMobile} />
+                <SeriesAreas
+                  x={x}
+                  y={y}
+                  data={visible}
+                  innerH={innerH}
+                  fireDateMonth={fireDateMonth}
+                  retirementMonth={retirementMonth}
                 />
-              )}
-            </g>
-          </svg>
+                <ExtremumMarkers x={x} y={y} data={visible} />
+                <Milestones
+                  x={x}
+                  innerH={innerH}
+                  zoom={[state.chart.zoom.minMonth, state.chart.zoom.maxMonth]}
+                  milestones={milestones}
+                />
+                {hovered != null && (
+                  <line
+                    x1={x(hovered)}
+                    x2={x(hovered)}
+                    y1={0}
+                    y2={innerH}
+                    stroke="#94a3b8"
+                    strokeDasharray="4 4"
+                  />
+                )}
+              </g>
+            </svg>
 
-          {hovered != null && (
-            <HoverTooltip
-              x={padding.left + x(hovered)}
-              y={padding.top + 2}
-              containerWidth={width}
-              age={`${Math.floor(hovered / 12)}y ${hovered % 12}m`}
-              income={hoveredPoint?.income}
-              expense={hoveredPoint?.expense}
-              loans={hoveredPoint?.loans}
-              invest={hoveredPoint?.invest}
-              netWorth={hoveredPoint?.netWorth}
-              safety={hoveredPoint?.safety}
-              cashFlow={hoveredPoint?.cashFlow}
-              milestone={milestones.find((m) => m.monthIndex === hovered)?.label}
-            />
-          )}
-          <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-t bg-gradient-to-r from-slate-50 to-slate-100 text-xs">
+            {hovered != null && (
+              <HoverTooltip
+                x={padding.left + x(hovered)}
+                y={padding.top + 2}
+                containerWidth={width}
+                age={`${Math.floor(hovered / 12)}y ${hovered % 12}m`}
+                income={hoveredPoint?.income}
+                expense={hoveredPoint?.expense}
+                loans={hoveredPoint?.loans}
+                invest={hoveredPoint?.invest}
+                netWorth={hoveredPoint?.netWorth}
+                safety={hoveredPoint?.safety}
+                cashFlow={hoveredPoint?.cashFlow}
+                milestone={milestones.find((m) => m.monthIndex === hovered)?.label}
+              />
+            )}
+          </div>
+          <div className="shrink-0 flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-t bg-gradient-to-r from-slate-50 to-slate-100 text-xs">
             <button
               onClick={() => setZoom(0, totalMonths)}
               className="shrink-0 whitespace-nowrap px-3 py-2 border border-slate-300 rounded-md hover:bg-white hover:border-slate-400 transition-all text-xs font-semibold text-slate-700"

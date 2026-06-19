@@ -98,9 +98,9 @@ function AppShell() {
              then the chart. DOM order is snapshot → timeline so mobile reads
              1 → 2; `order` swaps them into hero-left / rail-right on xl.
              ============================================================= */}
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-5 xl:gap-6 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-5 xl:gap-6 items-stretch">
           {/* LEVEL 1 — Overview: the "am I on track?" answer at a glance. */}
-          <section aria-labelledby="overview-heading" className="xl:order-2 xl:sticky xl:top-24">
+          <section aria-labelledby="overview-heading" className="flex flex-col xl:order-2">
             <SectionHeader
               step={1}
               id="overview-heading"
@@ -115,8 +115,11 @@ function AppShell() {
             </div>
           </section>
 
-          {/* LEVEL 2 — Visualization: interactive timeline for exploration. */}
-          <section aria-labelledby="timeline-heading" className="min-w-0 xl:order-1">
+          {/* LEVEL 2 — Visualization: interactive timeline for exploration.
+              The card flexes to fill the column so its bottom edge always
+              lines up with the snapshot rail (the chart plot grows/shrinks to
+              match — see AreaChart's height handling). */}
+          <section aria-labelledby="timeline-heading" className="flex flex-col min-w-0 xl:order-1">
             <SectionHeader
               step={2}
               id="timeline-heading"
@@ -125,7 +128,7 @@ function AppShell() {
             />
             <div
               id="timeline-capture"
-              className="shadow-md sm:shadow-xl rounded-2xl overflow-hidden bg-white border border-slate-200"
+              className="flex flex-1 flex-col rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm"
             >
               <AreaChart />
             </div>
@@ -140,7 +143,7 @@ function AppShell() {
              ============================================================= */}
         <section
           aria-labelledby="config-heading"
-          className="rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-md sm:shadow-lg"
+          className="rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm"
         >
           <button
             type="button"
