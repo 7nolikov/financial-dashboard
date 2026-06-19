@@ -76,7 +76,7 @@ function AppShell() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <RealityCheck />
       <TopBar validation={wealthValidation} />
-      <main className="mx-auto max-w-5xl px-4 sm:px-6 py-5 sm:py-7 safe-x space-y-5 sm:space-y-6">
+      <main className="mx-auto max-w-5xl xl:max-w-7xl px-4 sm:px-6 py-5 sm:py-7 safe-x space-y-5 sm:space-y-6">
         {/* =============================================================
              START HERE — always-visible scenario switcher. The entry point
              of the journey: pick a profile, then read 1 → 2 → 3 below.
@@ -91,40 +91,46 @@ function AppShell() {
         </section>
 
         {/* =============================================================
-             LEVEL 1 — Overview: the "am I on track?" answer at a glance.
+             LEVELS 1 + 2 — the dashboard core. On xl the timeline is the
+             hero (wide left column) and the snapshot rides alongside as a
+             glanceable scorecard rail that stays put while you scroll. Below
+             xl they stack — snapshot first (the "am I on track?" answer),
+             then the chart. DOM order is snapshot → timeline so mobile reads
+             1 → 2; `order` swaps them into hero-left / rail-right on xl.
              ============================================================= */}
-        <section aria-labelledby="overview-heading">
-          <SectionHeader
-            step={1}
-            id="overview-heading"
-            title="Your snapshot"
-            subtitle="Where you stand today — income, net worth, and your FIRE grade at a glance."
-          />
-          <div className="space-y-3 sm:space-y-4">
-            <OverviewCard />
-            {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
-              <WealthProtectionPanel validation={wealthValidation} />
-            )}
-          </div>
-        </section>
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-5 xl:gap-6 items-start">
+          {/* LEVEL 1 — Overview: the "am I on track?" answer at a glance. */}
+          <section aria-labelledby="overview-heading" className="xl:order-2 xl:sticky xl:top-24">
+            <SectionHeader
+              step={1}
+              id="overview-heading"
+              title="Your snapshot"
+              subtitle="Where you stand today — income, net worth, and your FIRE grade at a glance."
+            />
+            <div className="space-y-3 sm:space-y-4">
+              <OverviewCard />
+              {(wealthValidation.warnings.length > 0 || wealthValidation.errors.length > 0) && (
+                <WealthProtectionPanel validation={wealthValidation} />
+              )}
+            </div>
+          </section>
 
-        {/* =============================================================
-             LEVEL 2 — Visualization: interactive timeline for exploration.
-             ============================================================= */}
-        <section aria-labelledby="timeline-heading">
-          <SectionHeader
-            step={2}
-            id="timeline-heading"
-            title="Your timeline"
-            subtitle="How your money evolves across a 100-year life. Tap or hover to inspect any point."
-          />
-          <div
-            id="timeline-capture"
-            className="shadow-md sm:shadow-xl rounded-2xl overflow-hidden bg-white border border-slate-200"
-          >
-            <AreaChart />
-          </div>
-        </section>
+          {/* LEVEL 2 — Visualization: interactive timeline for exploration. */}
+          <section aria-labelledby="timeline-heading" className="min-w-0 xl:order-1">
+            <SectionHeader
+              step={2}
+              id="timeline-heading"
+              title="Your timeline"
+              subtitle="How your money evolves across a 100-year life. Tap or hover to inspect any point."
+            />
+            <div
+              id="timeline-capture"
+              className="shadow-md sm:shadow-xl rounded-2xl overflow-hidden bg-white border border-slate-200"
+            >
+              <AreaChart />
+            </div>
+          </section>
+        </div>
 
         {/* =============================================================
              LEVEL 3 — Configuration: data entry and settings
@@ -223,7 +229,7 @@ function AppShell() {
 
       {/* Viral footer CTA — urgency-driven */}
       <footer className="mt-6 sm:mt-8 border-t border-slate-200 bg-gradient-to-r from-slate-900 to-indigo-900 text-white safe-bottom safe-x">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mx-auto max-w-5xl xl:max-w-7xl px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
             <p className="text-sm font-bold text-white">
               Most people won't retire when they think they will.

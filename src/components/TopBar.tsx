@@ -26,7 +26,7 @@ export function TopBar({ validation }: TopBarProps) {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm safe-top safe-x">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-3 sm:py-4">
+      <div className="mx-auto max-w-5xl xl:max-w-7xl px-4 sm:px-6 py-3 sm:py-4">
         {/* Mobile: logo + title + action buttons. Buttons are icon-only to give
             the title enough room to never truncate on ~360px wide phones. */}
         <div className="flex items-center gap-2.5 lg:hidden">

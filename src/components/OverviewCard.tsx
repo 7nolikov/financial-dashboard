@@ -118,6 +118,10 @@ function Confetti() {
  *   Shown when expenses > 0 so FIRE number can be calculated.
  *
  * Never returns null — every user sees their financial snapshot.
+ *
+ * On xl+ the card lives in the desktop sidebar next to the timeline (only
+ * ~340px wide), so the KPI strip collapses to a compact 2-column grid there;
+ * below xl it spans the full content width as a 3/6-across strip.
  */
 export function OverviewCard() {
   const state = useStore();
@@ -230,7 +234,7 @@ export function OverviewCard() {
         </div>
 
         {/* 6 core financial KPIs — the dashboard for everyone */}
-        <div className="grid grid-cols-3 sm:grid-cols-6 divide-x divide-y sm:divide-y-0 divide-slate-100 border-b border-slate-100">
+        <div className="grid grid-cols-3 sm:grid-cols-6 sm:divide-y-0 xl:grid-cols-2 xl:divide-y divide-x divide-y divide-slate-100 border-b border-slate-100">
           <Kpi
             label="Income"
             value={fmt(monthlyIncome)}
