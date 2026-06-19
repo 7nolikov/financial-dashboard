@@ -169,12 +169,12 @@ export function ShareModal() {
         {/* Scrollable options */}
         <div className="overflow-y-auto flex-1 px-4 sm:px-5 py-4 space-y-3">
           {/* Copy Link */}
-          <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200">
             <div className="flex items-center gap-3">
               <span className="text-2xl shrink-0">🔗</span>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-blue-800 text-sm">Shareable Link</h3>
-                <p className="text-xs text-blue-600 mt-0.5 mb-2 line-clamp-2">
+                <h3 className="font-semibold text-indigo-800 text-sm">Shareable Link</h3>
+                <p className="text-xs text-indigo-600 mt-0.5 mb-2 line-clamp-2">
                   Full scenario encoded in URL — anyone with the link sees your exact plan.
                 </p>
                 <button
@@ -182,7 +182,7 @@ export function ShareModal() {
                   className={`w-full sm:w-auto px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
                     copied
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
                   }`}
                 >
                   {copied ? '✓ Copied!' : '📋 Copy Link'}
@@ -218,7 +218,7 @@ export function ShareModal() {
                   <div className="mt-3 p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">
                     {viralText}
                     {'\n'}
-                    <span className="text-blue-500 break-all">{shareUrl.slice(0, 60)}…</span>
+                    <span className="text-indigo-500 break-all">{shareUrl.slice(0, 60)}…</span>
                   </div>
                 )}
               </div>

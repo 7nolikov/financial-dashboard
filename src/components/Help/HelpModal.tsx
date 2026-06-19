@@ -18,11 +18,11 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
       <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-5xl w-full max-h-[96vh] overflow-hidden border border-slate-200">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-8 py-4 sm:py-6 text-white">
+        <div className="bg-indigo-600 px-4 sm:px-8 py-4 sm:py-6 text-white">
           <div className="flex justify-between items-center gap-3">
             <div>
               <h2 className="text-xl sm:text-3xl font-bold mb-1 sm:mb-2">Financial Life Tracker</h2>
-              <p className="text-blue-100 text-sm sm:text-lg">Help & User Guide</p>
+              <p className="text-indigo-100 text-sm sm:text-lg">Help & User Guide</p>
             </div>
             <button
               onClick={onClose}
@@ -77,13 +77,13 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* How to Use */}
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
-              <h3 className="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-3">
+              <h3 className="text-2xl font-bold mb-6 text-indigo-600 flex items-center gap-3">
                 <span className="text-2xl">📋</span>
                 How to Use
               </h3>
               <div className="space-y-6">
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
+                  <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm">
                     1
                   </div>
                   <div>
@@ -94,7 +94,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
+                  <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm">
                     2
                   </div>
                   <div>
@@ -106,7 +106,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
+                  <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm">
                     3
                   </div>
                   <div>
@@ -118,7 +118,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
+                  <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm">
                     4
                   </div>
                   <div>
@@ -129,7 +129,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
+                  <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm">
                     5
                   </div>
                   <div>
@@ -300,12 +300,12 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
           </div>
 
           {/* Footer */}
-          <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+          <div className="mt-8 bg-indigo-50 rounded-2xl p-6 border border-indigo-200">
             <div className="flex items-start gap-4">
               <div className="text-3xl">💡</div>
               <div>
-                <h3 className="font-bold text-blue-800 mb-2 text-lg">Need More Help?</h3>
-                <p className="text-blue-700 leading-relaxed">
+                <h3 className="font-bold text-indigo-800 mb-2 text-lg">Need More Help?</h3>
+                <p className="text-indigo-700 leading-relaxed">
                   This tool helps you visualize your financial future. Start with a demo preset,
                   then customize it with your own data. Remember: this is for planning purposes only
                   and doesn't constitute financial advice.

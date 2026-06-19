@@ -31,7 +31,7 @@ function SectionHeader({
 }) {
   return (
     <div className="flex items-center gap-3 mb-3 sm:mb-4">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-bold">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white text-sm font-bold">
         {step}
       </span>
       <div className="min-w-0">
@@ -73,7 +73,7 @@ function AppShell() {
   const [configTab, setConfigTab] = useState<'data' | 'settings'>('data');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-slate-50">
       <RealityCheck />
       <TopBar validation={wealthValidation} />
       <main className="mx-auto max-w-5xl xl:max-w-7xl px-4 sm:px-6 py-5 sm:py-7 safe-x space-y-5 sm:space-y-6">
@@ -148,12 +148,12 @@ function AppShell() {
           <button
             type="button"
             onClick={() => setConfigOpen((v) => !v)}
-            className="w-full flex items-center justify-between gap-3 px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-slate-50 to-blue-50 hover:from-slate-100 hover:to-blue-100 transition-colors text-left"
+            className="w-full flex items-center justify-between gap-3 px-5 py-4 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
             aria-expanded={configOpen}
             aria-controls="config-panel"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-bold">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white text-sm font-bold">
                 3
               </span>
               <div className="min-w-0">
@@ -191,9 +191,9 @@ function AppShell() {
                   aria-controls="tab-panel-data"
                   id="tab-data"
                   onClick={() => setConfigTab('data')}
-                  className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 text-sm font-semibold transition-colors min-h-[44px] border-b-2 ${
+                  className={`flex-1 sm:flex-none px-5 py-3 text-sm font-semibold transition-colors min-h-[44px] border-b-2 ${
                     configTab === 'data'
-                      ? 'border-blue-600 text-blue-700 bg-white'
+                      ? 'border-indigo-600 text-indigo-700 bg-white'
                       : 'border-transparent text-slate-600 hover:text-slate-800 hover:bg-slate-100'
                   }`}
                 >
@@ -205,9 +205,9 @@ function AppShell() {
                   aria-controls="tab-panel-settings"
                   id="tab-settings"
                   onClick={() => setConfigTab('settings')}
-                  className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 text-sm font-semibold transition-colors min-h-[44px] border-b-2 ${
+                  className={`flex-1 sm:flex-none px-5 py-3 text-sm font-semibold transition-colors min-h-[44px] border-b-2 ${
                     configTab === 'settings'
-                      ? 'border-blue-600 text-blue-700 bg-white'
+                      ? 'border-indigo-600 text-indigo-700 bg-white'
                       : 'border-transparent text-slate-600 hover:text-slate-800 hover:bg-slate-100'
                   }`}
                 >
@@ -231,7 +231,7 @@ function AppShell() {
       </main>
 
       {/* Viral footer CTA — urgency-driven */}
-      <footer className="mt-6 sm:mt-8 border-t border-slate-200 bg-gradient-to-r from-slate-900 to-indigo-900 text-white safe-bottom safe-x">
+      <footer className="mt-6 sm:mt-8 border-t border-slate-200 bg-slate-900 text-white safe-bottom safe-x">
         <div className="mx-auto max-w-5xl xl:max-w-7xl px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
             <p className="text-sm font-bold text-white">
@@ -245,7 +245,7 @@ function AppShell() {
           <div className="flex gap-2">
             <button
               onClick={() => useStore.getState().setOpenShare(true)}
-              className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg text-sm font-bold hover:from-red-600 hover:to-orange-600 transition-all shadow-lg shadow-red-500/25 min-h-[44px]"
+              className="px-5 py-2.5 bg-indigo-500 text-white rounded-lg text-sm font-bold hover:bg-indigo-400 transition-colors shadow-sm min-h-[44px]"
             >
               🔥 Challenge a Friend
             </button>

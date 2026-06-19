@@ -25,7 +25,7 @@ export function DataEntryPanel() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-50 to-blue-50 px-4 sm:px-6 py-4 border-b border-slate-200">
+      <div className="bg-slate-50 px-5 py-4 border-b border-slate-200">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-slate-800">Financial Data Entry</h2>
@@ -126,7 +126,7 @@ function TabButton(
       onClick={props.onClick}
       className={`px-3 sm:px-4 py-2.5 sm:py-2 rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] ${
         props.active
-          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm'
+          ? 'bg-indigo-600 text-white shadow-sm'
           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800 border border-slate-300'
       }`}
       title={props.title}
@@ -145,8 +145,8 @@ function FormCard({
   children,
 }: React.PropsWithChildren<{ icon: string; title: string; subtitle: string; color: string }>) {
   const colorMap: Record<string, string> = {
-    blue: 'bg-blue-50 border-blue-200 text-blue-800 text-blue-700',
-    red: 'bg-red-50 border-red-200 text-red-800 text-red-700',
+    blue: 'bg-indigo-50 border-indigo-200 text-indigo-800 text-indigo-700',
+    red: 'bg-rose-50 border-rose-200 text-rose-800 text-rose-700',
     emerald: 'bg-emerald-50 border-emerald-200 text-emerald-800 text-emerald-700',
     violet: 'bg-violet-50 border-violet-200 text-violet-800 text-violet-700',
   };
@@ -218,7 +218,7 @@ function IncomeTab() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Label</label>
             <input
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="e.g., Salary"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
@@ -228,7 +228,7 @@ function IncomeTab() {
             <label className="text-sm font-medium text-slate-700">Monthly Amount (€)</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="3500"
               min="0"
               value={amount}
@@ -239,7 +239,7 @@ function IncomeTab() {
             <label className="text-sm font-medium text-slate-700">Start Age</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="22"
               min="0"
               max="100"
@@ -251,7 +251,7 @@ function IncomeTab() {
             <label className="text-sm font-medium text-slate-700">End Age (optional)</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="65"
               min="0"
               max="100"
@@ -262,7 +262,7 @@ function IncomeTab() {
         </div>
         <div className="mt-4 flex justify-end">
           <button
-            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isAdding ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-sm'}`}
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isAdding ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'}`}
             disabled={isAdding}
             onClick={handleAdd}
           >
@@ -343,7 +343,7 @@ function ExpenseTab() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Label</label>
             <input
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="e.g., Rent"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
@@ -353,7 +353,7 @@ function ExpenseTab() {
             <label className="text-sm font-medium text-slate-700">Monthly Amount (€)</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="1200"
               min="0"
               value={amount}
@@ -364,7 +364,7 @@ function ExpenseTab() {
             <label className="text-sm font-medium text-slate-700">Start Age</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="22"
               min="0"
               max="100"
@@ -376,7 +376,7 @@ function ExpenseTab() {
             <label className="text-sm font-medium text-slate-700">End Age (optional)</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="65"
               min="0"
               max="100"
@@ -387,7 +387,7 @@ function ExpenseTab() {
         </div>
         <div className="mt-4 flex justify-end">
           <button
-            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isAdding ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-gradient-to-r from-red-600 to-rose-600 text-white hover:from-red-700 hover:to-rose-700 shadow-sm'}`}
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isAdding ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'}`}
             disabled={isAdding}
             onClick={handleAdd}
           >
@@ -473,7 +473,7 @@ function InvestmentTab() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Label</label>
             <input
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="e.g., ETF"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
@@ -483,7 +483,7 @@ function InvestmentTab() {
             <label className="text-sm font-medium text-slate-700">Monthly Contribution (€)</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="500"
               min="0"
               value={recurringAmount}
@@ -494,7 +494,7 @@ function InvestmentTab() {
             <label className="text-sm font-medium text-slate-700">Expected APR %</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               step="0.1"
               min="0"
               max="50"
@@ -507,7 +507,7 @@ function InvestmentTab() {
             <label className="text-sm font-medium text-slate-700">Start Age</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="22"
               min="0"
               max="100"
@@ -519,7 +519,7 @@ function InvestmentTab() {
             <label className="text-sm font-medium text-slate-700">End Age</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="65"
               min="0"
               max="100"
@@ -530,7 +530,7 @@ function InvestmentTab() {
         </div>
         <div className="mt-4 flex justify-end">
           <button
-            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isAdding ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 shadow-sm'}`}
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isAdding ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'}`}
             disabled={isAdding}
             onClick={handleAdd}
           >
@@ -623,7 +623,7 @@ function LoanTab() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Label</label>
             <input
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="e.g., Mortgage"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
@@ -632,7 +632,7 @@ function LoanTab() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Category</label>
             <select
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
@@ -648,7 +648,7 @@ function LoanTab() {
             <label className="text-sm font-medium text-slate-700">Principal (€)</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="10000"
               min="0"
               value={principal}
@@ -659,7 +659,7 @@ function LoanTab() {
             <label className="text-sm font-medium text-slate-700">Monthly Payment (€)</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="200"
               min="0"
               value={monthlyPayment}
@@ -670,7 +670,7 @@ function LoanTab() {
             <label className="text-sm font-medium text-slate-700">Interest Rate (APR %)</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               step="0.1"
               min="0"
               max="50"
@@ -683,7 +683,7 @@ function LoanTab() {
             <label className="text-sm font-medium text-slate-700">Start Age</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="22"
               min="0"
               max="100"
@@ -695,7 +695,7 @@ function LoanTab() {
             <label className="text-sm font-medium text-slate-700">End Age (optional)</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               placeholder="32"
               min="0"
               max="100"
@@ -712,7 +712,7 @@ function LoanTab() {
         </div>
         <div className="mt-4 flex justify-end">
           <button
-            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isAdding ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700 shadow-sm'}`}
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isAdding ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'}`}
             disabled={isAdding}
             onClick={handleAdd}
           >
@@ -775,7 +775,7 @@ function RetirementTab() {
             <label className="text-sm font-medium text-slate-700">Retirement Age</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               min="50"
               max="100"
               placeholder="65"
@@ -788,7 +788,7 @@ function RetirementTab() {
             <label className="text-sm font-medium text-slate-700">Annual Withdrawal Rate (%)</label>
             <input
               type="number"
-              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all"
+              className="w-full border border-slate-300 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               step="0.1"
               min="0"
               max="20"
@@ -807,7 +807,7 @@ function RetirementTab() {
         </div>
         <div className="mt-4 flex justify-end">
           <button
-            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isSaving ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700 shadow-sm'}`}
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${isSaving ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'}`}
             disabled={isSaving}
             onClick={handleSave}
           >

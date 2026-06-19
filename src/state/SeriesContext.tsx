@@ -14,14 +14,14 @@ const SeriesContext = React.createContext<SeriesPoint[] | null>(null);
  * 1,200-month series.
  */
 export function SeriesProvider({ children }: { children: React.ReactNode }) {
-  const dobISO       = useStore((s) => s.dobISO);
-  const incomes      = useStore((s) => s.incomes);
-  const expenses     = useStore((s) => s.expenses);
-  const investments  = useStore((s) => s.investments);
-  const loans        = useStore((s) => s.loans);
+  const dobISO = useStore((s) => s.dobISO);
+  const incomes = useStore((s) => s.incomes);
+  const expenses = useStore((s) => s.expenses);
+  const investments = useStore((s) => s.investments);
+  const loans = useStore((s) => s.loans);
   const safetySavings = useStore((s) => s.safetySavings);
-  const retirement   = useStore((s) => s.retirement);
-  const inflation    = useStore((s) => s.inflation);
+  const retirement = useStore((s) => s.retirement);
+  const inflation = useStore((s) => s.inflation);
 
   const input = React.useMemo<ComputationInput>(
     () => ({ dobISO, incomes, expenses, investments, loans, safetySavings, retirement, inflation }),

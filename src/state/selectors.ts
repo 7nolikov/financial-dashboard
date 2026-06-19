@@ -1,4 +1,9 @@
-import { InflationMode, deflateToReal, inflationFactorSinceBase, indexAmountNominal } from '../lib/calc/inflation';
+import {
+  InflationMode,
+  deflateToReal,
+  inflationFactorSinceBase,
+  indexAmountNominal,
+} from '../lib/calc/inflation';
 import type { CoreState, Investment, Recurrence } from './store';
 
 export type SeriesPoint = {
@@ -22,7 +27,14 @@ export type SeriesPoint = {
  */
 export type ComputationInput = Pick<
   CoreState,
-  'dobISO' | 'incomes' | 'expenses' | 'investments' | 'loans' | 'safetySavings' | 'retirement' | 'inflation'
+  | 'dobISO'
+  | 'incomes'
+  | 'expenses'
+  | 'investments'
+  | 'loans'
+  | 'safetySavings'
+  | 'retirement'
+  | 'inflation'
 >;
 
 export function computeSeries(state: ComputationInput): SeriesPoint[] {
@@ -178,38 +190,53 @@ export function computeSeries(state: ComputationInput): SeriesPoint[] {
       cashFlowPlot = deflateToReal(cashFlowPlot, inflFactor);
     }
 
-    points.push({ 
-      m, 
-      income: incomePlot, 
-      expense: expensePlot, 
-      loans: loansPlot, 
-      invest: investPlot, 
-      netWorth: netPlot, 
+    points.push({
+      m,
+      income: incomePlot,
+      expense: expensePlot,
+      loans: loansPlot,
+      invest: investPlot,
+      netWorth: netPlot,
       safety: safetyPlot,
       cashFlow: cashFlowPlot,
       savingsDepleted: isExtremumPoint,
       wealthWarning,
-      investmentWithdrawal: state.inflation.display.seriesMode === 'real' ? deflateToReal(investmentWithdrawal, inflFactor) : investmentWithdrawal
+      investmentWithdrawal:
+        state.inflation.display.seriesMode === 'real'
+          ? deflateToReal(investmentWithdrawal, inflFactor)
+          : investmentWithdrawal,
     });
   }
-  
+
   return points;
 }
 
-function sumActive(items: { amount: number; recurrence: Recurrence; category?: string }[], m: number): number {
+function sumActive(
+  items: { amount: number; recurrence: Recurrence; category?: string }[],
+  m: number,
+): number {
   let sum = 0;
   for (const it of items) {
     if (it.recurrence.kind === 'one_time') {
       if (it.recurrence.at.monthIndex === m) sum += it.amount;
     } else {
       const { start, end, everyMonths } = it.recurrence;
-      if (m >= start.monthIndex && (end?.monthIndex == null || m <= end.monthIndex) && ((m - start.monthIndex) % everyMonths === 0)) sum += it.amount;
+      if (
+        m >= start.monthIndex &&
+        (end?.monthIndex == null || m <= end.monthIndex) &&
+        (m - start.monthIndex) % everyMonths === 0
+      )
+        sum += it.amount;
     }
   }
   return sum;
 }
 
-function sumActiveBy(items: { amount: number; recurrence: Recurrence; category?: string }[], m: number, pred: (x: { amount: number; recurrence: Recurrence; category?: string }) => boolean): number {
+function sumActiveBy(
+  items: { amount: number; recurrence: Recurrence; category?: string }[],
+  m: number,
+  pred: (x: { amount: number; recurrence: Recurrence; category?: string }) => boolean,
+): number {
   return sumActive(items.filter(pred), m);
 }
 
@@ -270,27 +297,25 @@ function calculateLoanBalance(state: ComputationInput, m: number): number {
 
 function safetyForMonth(state: ComputationInput, m: number): number {
   let maxSafetyTarget = 0;
-  
+
   for (const r of state.safetySavings) {
     const s = r.start.monthIndex;
     const e = r.end?.monthIndex ?? 100 * 12;
-    
+
     if (m >= s && m <= e) {
       // Calculate current monthly expenses for this month
       const currentExpenses = sumActive(state.expenses, m);
-      
+
       // Use the higher of rule's monthly expenses or current expenses
       const monthlyExpenses = Math.max(r.monthlyExpenses, currentExpenses);
-      
+
       // Calculate safety target: months coverage × monthly expenses
       const safetyTarget = r.monthsCoverage * monthlyExpenses;
-      
+
       // Take the maximum safety target across all active rules
       maxSafetyTarget = Math.max(maxSafetyTarget, safetyTarget);
     }
   }
-  
+
   return maxSafetyTarget;
 }
-
-

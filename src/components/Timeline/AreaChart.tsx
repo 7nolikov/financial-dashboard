@@ -353,10 +353,10 @@ export function AreaChart() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200">
+      <div className="bg-slate-50 px-5 py-4 border-b border-slate-200">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center shadow-md shrink-0">
+            <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-sm shrink-0">
               <span className="text-white font-bold text-base sm:text-lg" aria-hidden="true">
                 📈
               </span>
@@ -371,7 +371,7 @@ export function AreaChart() {
                   className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-md font-semibold ${
                     state.inflation.display.seriesMode === 'nominal'
                       ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                      : 'bg-blue-100 text-blue-800 border border-blue-200'
+                      : 'bg-indigo-100 text-indigo-800 border border-indigo-200'
                   }`}
                 >
                   {state.inflation.display.seriesMode === 'nominal' ? 'Nominal' : 'Real'} ·{' '}
@@ -385,10 +385,10 @@ export function AreaChart() {
           <div className="hidden sm:flex flex-wrap items-center gap-2 text-xs shrink-0">
             {[
               { color: 'bg-emerald-500', label: 'Income', style: 'filled' as const },
-              { color: 'bg-red-500', label: 'Expenses', style: 'filled' as const },
-              { color: 'bg-blue-500', label: 'Investments', style: 'filled' as const },
+              { color: 'bg-rose-500', label: 'Expenses', style: 'filled' as const },
+              { color: 'bg-sky-500', label: 'Investments', style: 'filled' as const },
               { color: 'bg-amber-600', label: 'Loans', style: 'dashed' as const },
-              { color: 'bg-violet-500', label: 'Net Worth', style: 'filled' as const },
+              { color: 'bg-indigo-500', label: 'Net Worth', style: 'filled' as const },
               { color: 'bg-orange-500', label: 'Safety', style: 'dashed' as const },
             ].map(({ color, label, style }) => (
               <div
@@ -420,10 +420,10 @@ export function AreaChart() {
           >
             {[
               { color: 'bg-emerald-500', title: 'Income' },
-              { color: 'bg-red-500', title: 'Expenses' },
-              { color: 'bg-blue-500', title: 'Investments' },
+              { color: 'bg-rose-500', title: 'Expenses' },
+              { color: 'bg-sky-500', title: 'Investments' },
               { color: 'bg-amber-600', title: 'Loans' },
-              { color: 'bg-violet-500', title: 'Net Worth' },
+              { color: 'bg-indigo-500', title: 'Net Worth' },
               { color: 'bg-orange-500', title: 'Safety' },
             ].map(({ color, title }) => (
               <span
@@ -517,7 +517,7 @@ export function AreaChart() {
               />
             )}
           </div>
-          <div className="shrink-0 flex items-center justify-between gap-2 px-3 sm:px-4 py-3 border-t bg-gradient-to-r from-slate-50 to-slate-100 text-xs">
+          <div className="shrink-0 flex items-center justify-between gap-2 px-5 py-3 border-t border-slate-200 bg-slate-50 text-xs">
             <button
               onClick={() => setZoom(0, totalMonths)}
               className="shrink-0 whitespace-nowrap px-3 py-2 border border-slate-300 rounded-md hover:bg-white hover:border-slate-400 transition-all text-xs font-semibold text-slate-700"
@@ -666,11 +666,11 @@ function ExtremumMarkers({ x, y, data }: { x: LinearScale; y: LinearScale; data:
         const point = data[ext.index]!;
         const xPos = x(point.m);
         const yPos = y(ext.value);
-        let fillColor = '#ef4444';
+        let fillColor = '#f43f5e';
         let label = formatCompact(ext.value);
         if (ext.type === 'peak') fillColor = '#10b981';
         else if (ext.type === 'savings-depleted') {
-          fillColor = '#dc2626';
+          fillColor = '#e11d48';
           label = '💸 Depleted';
         }
         return (
@@ -771,16 +771,16 @@ function SeriesAreas({
     <g>
       <defs>
         <linearGradient id="income-fill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#22c55e" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#22c55e" stopOpacity="0.05" />
+          <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#10b981" stopOpacity="0.05" />
         </linearGradient>
         <linearGradient id="expense-fill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#ef4444" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#ef4444" stopOpacity="0.05" />
+          <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.05" />
         </linearGradient>
         <linearGradient id="invest-fill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.40" />
-          <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.05" />
+          <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.40" />
+          <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.05" />
         </linearGradient>
       </defs>
 
@@ -791,7 +791,7 @@ function SeriesAreas({
         y={y}
         get={(p: { invest: number }) => p.invest}
         color="url(#invest-fill)"
-        stroke="#2563eb"
+        stroke="#0284c7"
         strokeWidth={1.5}
       />
       <Area
@@ -800,7 +800,7 @@ function SeriesAreas({
         y={y}
         get={(p: { income: number }) => p.income}
         color="url(#income-fill)"
-        stroke="#16a34a"
+        stroke="#059669"
         strokeWidth={1.5}
       />
       <Area
@@ -809,7 +809,7 @@ function SeriesAreas({
         y={y}
         get={(p: { expense: number }) => p.expense}
         color="url(#expense-fill)"
-        stroke="#dc2626"
+        stroke="#e11d48"
         strokeWidth={1.5}
       />
 
@@ -828,7 +828,7 @@ function SeriesAreas({
         x={toX}
         y={y}
         get={(p: { netWorth: number }) => p.netWorth}
-        stroke="#7c3aed"
+        stroke="#4f46e5"
         strokeWidth={2.5}
       />
       <Line
@@ -1151,20 +1151,24 @@ function HoverTooltip({
       <div className="font-medium text-slate-800">{age}</div>
       {milestone ? <div className="text-[10px] text-slate-500 mb-1">📍 {milestone}</div> : null}
       <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-1">
-        <span className="text-green-600 font-medium">Income</span>
+        <span className="text-emerald-600 font-medium">Income</span>
         <span className="text-right">{format(income)}</span>
-        <span className="text-red-600 font-medium">Expenses</span>
+        <span className="text-rose-600 font-medium">Expenses</span>
         <span className="text-right">{format(expense)}</span>
-        <span className="text-blue-600 font-medium">Cash Flow</span>
-        <span className={`text-right ${(cashFlow ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+        <span className="text-teal-600 font-medium">Cash Flow</span>
+        <span
+          className={`text-right ${(cashFlow ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}
+        >
           {format(cashFlow)}
         </span>
         <span className="text-amber-600 font-medium">Loans</span>
         <span className="text-right">{format(loans)}</span>
-        <span className="text-blue-600 font-medium">Investments</span>
+        <span className="text-sky-600 font-medium">Investments</span>
         <span className="text-right">{format(invest)}</span>
-        <span className="text-violet-600 font-medium">Net Worth</span>
-        <span className={`text-right ${(netWorth ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+        <span className="text-indigo-600 font-medium">Net Worth</span>
+        <span
+          className={`text-right ${(netWorth ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}
+        >
           {format(netWorth)}
         </span>
         <span className="text-orange-600 font-medium">Safety</span>

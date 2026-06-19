@@ -31,7 +31,7 @@ export function TopBar({ validation }: TopBarProps) {
             the title enough room to never truncate on ~360px wide phones. */}
         <div className="flex items-center gap-2.5 lg:hidden">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md shrink-0">
+            <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-md shrink-0">
               <span className="text-white font-bold text-base" aria-hidden="true">
                 💰
               </span>
@@ -77,7 +77,7 @@ export function TopBar({ validation }: TopBarProps) {
             </button>
             <button
               onClick={onShare}
-              className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-lg text-base hover:from-blue-700 hover:to-indigo-700 active:from-blue-800 active:to-indigo-800 transition-colors font-semibold shadow-sm shrink-0"
+              className="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-lg text-base hover:bg-indigo-700 active:bg-indigo-800 transition-colors font-semibold shadow-sm shrink-0"
               title="Share your financial plan"
               aria-label="Share your financial plan"
             >
@@ -101,7 +101,7 @@ export function TopBar({ validation }: TopBarProps) {
               type="date"
               value={dobISO}
               onChange={(e) => setDOB(e.target.value)}
-              className="w-full h-11 bg-white border border-slate-300 px-2 rounded-lg text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full h-11 bg-white border border-slate-300 px-2 rounded-lg text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               min="1900-01-01"
               max={new Date().toISOString().slice(0, 10)}
             />
@@ -115,7 +115,7 @@ export function TopBar({ validation }: TopBarProps) {
               onChange={(e) =>
                 setInflation({ display: { seriesMode: e.target.value as 'nominal' | 'real' } })
               }
-              className="w-full h-11 bg-white border border-slate-300 px-2 rounded-lg text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full h-11 bg-white border border-slate-300 px-2 rounded-lg text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
             >
               <option value="nominal">Nominal</option>
               <option value="real">Real</option>
@@ -136,7 +136,7 @@ export function TopBar({ validation }: TopBarProps) {
                   singleRate: Math.max(0, Math.min(20, Number(e.target.value))) / 100,
                 })
               }
-              className="w-full h-11 bg-white border border-slate-300 px-2 rounded-lg text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full h-11 bg-white border border-slate-300 px-2 rounded-lg text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
             />
           </div>
         </div>
@@ -144,8 +144,8 @@ export function TopBar({ validation }: TopBarProps) {
         {/* Desktop layout */}
         <div className="hidden lg:flex lg:items-center gap-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
-              <span className="text-white font-bold text-lg">💰</span>
+            <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
+              <span className="text-white font-bold text-base">💰</span>
             </div>
             <div>
               <div className="flex items-center gap-2.5">
@@ -187,7 +187,7 @@ export function TopBar({ validation }: TopBarProps) {
                 type="date"
                 value={dobISO}
                 onChange={(e) => setDOB(e.target.value)}
-                className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                 min="1900-01-01"
                 max={new Date().toISOString().slice(0, 10)}
               />
@@ -201,7 +201,7 @@ export function TopBar({ validation }: TopBarProps) {
                 onChange={(e) =>
                   setInflation({ display: { seriesMode: e.target.value as 'nominal' | 'real' } })
                 }
-                className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full bg-white border border-slate-300 px-3 py-2 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
               >
                 <option value="nominal">💰 Nominal (with inflation)</option>
                 <option value="real">📊 Real (inflation-adjusted)</option>
@@ -226,7 +226,7 @@ export function TopBar({ validation }: TopBarProps) {
                       singleRate: Math.max(0, Math.min(20, Number(e.target.value))) / 100,
                     })
                   }
-                  className="flex-1 bg-white border border-slate-300 px-3 py-2 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="flex-1 bg-white border border-slate-300 px-3 py-2 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                 />
                 <span className="text-sm text-slate-500 font-semibold">%</span>
               </div>
@@ -252,7 +252,7 @@ export function TopBar({ validation }: TopBarProps) {
                 </button>
                 <button
                   onClick={onShare}
-                  className="px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-sm hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold shadow-sm"
+                  className="px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-all font-semibold shadow-sm"
                   title="Share your financial plan"
                 >
                   📤 Share

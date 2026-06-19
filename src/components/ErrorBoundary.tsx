@@ -41,12 +41,13 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             <div className="text-red-500 text-4xl mb-4">⚠️</div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h2>
             <p className="text-gray-600 mb-4">
-              The application encountered an unexpected error. This might be due to invalid data or a temporary issue.
+              The application encountered an unexpected error. This might be due to invalid data or
+              a temporary issue.
             </p>
             <div className="space-y-2">
               <button
                 onClick={this.resetError}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
               >
                 Try Again
               </button>

@@ -17,12 +17,7 @@ window.addEventListener('keydown', (e) => {
   const target = e.target as HTMLElement | null;
   if (target) {
     const tag = target.tagName;
-    if (
-      tag === 'INPUT' ||
-      tag === 'TEXTAREA' ||
-      tag === 'SELECT' ||
-      target.isContentEditable
-    ) {
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable) {
       return;
     }
   }
@@ -43,6 +38,3 @@ if ('serviceWorker' in navigator) {
       .catch((err) => console.warn('SW registration failed:', err));
   });
 }
-
-
-

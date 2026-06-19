@@ -34,8 +34,8 @@ function getGrade(progress: number, fireAge: number | null, retirementAge: numbe
   if (fireAge != null && fireAge < retirementAge)
     return {
       letter: 'B',
-      bg: 'from-blue-500 to-indigo-600',
-      ring: 'ring-blue-400',
+      bg: 'from-indigo-500 to-indigo-600',
+      ring: 'ring-indigo-400',
       label: 'Retiring on schedule',
     };
   if (progress >= 40)
@@ -48,14 +48,14 @@ function getGrade(progress: number, fireAge: number | null, retirementAge: numbe
   if (progress >= 15)
     return {
       letter: 'D',
-      bg: 'from-orange-500 to-red-500',
+      bg: 'from-orange-500 to-rose-500',
       ring: 'ring-orange-400',
       label: 'Significant gap ahead',
     };
   return {
     letter: 'F',
-    bg: 'from-red-600 to-red-800',
-    ring: 'ring-red-500',
+    bg: 'from-rose-500 to-rose-700',
+    ring: 'ring-rose-500',
     label: 'Critical — action required',
   };
 }
@@ -202,19 +202,19 @@ export function OverviewCard() {
     progress >= 100
       ? 'bg-emerald-500'
       : progress >= 75
-        ? 'bg-blue-500'
+        ? 'bg-sky-500'
         : progress >= 50
           ? 'bg-indigo-500'
           : progress >= 25
             ? 'bg-amber-500'
-            : 'bg-red-400';
+            : 'bg-rose-400';
 
   return (
     <>
       {showConfetti && <Confetti />}
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         {/* ── Financial Snapshot: 6 KPIs — always visible ── */}
-        <div className="bg-gradient-to-r from-slate-800 via-slate-900 to-indigo-950 px-4 sm:px-6 py-3 sm:py-4">
+        <div className="bg-slate-900 px-5 py-4">
           <div className="flex items-center justify-between">
             <h3 className="text-white font-bold text-base sm:text-lg leading-tight">
               📊 Financial Snapshot
@@ -246,22 +246,22 @@ export function OverviewCard() {
             label="Expenses"
             value={fmt(monthlyExpense)}
             sub="/month"
-            color="text-red-600"
-            dot="bg-red-500"
+            color="text-rose-600"
+            dot="bg-rose-500"
           />
           <Kpi
             label="Net Worth"
             value={fmt(currentNetWorth)}
             sub={currentNetWorth >= 0 ? 'Positive' : 'Negative'}
-            color={currentNetWorth >= 0 ? 'text-violet-600' : 'text-red-600'}
-            dot="bg-violet-500"
+            color={currentNetWorth >= 0 ? 'text-indigo-600' : 'text-rose-600'}
+            dot="bg-indigo-500"
           />
           <Kpi
             label="Investments"
             value={fmt(currentInvestments)}
             sub="Total portfolio"
-            color="text-blue-600"
-            dot="bg-blue-500"
+            color="text-sky-600"
+            dot="bg-sky-500"
           />
           <Kpi
             label="Loans"
@@ -274,15 +274,15 @@ export function OverviewCard() {
             label="Cash Flow"
             value={fmtSigned(monthlyCashFlow)}
             sub="/month"
-            color={monthlyCashFlow >= 0 ? 'text-emerald-600' : 'text-red-600'}
-            dot="bg-blue-400"
+            color={monthlyCashFlow >= 0 ? 'text-emerald-600' : 'text-rose-600'}
+            dot="bg-teal-500"
           />
         </div>
 
         {/* ── FIRE Section: Grade + Progress — shown when expenses exist ── */}
         {hasFire && grade && (
           <>
-            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-slate-50/50">
+            <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
               <div className="flex items-center gap-3">
                 {/* Grade badge */}
                 <div
@@ -327,8 +327,8 @@ export function OverviewCard() {
                           savingsRate >= 25
                             ? 'text-emerald-600'
                             : savingsRate >= 15
-                              ? 'text-blue-700'
-                              : 'text-red-600'
+                              ? 'text-indigo-700'
+                              : 'text-rose-600'
                         }
                       >
                         {savingsRate.toFixed(0)}%
@@ -340,7 +340,7 @@ export function OverviewCard() {
             </div>
 
             {/* Progress bar */}
-            <div className="px-4 sm:px-6 py-3 bg-slate-50">
+            <div className="px-5 py-3 bg-slate-50">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
                   FIRE Progress

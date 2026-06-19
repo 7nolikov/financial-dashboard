@@ -30,9 +30,9 @@ export function PresetBar({ onStartFresh }: { onStartFresh: () => void }) {
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-4 sm:px-6 pt-4 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-5 pt-4 pb-3">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white text-xs font-bold">
             ▶
           </span>
           <div className="min-w-0">
@@ -46,7 +46,7 @@ export function PresetBar({ onStartFresh }: { onStartFresh: () => void }) {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {isCustom && (
-            <span className="px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-semibold border border-violet-200">
+            <span className="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold border border-indigo-200">
               ✎ Custom plan
             </span>
           )}
@@ -63,7 +63,7 @@ export function PresetBar({ onStartFresh }: { onStartFresh: () => void }) {
       <div
         role="radiogroup"
         aria-label="Financial scenario presets"
-        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 px-4 sm:px-6 pb-4"
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 px-5 pb-4"
       >
         {PRESETS.map(({ key, label, icon, blurb }) => {
           const active = activePreset === key;
@@ -75,15 +75,15 @@ export function PresetBar({ onStartFresh }: { onStartFresh: () => void }) {
               onClick={() => loadPreset(key)}
               className={`flex flex-col items-start gap-0.5 px-3 py-2.5 rounded-xl border text-left transition-all min-h-[44px] ${
                 active
-                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/30 shadow-sm'
-                  : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40'
+                  ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/30 shadow-sm'
+                  : 'border-slate-200 bg-white hover:border-indigo-300 hover:bg-indigo-50/40'
               }`}
             >
               <span className="flex items-center gap-1.5">
                 <span className="text-base leading-none">{icon}</span>
                 <span
                   className={`text-xs sm:text-sm font-bold leading-tight ${
-                    active ? 'text-blue-700' : 'text-slate-700'
+                    active ? 'text-indigo-700' : 'text-slate-700'
                   }`}
                 >
                   {label}

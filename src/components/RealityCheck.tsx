@@ -68,7 +68,7 @@ export function RealityCheck() {
   const stat = CRISIS_STATS[currentStat]!;
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white">
+    <div className="bg-slate-900 text-white">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8 sm:py-12 lg:py-14">
         {/* Rotating crisis stat */}
         <div className="text-center mb-8 sm:mb-10">
@@ -118,7 +118,7 @@ export function RealityCheck() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <button
               onClick={() => handleDismiss('average')}
-              className="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-xl text-sm sm:text-base font-bold shadow-lg shadow-red-500/25 transition-all min-h-[48px]"
+              className="w-full sm:w-auto px-6 py-3.5 bg-indigo-500 hover:bg-indigo-400 text-white rounded-xl text-sm sm:text-base font-bold shadow-sm transition-colors min-h-[48px]"
             >
               😰 Show Me the Average European Reality
             </button>

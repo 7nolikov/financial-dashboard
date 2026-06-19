@@ -24,7 +24,7 @@ export type WealthScenario = {
  */
 export function validateWealthProtection(
   scenarios: WealthScenario[],
-  _state: Store
+  _state: Store,
 ): WealthValidationResult {
   const warnings: string[] = [];
   const errors: string[] = [];
@@ -32,45 +32,46 @@ export function validateWealthProtection(
 
   // Check for negative wealth scenarios with available investments
   const negativeWealthWithInvestments = scenarios.filter(
-    s => s.wealthWarning && s.investmentsTotal > 0
+    (s) => s.wealthWarning && s.investmentsTotal > 0,
   );
 
   if (negativeWealthWithInvestments.length > 0) {
     warnings.push(
-      `Found ${negativeWealthWithInvestments.length} months with negative net worth despite available investments`
+      `Found ${negativeWealthWithInvestments.length} months with negative net worth despite available investments`,
     );
-    
+
     // Analyze the pattern
     const consecutiveMonths = findConsecutiveNegativeWealth(negativeWealthWithInvestments);
     if (consecutiveMonths > 6) {
       errors.push(
-        `Extended period of negative wealth (${consecutiveMonths} months) - consider reducing expenses or increasing income`
+        `Extended period of negative wealth (${consecutiveMonths} months) - consider reducing expenses or increasing income`,
       );
     }
   }
 
   // Check for savings depletion scenarios
-  const savingsDepletedScenarios = scenarios.filter(s => s.savingsDepleted);
+  const savingsDepletedScenarios = scenarios.filter((s) => s.savingsDepleted);
   if (savingsDepletedScenarios.length > 0) {
     errors.push(
-      `Savings depleted in ${savingsDepletedScenarios.length} months - critical financial risk`
+      `Savings depleted in ${savingsDepletedScenarios.length} months - critical financial risk`,
     );
   }
 
   // Check investment contribution vs expenses ratio
-  const avgContribution = scenarios.reduce((sum, s) => sum + s.monthlyContributions, 0) / scenarios.length;
+  const avgContribution =
+    scenarios.reduce((sum, s) => sum + s.monthlyContributions, 0) / scenarios.length;
   const avgExpenses = scenarios.reduce((sum, s) => sum + s.monthlyExpenses, 0) / scenarios.length;
   const avgIncome = scenarios.reduce((sum, s) => sum + s.monthlyIncome, 0) / scenarios.length;
 
   if (avgContribution > avgIncome * 0.5) {
     warnings.push(
-      'High investment contribution rate (>50% of income) - ensure sufficient emergency fund'
+      'High investment contribution rate (>50% of income) - ensure sufficient emergency fund',
     );
   }
 
   if (avgExpenses > avgIncome * 0.9) {
     warnings.push(
-      'High expense ratio (>90% of income) - consider reducing expenses or increasing income'
+      'High expense ratio (>90% of income) - consider reducing expenses or increasing income',
     );
   }
 
@@ -80,7 +81,7 @@ export function validateWealthProtection(
     isValid: errors.length === 0,
     warnings,
     errors,
-    suggestions
+    suggestions,
   };
 }
 
@@ -126,7 +127,7 @@ export function validatePresetData(presetName: string, state: Store): WealthVali
   // Check if expenses exceed income
   if (totalMonthlyExpenses > totalMonthlyIncome) {
     errors.push(
-      `Monthly expenses (€${Math.round(totalMonthlyExpenses).toLocaleString()}) exceed income (€${Math.round(totalMonthlyIncome).toLocaleString()})`
+      `Monthly expenses (€${Math.round(totalMonthlyExpenses).toLocaleString()}) exceed income (€${Math.round(totalMonthlyIncome).toLocaleString()})`,
     );
   }
 
@@ -134,7 +135,7 @@ export function validatePresetData(presetName: string, state: Store): WealthVali
   const availableAfterExpenses = totalMonthlyIncome - totalMonthlyExpenses - totalMonthlyLoans;
   if (totalMonthlyContributions > availableAfterExpenses) {
     warnings.push(
-      `Investment contributions (€${Math.round(totalMonthlyContributions).toLocaleString()}) exceed available income after expenses and loans (€${Math.round(availableAfterExpenses).toLocaleString()})`
+      `Investment contributions (€${Math.round(totalMonthlyContributions).toLocaleString()}) exceed available income after expenses and loans (€${Math.round(availableAfterExpenses).toLocaleString()})`,
     );
   }
 
@@ -145,7 +146,7 @@ export function validatePresetData(presetName: string, state: Store): WealthVali
 
   if (emergencyFundMonths < 3) {
     warnings.push(
-      `Emergency fund target (${emergencyFundMonths} months) may be insufficient - consider 3-6 months minimum`
+      `Emergency fund target (${emergencyFundMonths} months) may be insufficient - consider 3-6 months minimum`,
     );
   }
 
@@ -153,9 +154,7 @@ export function validatePresetData(presetName: string, state: Store): WealthVali
   if (state.retirement && state.retirement.age < 55) {
     const yearsToRetirement = state.retirement.age - getCurrentAge(state);
     if (yearsToRetirement < 20 && totalMonthlyContributions < totalMonthlyIncome * 0.2) {
-      warnings.push(
-        'Early retirement target may require higher savings rate (20%+ of income)'
-      );
+      warnings.push('Early retirement target may require higher savings rate (20%+ of income)');
     }
   }
 
@@ -163,7 +162,7 @@ export function validatePresetData(presetName: string, state: Store): WealthVali
     isValid: errors.length === 0,
     warnings,
     errors,
-    suggestions
+    suggestions,
   };
 }
 
@@ -179,7 +178,7 @@ function findConsecutiveNegativeWealth(scenarios: WealthScenario[]): number {
   for (let i = 1; i < scenarios.length; i++) {
     const current = scenarios[i];
     const previous = scenarios[i - 1];
-    
+
     if (current && previous && current.monthIndex === previous.monthIndex + 1) {
       currentConsecutive++;
       maxConsecutive = Math.max(maxConsecutive, currentConsecutive);
@@ -199,11 +198,11 @@ function getCurrentAge(state: Store): number {
   const today = new Date();
   let age = today.getFullYear() - dob.getFullYear();
   const monthDiff = today.getMonth() - dob.getMonth();
-  
+
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
     age--;
   }
-  
+
   return age;
 }
 
@@ -212,12 +211,14 @@ function getCurrentAge(state: Store): number {
  */
 export function generateWealthProtectionRecommendations(
   scenarios: WealthScenario[],
-  _state: Store
+  _state: Store,
 ): string[] {
   const recommendations: string[] = [];
 
   // Analyze cash flow patterns
-  const negativeCashFlowMonths = scenarios.filter(s => s.monthlyIncome < s.monthlyExpenses).length;
+  const negativeCashFlowMonths = scenarios.filter(
+    (s) => s.monthlyIncome < s.monthlyExpenses,
+  ).length;
   const totalMonths = scenarios.length;
 
   if (negativeCashFlowMonths / totalMonths > 0.1) {
@@ -225,14 +226,15 @@ export function generateWealthProtectionRecommendations(
   }
 
   // Analyze investment withdrawal patterns
-  const monthsWithWithdrawals = scenarios.filter(s => s.investmentWithdrawal > 0).length;
+  const monthsWithWithdrawals = scenarios.filter((s) => s.investmentWithdrawal > 0).length;
   if (monthsWithWithdrawals > totalMonths * 0.2) {
     recommendations.push('Frequent investment withdrawals detected - review spending patterns');
   }
 
   // Check emergency fund adequacy
-  const maxNegativeWealth = Math.min(...scenarios.map(s => s.netWorth));
-  const avgMonthlyExpenses = scenarios.reduce((sum, s) => sum + s.monthlyExpenses, 0) / scenarios.length;
+  const maxNegativeWealth = Math.min(...scenarios.map((s) => s.netWorth));
+  const avgMonthlyExpenses =
+    scenarios.reduce((sum, s) => sum + s.monthlyExpenses, 0) / scenarios.length;
   if (maxNegativeWealth < -avgMonthlyExpenses * 6) {
     recommendations.push('Consider building larger emergency fund (6+ months expenses)');
   }
