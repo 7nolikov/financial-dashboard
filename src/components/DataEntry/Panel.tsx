@@ -35,7 +35,7 @@ export function DataEntryPanel() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-slate-400 hidden sm:inline">
-              Switch profiles in the scenario bar above ↑
+              Switch profiles from the scenario bar on the dashboard
             </span>
             <div className="flex gap-2">
               <button

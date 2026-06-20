@@ -105,6 +105,32 @@ function formatCompact(n: number | undefined) {
   return `${sign}€${abs.toFixed(0)}`;
 }
 
+type LegendItem = { color: string; label: string; style: 'filled' | 'dashed' };
+
+const LEGEND: LegendItem[] = [
+  { color: 'bg-emerald-500', label: 'Income', style: 'filled' },
+  { color: 'bg-rose-500', label: 'Expenses', style: 'filled' },
+  { color: 'bg-sky-500', label: 'Investments', style: 'filled' },
+  { color: 'bg-amber-600', label: 'Loans', style: 'dashed' },
+  { color: 'bg-indigo-500', label: 'Net Worth', style: 'filled' },
+  { color: 'bg-orange-500', label: 'Safety', style: 'dashed' },
+];
+
+function LegendSwatch({ color, style }: { color: string; style: 'filled' | 'dashed' }) {
+  if (style === 'dashed') {
+    return (
+      <span
+        className={`inline-block w-3.5 h-[3px] ${color} rounded-full`}
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(90deg, currentColor 0, currentColor 2px, transparent 2px, transparent 4px)',
+        }}
+      />
+    );
+  }
+  return <span className={`inline-block w-3 h-3 rounded ${color}`} />;
+}
+
 export function AreaChart() {
   const state = useStore();
   const setZoom = useStore((s) => s.setZoom);
@@ -352,64 +378,30 @@ export function AreaChart() {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="bg-slate-50 px-5 py-4 border-b border-slate-200">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-            <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center shadow-sm shrink-0">
-              <span className="text-white font-bold text-base sm:text-lg" aria-hidden="true">
-                📈
-              </span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <h2 className="text-[15px] sm:text-xl font-bold text-slate-900 truncate leading-tight">
-                <span className="hidden sm:inline">Financial Projection Timeline</span>
-                <span className="sm:hidden">Timeline</span>
-              </h2>
-              <div className="flex items-center gap-2 mt-1">
-                <div
-                  className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-md font-semibold ${
-                    state.inflation.display.seriesMode === 'nominal'
-                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                      : 'bg-indigo-100 text-indigo-800 border border-indigo-200'
-                  }`}
-                >
-                  {state.inflation.display.seriesMode === 'nominal' ? 'Nominal' : 'Real'} ·{' '}
-                  {((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inf
-                </div>
-              </div>
-            </div>
+      {/* Header — title + assumptions chip on the left, legend on the right.
+          Kept deliberately light so it never crowds the title or eats chart
+          height. */}
+      <div className="bg-card px-4 py-2.5 border-b border-border">
+        <div className="flex items-center justify-between gap-x-4 gap-y-2 flex-wrap">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <h2 className="text-base font-semibold text-foreground leading-none">Timeline</h2>
+            <span className="text-[11px] px-2 py-0.5 rounded-md font-semibold bg-muted text-muted-foreground border border-border">
+              {state.inflation.display.seriesMode === 'nominal' ? 'Nominal' : 'Real'} ·{' '}
+              {((state.inflation.singleRate ?? 0) * 100).toFixed(1)}% inflation
+            </span>
           </div>
 
-          {/* Legend — compact on mobile, full on desktop */}
-          <div className="hidden sm:flex flex-wrap items-center gap-2 text-xs shrink-0">
-            {[
-              { color: 'bg-emerald-500', label: 'Income', style: 'filled' as const },
-              { color: 'bg-rose-500', label: 'Expenses', style: 'filled' as const },
-              { color: 'bg-sky-500', label: 'Investments', style: 'filled' as const },
-              { color: 'bg-amber-600', label: 'Loans', style: 'dashed' as const },
-              { color: 'bg-indigo-500', label: 'Net Worth', style: 'filled' as const },
-              { color: 'bg-orange-500', label: 'Safety', style: 'dashed' as const },
-            ].map(({ color, label, style }) => (
-              <div
-                key={label}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white rounded-md border border-slate-200 shadow-sm"
-              >
-                {style === 'dashed' ? (
-                  <span className="inline-flex items-center w-3 h-3">
-                    <span
-                      className={`inline-block w-3 h-[3px] ${color} rounded-full`}
-                      style={{
-                        backgroundImage:
-                          'repeating-linear-gradient(90deg, currentColor 0, currentColor 2px, transparent 2px, transparent 4px)',
-                      }}
-                    />
-                  </span>
-                ) : (
-                  <span className={`inline-block w-3 h-3 rounded ${color}`} />
-                )}
-                <span className="font-semibold text-slate-700">{label}</span>
-              </div>
+          {/* Legend — readable labels on sm+, color dots on mobile. */}
+          <div
+            className="hidden sm:flex flex-wrap items-center gap-x-3 gap-y-1.5 shrink-0"
+            role="list"
+            aria-label="Chart series legend"
+          >
+            {LEGEND.map(({ color, label, style }) => (
+              <span key={label} role="listitem" className="flex items-center gap-1.5">
+                <LegendSwatch color={color} style={style} />
+                <span className="text-[11px] font-medium text-slate-600">{label}</span>
+              </span>
             ))}
           </div>
           {/* Mobile-only compact legend */}
@@ -418,21 +410,14 @@ export function AreaChart() {
             role="list"
             aria-label="Chart series legend"
           >
-            {[
-              { color: 'bg-emerald-500', title: 'Income' },
-              { color: 'bg-rose-500', title: 'Expenses' },
-              { color: 'bg-sky-500', title: 'Investments' },
-              { color: 'bg-amber-600', title: 'Loans' },
-              { color: 'bg-indigo-500', title: 'Net Worth' },
-              { color: 'bg-orange-500', title: 'Safety' },
-            ].map(({ color, title }) => (
+            {LEGEND.map(({ color, label }) => (
               <span
-                key={title}
+                key={label}
                 role="listitem"
-                title={title}
+                title={label}
                 className={`inline-block w-2.5 h-2.5 rounded-full ring-1 ring-white shadow-sm ${color}`}
-                aria-label={title}
-              ></span>
+                aria-label={label}
+              />
             ))}
           </div>
         </div>
@@ -555,7 +540,7 @@ function AxisBottom({
   const values = new Array(ticks).fill(0).map((_, i) => Math.round(d0 + i * step));
   const minAge = values.length > 0 ? Math.floor((values[0] ?? 0) / 12) : 0;
   const maxAge = values.length > 0 ? Math.floor((values[values.length - 1] ?? 0) / 12) : 100;
-  const tickFont = isMobile ? 12 : 10;
+  const tickFont = isMobile ? 12 : 11;
   const tickY = isMobile ? 20 : 18;
   const ageFont = isMobile ? 12 : 11;
   const ageY = isMobile ? 40 : 35;
@@ -601,7 +586,7 @@ function AxisLeft({ y, innerH, isMobile }: { y: LinearScale; innerH: number; isM
       ticks.push(min + step * i);
     }
   }
-  const labelFont = isMobile ? 11 : 9;
+  const labelFont = isMobile ? 11 : 11;
 
   return (
     <g>

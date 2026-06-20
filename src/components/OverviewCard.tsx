@@ -212,29 +212,27 @@ export function OverviewCard() {
   return (
     <>
       {showConfetti && <Confetti />}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
         {/* ── Financial Snapshot: 6 KPIs — always visible ── */}
-        <div className="bg-slate-900 px-5 py-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-white font-bold text-base sm:text-lg leading-tight">
-              📊 Financial Snapshot
-              <span className="text-slate-400 text-xs font-normal ml-2">Age {currentAge}</span>
-            </h3>
-            {hasFire && (
-              <button
-                onClick={shareOnX}
-                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/30 text-white rounded-lg text-xs font-semibold transition-all border border-white/30"
-                title="Share on X"
-              >
-                <span className="font-serif font-bold">𝕏</span>
-                <span className="hidden sm:inline">Share</span>
-              </button>
-            )}
-          </div>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <h3 className="font-semibold text-sm text-foreground leading-tight flex items-center gap-2">
+            Snapshot
+            <span className="text-muted-foreground text-xs font-normal">Age {currentAge}</span>
+          </h3>
+          {hasFire && (
+            <button
+              onClick={shareOnX}
+              className="shrink-0 flex items-center gap-1.5 px-2.5 py-1 bg-muted hover:bg-accent text-foreground rounded-lg text-xs font-semibold transition-colors border border-border"
+              title="Share on X"
+            >
+              <span className="font-serif font-bold">𝕏</span>
+              <span className="hidden sm:inline">Share</span>
+            </button>
+          )}
         </div>
 
         {/* 6 core financial KPIs — the dashboard for everyone */}
-        <div className="grid grid-cols-3 sm:grid-cols-6 sm:divide-y-0 xl:grid-cols-2 xl:divide-y divide-x divide-y divide-slate-100 border-b border-slate-100">
+        <div className="grid grid-cols-3 lg:grid-cols-2 divide-x divide-y divide-slate-100 border-b border-slate-100">
           <Kpi
             label="Income"
             value={fmt(monthlyIncome)}
@@ -279,73 +277,67 @@ export function OverviewCard() {
           />
         </div>
 
-        {/* ── FIRE Section: Grade + Progress — shown when expenses exist ── */}
+        {/* ── FIRE Section: Grade + metrics + progress — shown when expenses exist ── */}
         {hasFire && grade && (
-          <>
-            <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
-              <div className="flex items-center gap-3">
-                {/* Grade badge */}
-                <div
-                  className={`w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-xl bg-gradient-to-br ${grade.bg} flex items-center justify-center shadow-lg ring-2 ${grade.ring} ring-offset-2 ring-offset-white`}
-                >
-                  <span className="text-xl sm:text-2xl font-black text-white">{grade.letter}</span>
+          <div className="px-4 py-3 bg-muted/40 space-y-3">
+            {/* Grade badge + headline */}
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br ${grade.bg} flex items-center justify-center shadow-sm`}
+              >
+                <span className="text-xl font-black text-white">{grade.letter}</span>
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-bold text-foreground leading-tight">
+                  {isFireAchieved ? '🎉 FIRE achieved' : 'FIRE grade'}
                 </div>
-
-                {/* FIRE metrics inline */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm sm:text-base font-bold text-slate-900">
-                      {isFireAchieved ? '🎉 FIRE Achieved!' : '🔥 FIRE Grade'}
-                    </span>
-                    <span className="text-xs text-slate-500">{grade.label}</span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-slate-600">
-                    <span>
-                      Target: <strong className="text-slate-800">{fmt(fireNumber)}</strong>
-                    </span>
-                    <span>
-                      {isFireAchieved ? (
-                        <strong className="text-emerald-600">Independent 🎉</strong>
-                      ) : fireAge != null ? (
-                        <>
-                          FIRE at <strong className="text-slate-800">age {fireAge}</strong> (
-                          {fireYear})
-                        </>
-                      ) : (
-                        <strong className="text-amber-600">Not yet reachable</strong>
-                      )}
-                    </span>
-                    {earlyByYears != null && !isFireAchieved && (
-                      <span className="text-emerald-600 font-semibold">
-                        {earlyByYears}y before retirement
-                      </span>
-                    )}
-                    <span>
-                      Savings rate:{' '}
-                      <strong
-                        className={
-                          savingsRate >= 25
-                            ? 'text-emerald-600'
-                            : savingsRate >= 15
-                              ? 'text-indigo-700'
-                              : 'text-rose-600'
-                        }
-                      >
-                        {savingsRate.toFixed(0)}%
-                      </strong>
-                    </span>
-                  </div>
-                </div>
+                <div className="text-xs text-muted-foreground leading-tight">{grade.label}</div>
               </div>
             </div>
 
+            {/* Key metrics — fixed 2-col grid so nothing reflows awkwardly */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
+              <Metric label="Target" value={fmt(fireNumber)} />
+              <Metric
+                label="FIRE date"
+                value={
+                  isFireAchieved
+                    ? 'Reached'
+                    : fireAge != null
+                      ? `Age ${fireAge} · ${fireYear}`
+                      : 'Not reachable'
+                }
+                valueClass={fireAge == null && !isFireAchieved ? 'text-amber-600' : undefined}
+              />
+              <Metric
+                label="Savings rate"
+                value={`${savingsRate.toFixed(0)}%`}
+                valueClass={
+                  savingsRate >= 25
+                    ? 'text-emerald-600'
+                    : savingsRate >= 15
+                      ? 'text-indigo-700'
+                      : 'text-rose-600'
+                }
+              />
+              {earlyByYears != null && !isFireAchieved ? (
+                <Metric
+                  label="vs. retirement"
+                  value={`${earlyByYears}y early`}
+                  valueClass="text-emerald-600"
+                />
+              ) : (
+                <Metric label="Invested" value={fmt(currentInvestments)} />
+              )}
+            </div>
+
             {/* Progress bar */}
-            <div className="px-5 py-3 bg-slate-50">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                  FIRE Progress
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+                  FIRE progress
                 </span>
-                <span className="text-sm font-bold text-slate-800">{progress.toFixed(1)}%</span>
+                <span className="text-sm font-bold text-foreground">{progress.toFixed(0)}%</span>
               </div>
               <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
                 <div
@@ -353,12 +345,8 @@ export function OverviewCard() {
                   style={{ width: `${Math.min(100, progress)}%` }}
                 />
               </div>
-              <div className="flex justify-between mt-1 text-[10px] text-slate-400">
-                <span>Invested: {fmt(currentInvestments)}</span>
-                <span>Target: {fmt(fireNumber)}</span>
-              </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     </>
@@ -379,15 +367,33 @@ function Kpi({
   dot: string;
 }) {
   return (
-    <div className="px-2.5 sm:px-3 py-2.5 sm:py-3 text-center">
-      <div className="flex items-center justify-center gap-1 mb-1">
+    <div className="px-3 py-3">
+      <div className="flex items-center gap-1.5 mb-1">
         <span className={`inline-block w-2 h-2 rounded-full ${dot}`} />
-        <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
           {label}
         </span>
       </div>
-      <div className={`text-base sm:text-lg font-black ${color}`}>{value}</div>
-      {sub && <div className="text-[10px] text-slate-400 mt-0.5 leading-tight">{sub}</div>}
+      <div className={`text-lg font-black leading-none ${color}`}>{value}</div>
+      {sub && <div className="text-[11px] text-slate-400 mt-1 leading-none">{sub}</div>}
+    </div>
+  );
+}
+
+/** Compact label/value pair used in the FIRE metrics grid. */
+function Metric({
+  label,
+  value,
+  valueClass = 'text-slate-800',
+}: {
+  label: string;
+  value: string;
+  valueClass?: string;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[11px] text-muted-foreground leading-none">{label}</div>
+      <div className={`text-sm font-bold leading-tight mt-0.5 truncate ${valueClass}`}>{value}</div>
     </div>
   );
 }

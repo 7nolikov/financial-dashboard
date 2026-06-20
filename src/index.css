@@ -3,16 +3,28 @@
 @tailwind utilities;
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 47.4% 11.2%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
-  --radius: 0.5rem;
+  /* Neutral slate surfaces + a single indigo accent. The app frame is built
+     from these tokens (bg-background / bg-card / border-border / text-muted-
+     foreground / bg-primary) so the chart can stay the one saturated focal
+     point on the page. */
+  --background: 210 40% 98%; /* slate-50 — app canvas */
+  --foreground: 222 47% 11%; /* slate-900 — primary text */
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 243 75% 59%; /* indigo-600 — the only accent */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 96%; /* slate-100 */
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%; /* slate-500 — secondary text */
+  --accent: 226 100% 97%; /* indigo-50 — subtle hover/active wash */
+  --accent-foreground: 243 75% 45%;
+  --border: 214 32% 91%; /* slate-200 */
+  --input: 214 32% 91%;
+  --ring: 243 75% 59%;
+  --radius: 0.75rem;
 }
 
 html,
@@ -52,18 +64,31 @@ pre {
   scroll-behavior: smooth;
 }
 
+/* Horizontal scroller without a visible scrollbar (scenario pills, etc.) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Tap highlight off on mobile */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Ensure minimum 44 × 44 touch targets for all buttons and links (WCAG AA) */
-button,
-a,
-input[type='checkbox'],
-input[type='radio'],
-select {
-  min-height: 44px;
+/* Ensure minimum 44 × 44 touch targets on touch devices (WCAG AA). Scoped to
+   coarse pointers so the desktop toolbar/segmented controls can stay compact
+   and dense instead of being forced 44px tall everywhere. */
+@media (pointer: coarse) {
+  button,
+  a,
+  input[type='checkbox'],
+  input[type='radio'],
+  select {
+    min-height: 44px;
+  }
 }
 
 /* iOS Safari auto-zooms when a focused input has font-size < 16px. Forcing
