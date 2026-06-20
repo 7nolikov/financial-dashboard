@@ -1,4 +1,5 @@
 import React from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
 import { useStore } from '../../state/store';
 import { useSeries } from '../../state/SeriesContext';
 import { buildShareURL } from '../../lib/sharing';
@@ -135,180 +136,180 @@ export function ShareModal() {
   const shareUrl = buildShareURL(state);
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-      onClick={() => setOpen(false)}
-    >
-      {/* Sheet on mobile (slides from bottom), centered modal on desktop */}
-      <div
-        className="bg-white w-full sm:rounded-xl sm:shadow-2xl sm:max-w-lg flex flex-col rounded-t-2xl shadow-2xl max-h-[92vh] sm:max-h-[85vh]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Drag handle (mobile) */}
-        <div className="flex justify-center pt-3 pb-1 sm:hidden">
-          <div className="w-10 h-1 bg-slate-300 rounded-full" />
-        </div>
-
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 sm:py-4 border-b border-slate-200 shrink-0">
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-800">
-              Share Your Financial Plan
-            </h2>
-            <p className="text-xs text-slate-500">Zero data leaves your browser</p>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in data-[state=closed]:fade-out" />
+        {/* Sheet on mobile (slides from bottom), centered modal on desktop. Radix
+            gives Escape, focus trap and scroll lock that the old overlay lacked. */}
+        <Dialog.Content
+          aria-describedby={undefined}
+          className="fixed z-50 inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-full sm:max-w-lg flex flex-col bg-white rounded-t-2xl sm:rounded-xl shadow-2xl max-h-[92vh] sm:max-h-[85vh] focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-bottom sm:data-[state=open]:zoom-in-95"
+        >
+          {/* Drag handle (mobile) */}
+          <div className="flex justify-center pt-3 pb-1 sm:hidden">
+            <div className="w-10 h-1 bg-slate-300 rounded-full" />
           </div>
-          <button
-            className="px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-all text-sm font-medium"
-            onClick={() => setOpen(false)}
-            aria-label="Close share modal"
-          >
-            ✕
-          </button>
-        </div>
 
-        {/* Scrollable options */}
-        <div className="overflow-y-auto flex-1 px-4 sm:px-5 py-4 space-y-3">
-          {/* Copy Link */}
-          <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl shrink-0">🔗</span>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-indigo-800 text-sm">Shareable Link</h3>
-                <p className="text-xs text-indigo-600 mt-0.5 mb-2 line-clamp-2">
-                  Full scenario encoded in URL — anyone with the link sees your exact plan.
-                </p>
-                <button
-                  onClick={copyLink}
-                  className={`w-full sm:w-auto px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                    copied
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                  }`}
-                >
-                  {copied ? '✓ Copied!' : '📋 Copy Link'}
-                </button>
-              </div>
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-3 sm:py-4 border-b border-slate-200 shrink-0">
+            <div>
+              <Dialog.Title className="text-base sm:text-lg font-bold text-slate-800">
+                Share Your Financial Plan
+              </Dialog.Title>
+              <p className="text-xs text-slate-500">Zero data leaves your browser</p>
             </div>
+            <Dialog.Close
+              className="px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-all text-sm font-medium"
+              aria-label="Close share modal"
+            >
+              ✕
+            </Dialog.Close>
           </div>
 
-          {/* Tweet with preview */}
-          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl shrink-0">𝕏</span>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-slate-800 text-sm">Post on X (Twitter)</h3>
-                <p className="text-xs text-slate-600 mt-0.5 mb-2">
-                  Pre-filled with your real FIRE number — the numbers that get reactions.
-                </p>
-                <div className="flex gap-2 flex-wrap">
+          {/* Scrollable options */}
+          <div className="overflow-y-auto flex-1 px-4 sm:px-5 py-4 space-y-3">
+            {/* Copy Link */}
+            <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl shrink-0">🔗</span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-indigo-800 text-sm">Shareable Link</h3>
+                  <p className="text-xs text-indigo-600 mt-0.5 mb-2 line-clamp-2">
+                    Full scenario encoded in URL — anyone with the link sees your exact plan.
+                  </p>
                   <button
-                    onClick={tweetShare}
-                    className="flex-1 sm:flex-none px-4 py-2.5 bg-black text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all"
+                    onClick={copyLink}
+                    className={`w-full sm:w-auto px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                      copied
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    }`}
                   >
-                    Post on 𝕏
-                  </button>
-                  <button
-                    onClick={() => setShowTweetPreview((v) => !v)}
-                    className="flex-1 sm:flex-none px-4 py-2.5 border border-slate-300 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-100 transition-all"
-                  >
-                    {showTweetPreview ? 'Hide preview' : 'Preview text'}
+                    {copied ? '✓ Copied!' : '📋 Copy Link'}
                   </button>
                 </div>
-                {showTweetPreview && (
-                  <div className="mt-3 p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">
-                    {viralText}
-                    {'\n'}
-                    <span className="text-indigo-500 break-all">{shareUrl.slice(0, 60)}…</span>
+              </div>
+            </div>
+
+            {/* Tweet with preview */}
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl shrink-0">𝕏</span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-slate-800 text-sm">Post on X (Twitter)</h3>
+                  <p className="text-xs text-slate-600 mt-0.5 mb-2">
+                    Pre-filled with your real FIRE number — the numbers that get reactions.
+                  </p>
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      onClick={tweetShare}
+                      className="flex-1 sm:flex-none px-4 py-2.5 bg-black text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all"
+                    >
+                      Post on 𝕏
+                    </button>
+                    <button
+                      onClick={() => setShowTweetPreview((v) => !v)}
+                      className="flex-1 sm:flex-none px-4 py-2.5 border border-slate-300 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-100 transition-all"
+                    >
+                      {showTweetPreview ? 'Hide preview' : 'Preview text'}
+                    </button>
                   </div>
-                )}
+                  {showTweetPreview && (
+                    <div className="mt-3 p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">
+                      {viralText}
+                      {'\n'}
+                      <span className="text-indigo-500 break-all">{shareUrl.slice(0, 60)}…</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* WhatsApp */}
+            <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl shrink-0">💬</span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-emerald-800 text-sm">Share on WhatsApp</h3>
+                  <p className="text-xs text-emerald-700 mt-0.5 mb-2">
+                    Challenge a friend or family member to run their numbers too.
+                  </p>
+                  <button
+                    onClick={whatsAppShare}
+                    className="w-full sm:w-auto px-4 py-2.5 bg-[#25D366] text-white rounded-lg text-sm font-semibold hover:bg-[#1ebe58] transition-all"
+                  >
+                    Send on WhatsApp
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Reddit */}
+            <div className="p-4 bg-orange-50 rounded-xl border border-orange-200">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl shrink-0">🔶</span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-orange-800 text-sm">Share on Reddit</h3>
+                  <p className="text-xs text-orange-700 mt-0.5 mb-2">
+                    Perfect for r/personalfinance, r/fire, r/europeanfire communities.
+                  </p>
+                  <button
+                    onClick={redditShare}
+                    className="w-full sm:w-auto px-4 py-2.5 bg-[#FF4500] text-white rounded-lg text-sm font-semibold hover:bg-[#e03d00] transition-all"
+                  >
+                    Post on Reddit
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* LinkedIn */}
+            <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl shrink-0">💼</span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-blue-900 text-sm">Share on LinkedIn</h3>
+                  <p className="text-xs text-blue-700 mt-0.5 mb-2">
+                    Great for FIRE community discussions and professional networks.
+                  </p>
+                  <button
+                    onClick={linkedInShare}
+                    className="w-full sm:w-auto px-4 py-2.5 bg-[#0077B5] text-white rounded-lg text-sm font-semibold hover:bg-[#005885] transition-all"
+                  >
+                    Share on LinkedIn
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Download JPG */}
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl shrink-0">🖼️</span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-slate-800 text-sm">Download Image</h3>
+                  <p className="text-xs text-slate-600 mt-0.5 mb-2">
+                    Export your financial timeline as a high-quality JPEG (2× resolution).
+                  </p>
+                  <button
+                    onClick={download}
+                    disabled={loading}
+                    className="w-full sm:w-auto px-4 py-2.5 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition-all disabled:opacity-50"
+                  >
+                    {loading ? 'Generating…' : '⬇️ Download .jpg'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* WhatsApp */}
-          <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl shrink-0">💬</span>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-emerald-800 text-sm">Share on WhatsApp</h3>
-                <p className="text-xs text-emerald-700 mt-0.5 mb-2">
-                  Challenge a friend or family member to run their numbers too.
-                </p>
-                <button
-                  onClick={whatsAppShare}
-                  className="w-full sm:w-auto px-4 py-2.5 bg-[#25D366] text-white rounded-lg text-sm font-semibold hover:bg-[#1ebe58] transition-all"
-                >
-                  Send on WhatsApp
-                </button>
-              </div>
-            </div>
+          <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 rounded-b-xl shrink-0 safe-bottom">
+            <p className="text-xs text-slate-400 text-center">
+              🔒 Data never stored on any server — all sharing is done locally in your browser.
+            </p>
           </div>
-
-          {/* Reddit */}
-          <div className="p-4 bg-orange-50 rounded-xl border border-orange-200">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl shrink-0">🔶</span>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-orange-800 text-sm">Share on Reddit</h3>
-                <p className="text-xs text-orange-700 mt-0.5 mb-2">
-                  Perfect for r/personalfinance, r/fire, r/europeanfire communities.
-                </p>
-                <button
-                  onClick={redditShare}
-                  className="w-full sm:w-auto px-4 py-2.5 bg-[#FF4500] text-white rounded-lg text-sm font-semibold hover:bg-[#e03d00] transition-all"
-                >
-                  Post on Reddit
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* LinkedIn */}
-          <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl shrink-0">💼</span>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-blue-900 text-sm">Share on LinkedIn</h3>
-                <p className="text-xs text-blue-700 mt-0.5 mb-2">
-                  Great for FIRE community discussions and professional networks.
-                </p>
-                <button
-                  onClick={linkedInShare}
-                  className="w-full sm:w-auto px-4 py-2.5 bg-[#0077B5] text-white rounded-lg text-sm font-semibold hover:bg-[#005885] transition-all"
-                >
-                  Share on LinkedIn
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Download JPG */}
-          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl shrink-0">🖼️</span>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-slate-800 text-sm">Download Image</h3>
-                <p className="text-xs text-slate-600 mt-0.5 mb-2">
-                  Export your financial timeline as a high-quality JPEG (2× resolution).
-                </p>
-                <button
-                  onClick={download}
-                  disabled={loading}
-                  className="w-full sm:w-auto px-4 py-2.5 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition-all disabled:opacity-50"
-                >
-                  {loading ? 'Generating…' : '⬇️ Download .jpg'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 rounded-b-xl shrink-0 safe-bottom">
-          <p className="text-xs text-slate-400 text-center">
-            🔒 Data never stored on any server — all sharing is done locally in your browser.
-          </p>
-        </div>
-      </div>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

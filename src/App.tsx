@@ -71,7 +71,7 @@ function AppShell() {
               id="timeline-capture"
               className="flex-1 min-h-[55vh] lg:min-h-0 flex flex-col rounded-2xl overflow-hidden bg-card border border-border shadow-sm"
             >
-              <AreaChart />
+              <AreaChart onAddData={() => setEditOpen(true)} />
             </div>
           </section>
         </div>

@@ -105,16 +105,33 @@ function formatCompact(n: number | undefined) {
   return `${sign}€${abs.toFixed(0)}`;
 }
 
-type LegendItem = { color: string; label: string; style: 'filled' | 'dashed' };
+type SeriesKey = 'income' | 'expense' | 'invest' | 'loans' | 'netWorth' | 'safety';
+type LegendItem = { key: SeriesKey; color: string; label: string; style: 'filled' | 'dashed' };
 
 const LEGEND: LegendItem[] = [
-  { color: 'bg-emerald-500', label: 'Income', style: 'filled' },
-  { color: 'bg-rose-500', label: 'Expenses', style: 'filled' },
-  { color: 'bg-sky-500', label: 'Investments', style: 'filled' },
-  { color: 'bg-amber-600', label: 'Loans', style: 'dashed' },
-  { color: 'bg-indigo-500', label: 'Net Worth', style: 'filled' },
-  { color: 'bg-orange-500', label: 'Safety', style: 'dashed' },
+  { key: 'netWorth', color: 'bg-indigo-500', label: 'Net Worth', style: 'filled' },
+  { key: 'invest', color: 'bg-sky-500', label: 'Investments', style: 'filled' },
+  { key: 'loans', color: 'bg-amber-600', label: 'Loans', style: 'dashed' },
+  { key: 'income', color: 'bg-emerald-500', label: 'Income', style: 'filled' },
+  { key: 'expense', color: 'bg-rose-500', label: 'Expenses', style: 'filled' },
+  { key: 'safety', color: 'bg-orange-500', label: 'Safety', style: 'dashed' },
 ];
+
+type SeriesVisibility = Record<SeriesKey, boolean>;
+
+// The chart opens on the wealth story — Net Worth, Investments and debt — all
+// of which share a comparable (large) scale. The monthly *flows* (income /
+// expenses) and the safety target sit at a tiny scale next to millions of net
+// worth, so they start hidden and the user reveals them from the legend; the
+// y-axis then rescales to whatever is shown, making each series readable.
+const DEFAULT_VISIBILITY: SeriesVisibility = {
+  netWorth: true,
+  invest: true,
+  loans: true,
+  income: false,
+  expense: false,
+  safety: false,
+};
 
 function LegendSwatch({ color, style }: { color: string; style: 'filled' | 'dashed' }) {
   if (style === 'dashed') {
@@ -131,11 +148,26 @@ function LegendSwatch({ color, style }: { color: string; style: 'filled' | 'dash
   return <span className={`inline-block w-3 h-3 rounded ${color}`} />;
 }
 
-export function AreaChart() {
+export function AreaChart({ onAddData }: { onAddData?: () => void }) {
   const state = useStore();
   const setZoom = useStore((s) => s.setZoom);
   const series = useSeries();
   const visible = series.slice(state.chart.zoom.minMonth, state.chart.zoom.maxMonth);
+
+  // Nothing to plot — the user cleared everything or hasn't started. The chart
+  // would just be an empty grid with a flat zero line, so we overlay a prompt.
+  const isEmpty =
+    state.incomes.length === 0 &&
+    state.expenses.length === 0 &&
+    state.investments.length === 0 &&
+    state.loans.length === 0;
+
+  // Which series are drawn. Toggled from the legend; drives the y-axis scale.
+  const [shown, setShown] = React.useState<SeriesVisibility>(DEFAULT_VISIBILITY);
+  const toggleSeries = React.useCallback(
+    (key: SeriesKey) => setShown((s) => ({ ...s, [key]: !s[key] })),
+    [],
+  );
 
   const milestones = React.useMemo(
     () => deriveMilestones(state.incomes, state.expenses, state.investments, state.loans),
@@ -366,14 +398,21 @@ export function AreaChart() {
     range: [0, innerW],
   });
   const yDomain = React.useMemo(() => {
+    // Only the shown series drive the scale, so hiding the large "stock" series
+    // lets the small monthly flows expand to fill the axis and become legible.
     const vals: number[] = [];
     for (const p of visible) {
-      vals.push(p.income, p.expense, p.invest, p.loans, p.netWorth, p.safety);
+      if (shown.income) vals.push(p.income);
+      if (shown.expense) vals.push(p.expense);
+      if (shown.invest) vals.push(p.invest);
+      if (shown.loans) vals.push(p.loans);
+      if (shown.netWorth) vals.push(p.netWorth);
+      if (shown.safety) vals.push(p.safety);
     }
     const min = Math.min(...vals, 0);
     const max = Math.max(...vals, 1);
     return [min, max] as [number, number];
-  }, [visible]);
+  }, [visible, shown]);
   const y = scaleLinear<number>({ domain: yDomain, range: [innerH, 0] });
 
   return (
@@ -391,34 +430,57 @@ export function AreaChart() {
             </span>
           </div>
 
-          {/* Legend — readable labels on sm+, color dots on mobile. */}
-          <div
-            className="hidden sm:flex flex-wrap items-center gap-x-3 gap-y-1.5 shrink-0"
-            role="list"
-            aria-label="Chart series legend"
-          >
-            {LEGEND.map(({ color, label, style }) => (
-              <span key={label} role="listitem" className="flex items-center gap-1.5">
-                <LegendSwatch color={color} style={style} />
-                <span className="text-[11px] font-medium text-slate-600">{label}</span>
-              </span>
-            ))}
+          {/* Legend — interactive: click any series to show/hide it. Hiding the
+              large stock series rescales the axis so the flows become readable.
+              Labels on sm+, color dots on mobile. */}
+          <div className="hidden sm:flex flex-wrap items-center gap-x-1 gap-y-1 shrink-0">
+            {LEGEND.map(({ key, color, label, style }) => {
+              const on = shown[key];
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  role="switch"
+                  aria-checked={on}
+                  onClick={() => toggleSeries(key)}
+                  title={on ? `Hide ${label}` : `Show ${label}`}
+                  className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors hover:bg-muted ${
+                    on ? '' : 'opacity-40'
+                  }`}
+                >
+                  <LegendSwatch color={color} style={style} />
+                  <span
+                    className={`text-[11px] font-medium text-slate-600 ${on ? '' : 'line-through'}`}
+                  >
+                    {label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
-          {/* Mobile-only compact legend */}
-          <div
-            className="flex sm:hidden items-center gap-1.5 shrink-0"
-            role="list"
-            aria-label="Chart series legend"
-          >
-            {LEGEND.map(({ color, label }) => (
-              <span
-                key={label}
-                role="listitem"
-                title={label}
-                className={`inline-block w-2.5 h-2.5 rounded-full ring-1 ring-white shadow-sm ${color}`}
-                aria-label={label}
-              />
-            ))}
+          {/* Mobile-only compact legend — tap a dot to toggle that series. */}
+          <div className="flex sm:hidden items-center gap-1.5 shrink-0">
+            {LEGEND.map(({ key, color, label }) => {
+              const on = shown[key];
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  role="switch"
+                  aria-checked={on}
+                  onClick={() => toggleSeries(key)}
+                  title={on ? `Hide ${label}` : `Show ${label}`}
+                  aria-label={`${on ? 'Hide' : 'Show'} ${label}`}
+                  className="p-0.5"
+                >
+                  <span
+                    className={`inline-block w-2.5 h-2.5 rounded-full ring-1 ring-white shadow-sm ${color} ${
+                      on ? '' : 'opacity-30'
+                    }`}
+                  />
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -462,10 +524,11 @@ export function AreaChart() {
                   y={y}
                   data={visible}
                   innerH={innerH}
+                  shown={shown}
                   fireDateMonth={fireDateMonth}
                   retirementMonth={retirementMonth}
                 />
-                <ExtremumMarkers x={x} y={y} data={visible} />
+                {shown.netWorth && <ExtremumMarkers x={x} y={y} data={visible} />}
                 <Milestones
                   x={x}
                   innerH={innerH}
@@ -485,7 +548,7 @@ export function AreaChart() {
               </g>
             </svg>
 
-            {hovered != null && (
+            {hovered != null && !isEmpty && (
               <HoverTooltip
                 x={padding.left + x(hovered)}
                 y={padding.top + 2}
@@ -500,6 +563,29 @@ export function AreaChart() {
                 cashFlow={hoveredPoint?.cashFlow}
                 milestone={milestones.find((m) => m.monthIndex === hovered)?.label}
               />
+            )}
+
+            {isEmpty && (
+              <div className="absolute inset-0 flex items-center justify-center p-4 bg-card/70 backdrop-blur-[1px]">
+                <div className="max-w-xs text-center">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-2xl">
+                    📈
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground">No plan yet</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Pick a scenario above to explore, or add your own income and expenses to see
+                    your projection.
+                  </p>
+                  {onAddData && (
+                    <button
+                      onClick={onAddData}
+                      className="mt-4 inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm"
+                    >
+                      Add income &amp; expenses
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
           </div>
           <div className="shrink-0 flex items-center justify-between gap-2 px-5 py-3 border-t border-slate-200 bg-slate-50 text-xs">
@@ -721,6 +807,7 @@ function SeriesAreas({
   y,
   data,
   innerH,
+  shown,
   fireDateMonth,
   retirementMonth,
 }: {
@@ -728,6 +815,7 @@ function SeriesAreas({
   y: LinearScale;
   data: SeriesPoint[];
   innerH: number;
+  shown: SeriesVisibility;
   fireDateMonth: number | null;
   retirementMonth: number;
 }) {
@@ -770,87 +858,102 @@ function SeriesAreas({
       </defs>
 
       {/* Areas — render order: largest first so smaller series stay visible on top */}
-      <Area
-        data={data}
-        x={toX}
-        y={y}
-        get={(p: { invest: number }) => p.invest}
-        color="url(#invest-fill)"
-        stroke="#0284c7"
-        strokeWidth={1.5}
-      />
-      <Area
-        data={data}
-        x={toX}
-        y={y}
-        get={(p: { income: number }) => p.income}
-        color="url(#income-fill)"
-        stroke="#059669"
-        strokeWidth={1.5}
-      />
-      <Area
-        data={data}
-        x={toX}
-        y={y}
-        get={(p: { expense: number }) => p.expense}
-        color="url(#expense-fill)"
-        stroke="#e11d48"
-        strokeWidth={1.5}
-      />
+      {shown.invest && (
+        <Area
+          data={data}
+          x={toX}
+          y={y}
+          get={(p: { invest: number }) => p.invest}
+          color="url(#invest-fill)"
+          stroke="#0284c7"
+          strokeWidth={1.5}
+        />
+      )}
+      {shown.income && (
+        <Area
+          data={data}
+          x={toX}
+          y={y}
+          get={(p: { income: number }) => p.income}
+          color="url(#income-fill)"
+          stroke="#059669"
+          strokeWidth={1.5}
+        />
+      )}
+      {shown.expense && (
+        <Area
+          data={data}
+          x={toX}
+          y={y}
+          get={(p: { expense: number }) => p.expense}
+          color="url(#expense-fill)"
+          stroke="#e11d48"
+          strokeWidth={1.5}
+        />
+      )}
 
       {/* Lines */}
-      <Line
-        data={data}
-        x={toX}
-        y={y}
-        get={(p: { loans: number }) => p.loans}
-        stroke="#d97706"
-        dash="4 3"
-        strokeWidth={1.5}
-      />
-      <Line
-        data={data}
-        x={toX}
-        y={y}
-        get={(p: { netWorth: number }) => p.netWorth}
-        stroke="#4f46e5"
-        strokeWidth={2.5}
-      />
-      <Line
-        data={data}
-        x={toX}
-        y={y}
-        get={(p: { safety: number }) => p.safety}
-        stroke="#f97316"
-        dash="2 2"
-        strokeWidth={1.5}
-      />
-
-      {/* Danger zones — one rect per contiguous range */}
-      {dangerRanges.map((r) => (
-        <rect
-          key={`danger-${r.start}`}
-          x={x(r.start)}
-          y={0}
-          width={Math.max(1, x(r.end) - x(r.start))}
-          height={innerH}
-          fill="rgba(239,68,68,0.10)"
-          className="pointer-events-none"
+      {shown.loans && (
+        <Line
+          data={data}
+          x={toX}
+          y={y}
+          get={(p: { loans: number }) => p.loans}
+          stroke="#d97706"
+          dash="4 3"
+          strokeWidth={1.5}
         />
-      ))}
-
-      {/* Warning zones — one rect per contiguous range */}
-      {warningRanges.map((r) => (
-        <rect
-          key={`warning-${r.start}`}
-          x={x(r.start)}
-          y={0}
-          width={Math.max(1, x(r.end) - x(r.start))}
-          height={innerH}
-          fill="rgba(245,158,11,0.10)"
-          className="pointer-events-none"
+      )}
+      {shown.netWorth && (
+        <Line
+          data={data}
+          x={toX}
+          y={y}
+          get={(p: { netWorth: number }) => p.netWorth}
+          stroke="#4f46e5"
+          strokeWidth={2.5}
         />
-      ))}
+      )}
+      {shown.safety && (
+        <Line
+          data={data}
+          x={toX}
+          y={y}
+          get={(p: { safety: number }) => p.safety}
+          stroke="#f97316"
+          dash="2 2"
+          strokeWidth={1.5}
+        />
+      )}
+
+      {/* Danger zones — shown only when the Net Worth series they annotate is visible */}
+      {shown.netWorth &&
+        dangerRanges.map((r) => (
+          <rect
+            key={`danger-${r.start}`}
+            x={x(r.start)}
+            y={0}
+            width={Math.max(1, x(r.end) - x(r.start))}
+            height={innerH}
+            fill="rgba(239,68,68,0.10)"
+            className="pointer-events-none"
+          />
+        ))}
+
+      {/* Warning zones — reference both Net Worth and the Safety target */}
+      {shown.netWorth &&
+        shown.safety &&
+        warningRanges.map((r) => (
+          <rect
+            key={`warning-${r.start}`}
+            x={x(r.start)}
+            y={0}
+            width={Math.max(1, x(r.end) - x(r.start))}
+            height={innerH}
+            fill="rgba(245,158,11,0.10)"
+            className="pointer-events-none"
+          />
+        ))}
 
       {/* Retirement age line */}
       {retireVisible && (
@@ -997,12 +1100,25 @@ function Milestones({
 }) {
   const [min, max] = zoom;
   const visible = milestones.filter((m) => m.monthIndex >= min && m.monthIndex <= max);
+  if (visible.length === 0) return null;
 
-  // Truncate long labels in SVG — keep first 20 chars
-  const maxLabelLen = 20;
+  // Every event keeps a subtle tick + dot, but only an evenly-spaced few get a
+  // text pill — otherwise dense clusters (a run of salary changes) pile into an
+  // unreadable stack of overlapping labels. The rest stay discoverable via the
+  // hover tooltip.
+  const maxLabelLen = 18;
+  const MAX_LABELS = 5;
+  const labeled = new Set<number>();
+  if (visible.length <= MAX_LABELS) {
+    visible.forEach((_, i) => labeled.add(i));
+  } else {
+    for (let k = 0; k < MAX_LABELS; k++) {
+      labeled.add(Math.round((k * (visible.length - 1)) / (MAX_LABELS - 1)));
+    }
+  }
 
-  const labelHeight = 20;
-  const labelSpacing = 5;
+  const labelHeight = 18;
+  const labelSpacing = 4;
   const labelPositions: Array<{
     ms: DerivedMilestone;
     x: number;
@@ -1011,11 +1127,12 @@ function Milestones({
     text: string;
   }> = [];
 
-  visible.forEach((m) => {
+  visible.forEach((m, i) => {
+    if (!labeled.has(i)) return;
     const xPos = x(m.monthIndex);
     const text = m.label.length > maxLabelLen ? m.label.slice(0, maxLabelLen) + '…' : m.label;
-    const estimatedWidth = text.length * 6.5 + 16;
-    labelPositions.push({ ms: m, x: xPos, y: innerH - 8, width: estimatedWidth, text });
+    const estimatedWidth = text.length * 6.2 + 14;
+    labelPositions.push({ ms: m, x: xPos, y: innerH - 10, width: estimatedWidth, text });
   });
 
   const resolved: Array<{ ms: DerivedMilestone; x: number; y: number; text: string }> = [];
@@ -1023,7 +1140,6 @@ function Milestones({
 
   labelPositions.forEach((label) => {
     let finalY = label.y;
-    // Push upward (negative direction) to stay inside chart
     let hasOverlap = true;
     let attempts = 0;
     while (hasOverlap && attempts < 5) {
@@ -1043,35 +1159,44 @@ function Milestones({
       }
       attempts++;
     }
-    // Clamp: don't go above chart top
     finalY = Math.max(labelHeight + 4, finalY);
     occupied.push({ x: label.x, width: label.width, bottomY: finalY + labelHeight });
     resolved.push({ ms: label.ms, x: label.x, y: finalY, text: label.text });
   });
 
   return (
-    <g>
-      {resolved.map((pos) => {
-        const textWidth = pos.text.length * 6.2 + 14;
+    <g className="pointer-events-none">
+      {/* Subtle tick + dot for every milestone in view */}
+      {visible.map((m) => {
+        const xPos = x(m.monthIndex);
         return (
-          <g key={pos.ms.id} className="pointer-events-none">
+          <g key={m.id}>
             <line
-              x1={pos.x}
-              x2={pos.x}
+              x1={xPos}
+              x2={xPos}
               y1={0}
               y2={innerH}
-              stroke="#94a3b8"
+              stroke="#cbd5e1"
               strokeDasharray="3 3"
               strokeWidth={1}
+              opacity={0.6}
             />
             <circle
-              cx={pos.x}
-              cy={pos.y + 4}
-              r={3}
+              cx={xPos}
+              cy={innerH - 6}
+              r={2.5}
               fill="#6366f1"
               stroke="white"
               strokeWidth={1.5}
             />
+          </g>
+        );
+      })}
+      {/* Text pills for the capped subset */}
+      {resolved.map((pos) => {
+        const textWidth = pos.text.length * 6.2 + 14;
+        return (
+          <g key={`label-${pos.ms.id}`}>
             <rect
               x={pos.x - textWidth / 2}
               y={pos.y - 14}
@@ -1079,7 +1204,7 @@ function Milestones({
               height={16}
               rx={4}
               fill="#6366f1"
-              opacity={0.85}
+              opacity={0.9}
             />
             <text
               x={pos.x}

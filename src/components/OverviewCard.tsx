@@ -129,6 +129,12 @@ export function OverviewCard() {
   const [showConfetti, setShowConfetti] = React.useState(false);
   const confettiShownRef = React.useRef(false);
 
+  const isEmpty =
+    state.incomes.length === 0 &&
+    state.expenses.length === 0 &&
+    state.investments.length === 0 &&
+    state.loans.length === 0;
+
   const dobYear = new Date(state.dobISO).getFullYear();
   const currentYear = new Date().getFullYear();
   const currentAgeMonths = Math.max(0, (currentYear - dobYear) * 12);
@@ -276,6 +282,17 @@ export function OverviewCard() {
             dot="bg-teal-500"
           />
         </div>
+
+        {/* Empty-state hint — the FIRE section is hidden with no data, so guide
+            the user instead of leaving a wall of €0s unexplained. */}
+        {isEmpty && (
+          <div className="px-4 py-3 bg-muted/40">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Pick a scenario or add your income &amp; expenses to see your FIRE grade and lifetime
+              projection.
+            </p>
+          </div>
+        )}
 
         {/* ── FIRE Section: Grade + metrics + progress — shown when expenses exist ── */}
         {hasFire && grade && (
